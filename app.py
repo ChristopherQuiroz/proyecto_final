@@ -18,22 +18,22 @@ def home():
 def addProduct():
     products = db['products']
     name = request.form['name']
-    price = request.form['price']
-    quantity = request.form['quantity']
     description = request.form['description']
     category = request.form['category']
+    price = request.form['price']
     status = request.form['status']
+    quantity = request.form['quantity']
 
-    if name and price and quantity and description and category and status:
-        product = Product(name, price, quantity, description, category, status)
+    if name and description and category and price and status and quantity:
+        product = Product(name, description, category, price, status, quantity)
         products.insert_one(product.toDBCollection())
         response = jsonify({
             'name' : name,
-            'price' : price,
-            'quantity' : quantity,
             'description' : description,
             'category' : category,
-            'status' : status
+            'price' : price,
+            'status' : status,
+            'quantity' : quantity
         })
         return redirect(url_for('home'))
     else:
