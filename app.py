@@ -64,6 +64,7 @@ def edit(product_name):
     else:
         return notFound()
 
+#Errors
 @app.errorhandler(404)
 def notFound(error=None):
     message ={
