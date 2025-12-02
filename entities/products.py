@@ -1,7 +1,10 @@
 class Product:
-    def __init__(self, name, price, quantity):
+    def __init__(self, name, description, category, price, status, quantity):
         self.name = name
+        self.description = description
+        self.category = category
         self.price = price
+        self.status = status
         self.quantity = quantity
 
     def toDBCollection(self):
