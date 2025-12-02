@@ -1,84 +1,160 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
-
+    <title>Repostería Dulce Sabor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 </head>
+
 <body>
 
-    <div class="container">
-        <h1 class="text-center mt-5 mb-5">APP API-REST PYTHON - FLASK - MONGODB</h1>
-    </div>
+    <!-- NAVBAR -->
+    <header class="header">
+        <div class="nav-container">
+            <button class="menu-btn">
+            //<i class="fas fa-bars"></i>
+        </button>
+            <img src="{{ url_for('static', filename='img/logo.jpg') }}" class="logo-navbar">
 
-    <div class="container">
-        <div class="row row-col-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2">
-            <div class="col-md-6 mb-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="text-center">Alta producto</h5>
-                    </div>
-                    <div class="card-body">
-                        <form action="/products" method="POST">
-                            <label>Nombre</label>
-                            <input type="text" class="form-control mb-3" name="name">
-                            <label>Descripcion</label>
-                            <input type="text" class="form-control mb-3" name="description">
-                            <label>Categoria</label>
-                            <input type="text" class="form-control mb-3" name="category">
-                            <label>Precio</label>
-                            <input type="text" class="form-control mb-3" name="price">
-                            <label>Estado</label>
-                            <input type="text" class="form-control mb-3" name="status">
-                            <label>Cantidad</label>
-                            <input type="text" class="form-control mb-3" name="quantity">
-                            <button class="btn btn-primary" type="submit">Guardar</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
 
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="text-center">Productos</h5>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group">
-                            <div class="row row-col-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-3">
-                                {% for product in products %}
+            <input type="text" placeholder="Buscar..." class="search-bar">
 
-                                    <div class="col">
-                                        <li class="list-group-item mb-3">
-                                            <form action="/edit/{{product.name}}" method="POST">
-                                                <input type="text" class="form-control" value="{{product.name}}" name="name">
-                                                <label>Descripcion</label>
-                                                <input type="text" class="form-control" value="{{product.description}}" name="description">
-                                                <label>Categoria</label>
-                                                <input type="text" class="form-control" value="{{product.category}}" name="category">
-                                                <input type="text" class="form-control mt-2" value="{{product.price}}" name="price">
-                                                <label>Estado</label>
-                                                <input type="text" class="form-control" value="{{product.status}}" name="status">
-                                                <label>Cantidad</label>
-                                                <input type="text" class="form-control" value="{{product.quantity}}" name="quantity">
-                                                <button class="btn btn-primary btn-sm mt-3" type="submit">Editar</button>
-                                                <a href="{{url_for('delete', product_name=product.name)}}" class="btn btn-danger btn-sm mt-3">Eliminar</a>
-
-                                            </form>
-                                        </li>
-                                    </div>
-
-                                {% endfor %}
-                            </div>
-                        </ul>
-                    </div> 
-                </div>
+            <div class="nav-icons">
+                <img src="{{ url_for('static', filename='img/licencia.png') }}" class="icon">
+                <img src="{{ url_for('static', filename='img/usuario.png') }}" class="icon">
+                <img src="{{ url_for('static', filename='img/menu.png') }}" class="icon">
             </div>
         </div>
-    </div>
-    
+    </header>
+
+    <!-- BANNER -->
+    <section class="banner">
+        <img src="{{ url_for('static', filename='img/img.jpg') }}" class=" banner-img">
+        <div class="banner-text">dulce sabor</div>
+    </section>
+
+    <!-- PRODUCTOS -->
+    <section class="section-title">PRODUCTOS</section>
+
+    <section class="productos">
+
+        <div class="product-card">
+            <img src="{{ url_for('static', filename='img/pastel_choco.jpg') }}" class="product-img">
+            <h3>Pastel de Chocolate</h3>
+            <p>$25.00</p>
+            <p>Pastel suave con chocolate 70% cacao.</p>
+        </div>
+
+        <div class="product-card">
+            <img src="{{ url_for('static', filename='img/pastel_fresa.jpg') }}" class="product-img">
+            <h3>Pastel de Fresa</h3>
+            <p>$28.00</p>
+            <p>Bizcocho con relleno de fresa natural.</p>
+        </div>
+
+        <div class="product-card">
+            <img src="{{ url_for('static', filename='img/cupcake_vainilla.jpg') }}" class="product-img">
+            <h3>Cupcakes Vainilla (6u)</h3>
+            <p>$12.00</p>
+            <p>Decoración clásica y textura suave.</p>
+        </div>
+
+        <div class="product-card">
+            <img src="{{ url_for('static', filename='img/cupcake_choco.jpg') }}" class="product-img">
+            <h3>Cupcakes Chocolate (6u)</h3>
+            <p>$14.00</p>
+            <p>Cupcakes intensos con cacao.</p>
+        </div>
+
+        <div class="product-card">
+            <img src="{{ url_for('static', filename='img/empanada_pollo.jpg') }}" class="product-img">
+            <h3>Empanadas de Pollo (6u)</h3>
+            <p>$10.00</p>
+            <p>Empanadas caseras con relleno jugoso.</p>
+        </div>
+
+        <div class="product-card">
+            <img src="{{ url_for('static', filename='img/pan_queso.jpg') }}" class="product-img">
+            <h3>Pan de Queso</h3>
+            <p>$5.00</p>
+            <p>Pan suave relleno de queso derretido.</p>
+        </div>
+
+        <div class="product-card">
+            <img src="{{ url_for('static', filename='img/galletas.jpg') }}" class="product-img">
+            <h3>Galletas Decoradas (6u)</h3>
+            <p>$9.00</p>
+            <p>Galletas decoradas para ocasiones especiales.</p>
+        </div>
+
+        <div class="product-card">
+            <img src="{{ url_for('static', filename='img/red_velvet.jpg') }}" class="product-img">
+            <h3>Torta Red Velvet Premium</h3>
+            <p>$35.00</p>
+            <p>Bizcocho rojo y crema suave especial.</p>
+        </div>
+
+    </section>
+
+    <!-- CATEGORÍAS -->
+    <section class="section-title-cats">CATEGORÍAS</section>
+
+    <section class="categorias">
+
+        <div class="cat-card">
+            <img src="{{ url_for('static', filename='img/cake.png') }}" class="cat-img">
+            <h3>Dulces</h3>
+            <p>Postres, tortas y delicias azucaradas.</p>
+        </div>
+
+        <div class="cat-card">
+            <img src="{{ url_for('static', filename='img/pan.png') }}" class="cat-img">
+            <h3>Salados</h3>
+            <p>Panes, empanadas y bocaditos.</p>
+        </div>
+
+        <div class="cat-card">
+            <img src="{{ url_for('static', filename='img/galleta.png') }}" class="cat-img">
+            <h3>Galletas</h3>
+            <p>Galletas suaves, crujientes y decoradas.</p>
+        </div>
+
+        <div class="cat-card">
+            <img src="{{ url_for('static', filename='img/cupcake.png') }}" class="cat-img">
+            <h3>Cupcakes</h3>
+            <p>Sabores variados con decoraciones únicas.</p>
+        </div>
+
+        <div class="cat-card">
+            <img src="{{ url_for('static', filename='img/torta.png') }}" class="cat-img">
+            <h3>Tortas Especiales</h3>
+            <p>Tortas premium personalizadas.</p>
+        </div>
+
+        <div class="cat-card">
+            <img src="{{ url_for('static', filename='img/bebida.png') }}" class="cat-img">
+            <h3>Bebidas</h3>
+            <p>Opciones frías y calientes para acompañar.</p>
+        </div>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div>
+            <h3>nombre de la repostería</h3>
+            <p>dirección</p>
+            <p>contacto</p>
+        </div>
+        <div>
+            <h3>dirección</h3>
+            <p>ubicación</p>
+        </div>
+        <div>
+            <h3>atención</h3>
+            <p>horarios</p>
+        </div>
+    </footer>
+
 </body>
 </html>
