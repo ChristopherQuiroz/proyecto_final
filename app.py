@@ -6,6 +6,44 @@ db = dbase.dbConnection()
 
 app = Flask(__name__)
 
+@app.route('/categorias')
+def mostrar_categorias():
+    # Datos simulados para probar el frontend
+    categoriasData = [
+        {'nombre': 'Pastelería'},
+        {'nombre': 'Bebidas'},
+        {'nombre': 'Panadería'},
+        {'nombre': 'Dulces'},
+        {'nombre': 'Salado'}
+    ]
+    productosData = [
+        {
+            'nombre': 'Cupcake',
+            'descripcion': 'Delicioso cupcake de vainilla',
+            'precio': 10,
+            'imagen': '/static/img/cupcake.png'
+        },
+        {
+            'nombre': 'Galleta',
+            'descripcion': 'Galleta de chocolate',
+            'precio': 5,
+            'imagen': '/static/img/galleta.png'
+        }
+    ]
+    
+    return render_template('categorias.html', categorias=categoriasData, productos=productosData)
+
+@app.route("/admin_categorias")
+def admin_categorias():
+    categoriasData = [
+        {'nombre': 'Pastelería'},
+        {'nombre': 'Bebidas'},
+        {'nombre': 'Panadería'},
+        {'nombre': 'Dulces'},
+        {'nombre': 'Salado'}
+    ]
+    return render_template("admin_categorias.html", categorias=categoriasData)
+
 #Rutas de la aplicación
 @app.route('/')
 def home():
