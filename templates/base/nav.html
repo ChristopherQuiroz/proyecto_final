@@ -1,0 +1,29 @@
+<nav class="topbar">
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    <span class="nav-title">{{ rol|upper }}</span>
+</nav>
+
+<div class="sidebar" id="sidebar">
+    <button class="close-btn" onclick="toggleSidebar()">×</button>
+
+    <h3>{{ rol|upper }}</h3>
+
+    <ul>
+        {% if rol == "empleado" %}
+       <li><a href="/empleado/clientes" >Gestionar Clientes</a></li>
+        <li><a href="/empleado/crear_pedido">Crear Pedido</a></li>
+        <li><a href="/empleado/pedidos">Ver Pedidos</a></li>
+        {% elif rol == "admin" %}
+        <li><a href="/admin/usuarios">Usuarios</a></li>
+        <li><a href="/admin/categorias">Categorías</a></li>
+        <li><a href="/admin/reportes">Reportes</a></li>
+
+        {% elif rol == "cliente" %}
+        <li><a href="/cliente/productos">Productos</a></li>
+        <li><a href="/cliente/carrito">Carrito</a></li>
+        <li><a href="/cliente/pedidos">Mis pedidos</a></li>
+        {% endif %}
+
+        
+    </ul>
+</div>

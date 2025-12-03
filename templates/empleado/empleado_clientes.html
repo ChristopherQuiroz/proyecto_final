@@ -1,0 +1,20 @@
+{% extends "layout_empleado.html" %}
+
+{% block extra_css %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/empleado/empleado_clientes.css') }}">
+{% endblock %}
+
+{% block empleado_content %}
+
+<h1 class="titulo">Clientes</h1>
+
+<div class="acciones">
+    <button class="btn-agregar" onclick="abrirModal()">Agregar Cliente</button>
+</div>
+
+<table class="tabla">
+    ...
+</table>
+
+{% endblock %}

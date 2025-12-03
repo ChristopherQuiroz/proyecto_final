@@ -1,0 +1,63 @@
+{% extends "cliente/layout_cliente.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cliente/index.css') }}">
+{% endblock %}
+
+{% block cliente_content %}
+
+<!-- Banner -->
+<section class="banner">
+    <img src="{{ url_for('static', filename='img/img.jpg') }}" class="banner-img">
+    <div class="banner-text">Dulce Sabor</div>
+</section>
+
+<!-- Productos Destacados -->
+<section class="section-title">PRODUCTOS</section>
+
+<section class="productos">
+
+    {% for p in productos %}
+    <div class="product-card">
+        <img src="{{ p.imagen }}" class="product-img">
+        <h3>{{ p.nombre }}</h3>
+        <p>{{ p.precio }} Bs</p>
+        <p>{{ p.descripcion }}</p>
+    </div>
+    {% endfor %}
+
+</section>
+
+<!-- Categorías -->
+<section class="section-title-cats">CATEGORÍAS</section>
+
+<section class="categorias">
+
+    {% for cat in categorias %}
+    <div class="cat-card">
+        <img src="{{ url_for('static', filename='img/' + cat.icono) }}" class="cat-img">
+        <h3>{{ cat.nombre }}</h3>
+        <p>{{ cat.descripcion }}</p>
+    </div>
+    {% endfor %}
+
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div>
+        <h3>nombre de la repostería</h3>
+        <p>dirección</p>
+        <p>contacto</p>
+    </div>
+    <div>
+        <h3>dirección</h3>
+        <p>ubicación</p>
+    </div>
+    <div>
+        <h3>atención</h3>
+        <p>horarios</p>
+    </div>
+</footer>
+
+{% endblock %}

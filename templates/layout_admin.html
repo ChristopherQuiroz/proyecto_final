@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/layout_admin.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/categorias.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/global_nav.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/nav.css') }}">
+{% endblock %}
+
+{% block navbar %}
+    {% include 'base/nav.html' %}
+{% endblock %}
+
+{% block content %}
+    {% block admin_content %}{% endblock %}
+{% endblock %}

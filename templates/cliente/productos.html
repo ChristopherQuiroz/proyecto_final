@@ -1,0 +1,42 @@
+{% extends "layout_cliente.html" %}
+
+{% block cliente_content %}
+
+<h1 class="text-center mb-4">PRODUCTOS</h1>
+
+<!-- Barra de búsqueda -->
+<div class="d-flex justify-content-center mb-4">
+    <form method="GET" class="d-flex" style="max-width: 400px; width:100%;">
+        <input type="text" class="form-control me-2" name="buscar" placeholder="Buscar">
+        <button class="btn btn-outline-dark" type="submit">
+            <i class="bi bi-search"></i>
+        </button>
+    </form>
+</div>
+
+<!-- Grid de productos -->
+<div class="row justify-content-center">
+
+    {% for p in productos %}
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+
+        <div class="card producto-card">
+            <img src="{{ p.imagen }}" class="card-img-top" alt="{{ p.nombre }}">
+
+            <div class="card-body">
+                <h5 class="card-title">{{ p.nombre }}</h5>
+                <p class="card-text precio">Bs. {{ p.precio }}</p>
+                <p class="card-text descripcion">{{ p.descripcion }}</p>
+
+                <a href="/cliente/producto/{{ p.id }}" class="btn btn-dark w-100">
+                    Ver más
+                </a>
+            </div>
+        </div>
+
+    </div>
+    {% endfor %}
+
+</div>
+
+{% endblock %}

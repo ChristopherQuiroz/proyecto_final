@@ -1,33 +1,18 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administrador de Categorías</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_categoria.css') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-</head>
-<body>
+{% extends "layout_admin.html" %}
 
-<header class="header">
-    <div class="header-left">Admin</div>
-    <div class="header-right">👤</div>
-</header>
+{% block admin_content %}
 
 <h1 class="titulo-cat">ADMIN - CATEGORÍAS</h1>
 
-<!-- BUSCADOR Y BOTÓN AGREGAR -->
 <div class="buscador-agregar">
     <input type="text" id="buscar-cat" placeholder="Buscar categoría">
     <button id="btn-agregar">Agregar categoría</button>
 </div>
 
-<!-- GRID DE CATEGORÍAS -->
 <div class="productos-grid">
     {% for cat in categorias %}
     <div class="card-producto">
-        <img src="{{ url_for('static', filename='img/cupcake.png') }}" alt="icono" class="producto-img">
+        <img src="{{ url_for('static', filename='img/cupcake.png') }}" class="producto-img">
         <div class="producto-info">
             <h3>{{ cat.nombre }}</h3>
             <div class="acciones-cat">
@@ -39,18 +24,16 @@
     {% endfor %}
 </div>
 
-<!-- MODAL AGREGAR / EDITAR -->
-<div id="modal" class="modal" style="display: none;">
+<div id="modal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
         <form id="form-modal" method="POST">
             <h3 id="modal-title">Agregar Categoría</h3>
-            <input type="text" name="name" placeholder="Nombre de la categoría" required>
+            <input type="text" name="name" required>
             <button type="submit">Guardar</button>
         </form>
     </div>
 </div>
-
 
 <script>
     const modal = document.getElementById('modal');
@@ -59,7 +42,6 @@
     const modalTitle = document.getElementById('modal-title');
     const formModal = document.getElementById('form-modal');
 
-    // Abrir modal para agregar
     btnAgregar.addEventListener('click', () => {
         modal.style.display = 'block';
         modalTitle.textContent = 'Agregar Categoría';
@@ -67,7 +49,6 @@
         formModal.name.value = '';
     });
 
-    // Abrir modal para editar
     document.querySelectorAll('.btn-editar').forEach(btn => {
         btn.addEventListener('click', () => {
             const nombre = btn.dataset.nombre;
@@ -78,13 +59,12 @@
         });
     });
 
-    // Cerrar modal
     closeModal.addEventListener('click', () => modal.style.display = 'none');
+
     window.addEventListener('click', e => {
-        if(e.target === modal) modal.style.display = 'none';
+        if (e.target === modal) modal.style.display = 'none';
     });
 
-    // Buscador en vivo
     const inputBuscar = document.getElementById('buscar-cat');
     inputBuscar.addEventListener('input', () => {
         const term = inputBuscar.value.toLowerCase();
@@ -95,5 +75,4 @@
     });
 </script>
 
-</body>
-</html>
+{% endblock %}
