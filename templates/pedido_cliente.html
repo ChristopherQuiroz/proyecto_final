@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realizar Pedido</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pedido_cliente.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="header">
+    <div class="header-left"><div class="menu-icon">☰</div></div>
+    <div class="header-right"><div class="user-icon">👤</div></div>
+</header>
+
+<h1 class="titulo-cat">Productos</h1>
+
+<!-- Buscador -->
+<div class="buscador-container">
+    <input type="text" placeholder="Buscar producto" class="input-buscar" id="buscar-producto">
+    <button class="btn-buscar">🔍</button>
+</div>
+
+<!-- GRID DE PRODUCTOS -->
+<section class="productos-grid">
+    {% for p in productos %}
+    <div class="card-producto">
+        <img src="{{ p.imagen }}" class="producto-img">
+        <div class="producto-info">
+            <h3>{{ p.nombre }}</h3>
+            <p class="precio">Precio: {{ p.precio }} Bs</p>
+            <p class="descripcion">{{ p.descripcion }}</p>
+            <div class="pedido-control">
+                <input type="number" min="1" value="1" class="cantidad-producto">
+                <button class="btn-agregar-pedido" data-id="{{ p.id }}" data-nombre="{{ p.nombre }}" data-precio="{{ p.precio }}">Agregar</button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</section>
+
+<!-- MODAL PEDIDO -->
+<div id="modal-pedido" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Pedido Actual</h3>
+        <div id="lista-pedido"></div>
+        <p>Total: <span id="total-pedido">0</span> Bs</p>
+        <button id="confirmar-pedido">Confirmar Pedido</button>
+    </div>
+</div>
+
+<script>
+    const modalPedido = document.getElementById('modal-pedido');
+    const closePedido = modalPedido.querySelector('.close');
+    const listaPedido = document.getElementById('lista-pedido');
+    const totalPedidoEl = document.getElementById('total-pedido');
+    let pedido = [];
+
+    // Abrir modal al agregar producto
+    document.querySelectorAll('.btn-agregar-pedido').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            const nombre = btn.dataset.nombre;
+            const precio = parseFloat(btn.dataset.precio);
+            const cantidadInput = btn.previousElementSibling;
+            const cantidad = parseInt(cantidadInput.value);
+
+            const existente = pedido.find(item => item.id === id);
+            if (existente) {
+                existente.cantidad += cantidad;
+            } else {
+                pedido.push({id, nombre, precio, cantidad});
+            }
+
+            renderPedido();
+            modalPedido.style.display = 'flex';
+        });
+    });
+
+    // Cerrar modal
+    closePedido.addEventListener('click', () => modalPedido.style.display = 'none');
+    window.addEventListener('click', e => { if (e.target === modalPedido) modalPedido.style.display = 'none'; });
+
+    function renderPedido() {
+        listaPedido.innerHTML = '';
+        let total = 0;
+        pedido.forEach((item, index) => {
+            total += item.precio * item.cantidad;
+            const div = document.createElement('div');
+            div.classList.add('item-pedido');
+            div.innerHTML = `
+                <span>${item.nombre} x ${item.cantidad}</span>
+                <div>
+                    <button onclick="cambiarCantidad(${index}, -1)">-</button>
+                    <button onclick="cambiarCantidad(${index}, 1)">+</button>
+                    <button onclick="eliminarProducto(${index})">Eliminar</button>
+                </div>
+            `;
+            listaPedido.appendChild(div);
+        });
+        totalPedidoEl.textContent = total.toFixed(2);
+    }
+
+    function cambiarCantidad(index, delta) {
+        pedido[index].cantidad += delta;
+        if (pedido[index].cantidad < 1) pedido[index].cantidad = 1;
+        renderPedido();
+    }
+
+    function eliminarProducto(index) {
+        pedido.splice(index, 1);
+        renderPedido();
+    }
+
+    document.getElementById('confirmar-pedido').addEventListener('click', () => {
+        if(pedido.length === 0) return alert('Agrega productos antes de confirmar.');
+        fetch('/crear_pedido', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({productos: pedido})
+        }).then(res => res.json())
+          .then(data => {
+              alert('Pedido confirmado!');
+              pedido = [];
+              renderPedido();
+              modalPedido.style.display = 'none';
+          });
+    });
+
+    // Buscador en vivo
+    const inputBuscar = document.getElementById('buscar-producto');
+    inputBuscar.addEventListener('input', () => {
+        const term = inputBuscar.value.toLowerCase();
+        document.querySelectorAll('.card-producto').forEach(card => {
+            const nombre = card.querySelector('h3').textContent.toLowerCase();
+            card.style.display = nombre.includes(term) ? 'flex' : 'none';
+        });
+    });
+</script>
+
+</body>
+</html>
