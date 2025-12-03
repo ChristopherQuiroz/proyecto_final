@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Pedido</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/crear_pedido.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="header">
+    <div class="menu-icon">☰</div>
+    <div class="user-icon">👤</div>
+</header>
+
+<h1 class="titulo">Crear Pedido</h1>
+
+<!-- Seleccionar Cliente -->
+<div class="cliente-container">
+    <label for="cliente">Seleccionar Cliente:</label>
+    <select id="cliente">
+        <option value="">-- Selecciona un cliente --</option>
+        <option value="1">Juan Pérez</option>
+        <option value="2">María López</option>
+        <option value="3">Carlos Gómez</option>
+    </select>
+</div>
+
+<h2 style="text-align:center;">Productos Disponibles</h2>
+<section class="productos-grid">
+    <div class="card-producto">
+        <img src="https://via.placeholder.com/150" class="producto-img">
+        <h3>Cupcake</h3>
+        <p class="precio">Precio: 10 Bs</p>
+        <p class="descripcion">Delicioso cupcake de vainilla</p>
+        <div class="pedido-control">
+            <input type="number" min="1" value="1">
+            <button>Agregar</button>
+        </div>
+    </div>
+    <div class="card-producto">
+        <img src="https://via.placeholder.com/150" class="producto-img">
+        <h3>Galleta</h3>
+        <p class="precio">Precio: 5 Bs</p>
+        <p class="descripcion">Galleta de chocolate</p>
+        <div class="pedido-control">
+            <input type="number" min="1" value="1">
+            <button>Agregar</button>
+        </div>
+    </div>
+    <div class="card-producto">
+        <img src="https://via.placeholder.com/150" class="producto-img">
+        <h3>Pan de Leche</h3>
+        <p class="precio">Precio: 8 Bs</p>
+        <p class="descripcion">Pan fresco y suave</p>
+        <div class="pedido-control">
+            <input type="number" min="1" value="1">
+            <button>Agregar</button>
+        </div>
+    </div>
+</section>
+
+<h2 style="text-align:center;">Pedido Actual</h2>
+<div id="lista-pedido">
+    <div class="item-pedido">
+        <span>Cupcake x 2</span>
+        <div>
+            <button>-</button>
+            <button>+</button>
+            <button>Eliminar</button>
+        </div>
+    </div>
+    <div class="item-pedido">
+        <span>Galleta x 3</span>
+        <div>
+            <button>-</button>
+            <button>+</button>
+            <button>Eliminar</button>
+        </div>
+    </div>
+</div>
+
+<div id="total">Total: 40 Bs</div>
+<button id="confirmar-pedido">Registrar Pedido</button>
+
+</body>
+</html>
