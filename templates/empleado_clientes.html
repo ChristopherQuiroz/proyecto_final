@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/empleado_clientes.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="header">
+    <div class="header-left"><div class="menu-icon">☰</div></div>
+    <div class="header-right"><div class="user-icon">👤</div></div>
+</header>
+
+<h1 class="titulo">Clientes</h1>
+
+<div class="acciones">
+   <button class="btn-agregar" onclick="abrirModal()">+ Agregar Cliente</button>
+
+</div>
+
+<table class="tabla">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Correo</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in clientes %}
+        <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.nombre }}</td>
+            <td>{{ c.telefono }}</td>
+            <td>{{ c.correo }}</td>
+            <td>
+                <button class="btn-editar" onclick="abrirModalEditar({{ c.id }}, '{{ c.nombre }}', '{{ c.telefono }}', '{{ c.correo }}')"> Editar</button>
+
+                <a class="btn-eliminar" href="/empleado/clientes/eliminar/{{ c.id }}">Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<!-- MODAL AGREGAR CLIENTE -->
+<div id="modal" class="modal">
+    <div class="modal-contenido">
+        <span class="cerrar" onclick="cerrarModal()">&times;</span>
+
+        <h2>Agregar Cliente</h2>
+
+        <form method="POST" action="/empleado/clientes/agregar">
+            <label>Nombre:</label>
+            <input type="text" name="nombre" required>
+
+            <label>Teléfono:</label>
+            <input type="text" name="telefono" required>
+
+            <label>Correo:</label>
+            <input type="email" name="correo">
+
+            <button class="btn-guardar">Guardar</button>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL EDITAR CLIENTE -->
+<div id="modalEditar" class="modal">
+    <div class="modal-contenido">
+        <span class="cerrar" onclick="cerrarModalEditar()">&times;</span>
+
+        <h2>Editar Cliente</h2>
+
+        <form method="POST" id="formEditar">
+            <label>Nombre:</label>
+            <input type="text" name="nombre" id="editNombre" required>
+
+            <label>Teléfono:</label>
+            <input type="text" name="telefono" id="editTelefono" required>
+
+            <label>Correo:</label>
+            <input type="email" name="correo" id="editCorreo">
+
+            <button class="btn-guardar">Guardar Cambios</button>
+        </form>
+    </div>
+</div>
+
+</body>
+<script>
+function abrirModal() {
+    document.getElementById("modal").style.display = "flex";
+}
+
+function cerrarModal() {
+    document.getElementById("modal").style.display = "none";
+}
+
+// Cerrar clickeando fuera del modal
+window.onclick = function(e) {
+    if (e.target.id === "modal") {
+        cerrarModal();
+    }
+}
+function abrirModalEditar(id, nombre, telefono, correo) {
+    document.getElementById("modalEditar").style.display = "flex";
+
+    // Llenar inputs
+    document.getElementById("editNombre").value = nombre;
+    document.getElementById("editTelefono").value = telefono;
+    document.getElementById("editCorreo").value = correo;
+
+    // Actualizar acción del formulario
+    document.getElementById("formEditar").action = "/empleado/clientes/editar/" + id;
+}
+
+function cerrarModalEditar() {
+    document.getElementById("modalEditar").style.display = "none";
+}
+
+// Cerrar con clic fuera
+window.onclick = function(e) {
+    if (e.target.id === "modal") cerrarModal();
+    if (e.target.id === "modalEditar") cerrarModalEditar();
+}
+</script>
+
+</html>

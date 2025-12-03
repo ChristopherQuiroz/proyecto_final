@@ -6,15 +6,44 @@ db = dbase.dbConnection()
 
 app = Flask(__name__)
 
-@app.route('/pedido')
-def pedido_cliente():
-    # Productos simulados para pruebas
-    productos = [
-        {"id": 1, "nombre": "Cupcake Vainilla", "precio": 10.0, "descripcion": "Delicioso cupcake", "imagen": "/static/img/cupcake.png"},
-        {"id": 2, "nombre": "Cupcake Chocolate", "precio": 12.0, "descripcion": "Chocolate intenso", "imagen": "/static/img/cupcake.png"},
-        {"id": 3, "nombre": "Galleta Chocolate", "precio": 5.0, "descripcion": "Galleta crujiente", "imagen": "/static/img/galleta.png"}
+# CLIENTES DEL EMPLEADO
+@app.route("/empleado/clientes")
+def empleado_clientes():
+    clientesData = [
+        {"id": 1, "nombre": "Juan Pérez", "telefono": "77777777", "correo": "juan@gmail.com"},
+        {"id": 2, "nombre": "María López", "telefono": "60606060", "correo": "maria@gmail.com"},
     ]
-    return render_template('pedido_cliente.html', productos=productos)
+    return render_template("empleado_clientes.html", clientes=clientesData)
+
+# CREAR PEDIDO
+@app.route("/empleado/crear_pedido")
+def crear_pedido():
+    return render_template("crear_pedido.html")
+
+@app.route("/empleado")
+def panel_empleado():
+    productosData = [
+        {
+            "nombre": "Cupcake Vainilla",
+            "precio": 10,
+            "descripcion": "Delicioso cupcake suave",
+            "imagen": "/static/img/cupcake.png"
+        },
+        {
+            "nombre": "Galleta Chocolate",
+            "precio": 5,
+            "descripcion": "Galleta crujiente con chispas de chocolate",
+            "imagen": "/static/img/galleta.png"
+        },
+        {
+            "nombre": "Pan de Leche",
+            "precio": 8,
+            "descripcion": "Pan recién horneado",
+            "imagen": "/static/img/pan.png"
+        }
+    ]
+    
+    return render_template("panel_empleado.html", productos=productosData)
 
 @app.route('/categorias')
 def mostrar_categorias():
