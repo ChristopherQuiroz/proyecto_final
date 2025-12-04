@@ -1,0 +1,44 @@
+/* Título */
+.titulo-cat {
+    text-align: center;
+    font-weight: 700;
+    color: #352720;
+    margin-top: 20px;
+    font-size: 2rem;
+}
+
+/* Contenedor de tarjetas */
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 25px;
+    padding: 20px;
+}
+
+/* Tarjeta general */
+.dashboard-cards .card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 120px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: white;
+    text-decoration: none;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Efecto hover */
+.dashboard-cards .card:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+}
+
+/* Colores pastel/café por tarjeta */
+.card-productos { background: #A67B5B; }     /* marrón claro */
+.card-categorias { background: #D9C4A6; color: #352720; } /* beige, texto oscuro */
+.card-pedidos { background: #C9A66B; }      /* café suave */
+.card-clientes { background: #BFA17A; }     /* marrón medio */
+.card-empleados { background: #E0C097; color: #352720; } /* beige más claro */

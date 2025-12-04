@@ -14,8 +14,13 @@
         <li><a href="/empleado/crear_pedido">Crear Pedido</a></li>
         <li><a href="/empleado/pedidos">Ver Pedidos</a></li>
         {% elif rol == "admin" %}
-        <li><a href="/admin/usuarios">Usuarios</a></li>
+        <li><a href="/admin">Inicio</a></li>
+        <li><a href="/admin/clientes">Clientes</a></li>
+        <li><a href="/admin/empleados">Empleados</a></li>
         <li><a href="/admin/categorias">Categorías</a></li>
+        <li><a href="/admin/productos">Productos</a></li>
+        <li><a href="/admin/pedidos">Pedidos</a></li>
+        <li><a href="/admin/inventario">Inventario</a></li>
         <li><a href="/admin/reportes">Reportes</a></li>
 
         {% elif rol == "cliente" %}

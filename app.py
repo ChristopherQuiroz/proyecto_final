@@ -148,6 +148,23 @@ def admin_empleados():
 def admin_pedidos():
     return render_template("admin/pedidos.html", rol="admin")
 
+@app.route("/admin/usuarios")
+def admin_usuarios():
+    # Simulación de usuarios
+    usuarios = [
+        {"nombre": "Juan", "rol": "empleado"},
+        {"nombre": "Maria", "rol": "cliente"},
+        {"nombre": "Pedro", "rol": "empleado"},
+        {"nombre": "Ana", "rol": "cliente"},
+        {"nombre": "Carlos", "rol": "admin"},  # otro admin
+    ]
+
+    # Agrupar usuarios por rol
+    usuarios_por_rol = {}
+    for u in usuarios:
+        usuarios_por_rol.setdefault(u["rol"], []).append(u)
+
+    return render_template("admin/usuarios.html", usuarios_por_rol=usuarios_por_rol, rol="admin")
 
 # ============================================================
 #                        ERROR 404

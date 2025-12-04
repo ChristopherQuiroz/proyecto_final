@@ -1,0 +1,14 @@
+{% extends "layout_admin.html" %}
+
+{% block admin_content %}
+
+<h1 class="titulo-cat">Panel del Administrador</h1>
+
+<div class="dashboard-cards">
+    <a href="/admin/productos" class="card card-productos">Productos</a>
+    <a href="/admin/categorias" class="card card-categorias">Categorías</a>
+    <a href="/admin/pedidos" class="card card-pedidos">Pedidos</a>
+    <a href="/admin/clientes" class="card card-clientes">Clientes</a>
+    <a href="/admin/empleados" class="card card-empleados">Empleados</a>
+</div>
+{% endblock %}
