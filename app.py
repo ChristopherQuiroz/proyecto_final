@@ -112,11 +112,46 @@ def empleado_inventario():
 # ============================================================
 #                   ROL: ADMIN
 # ============================================================
-
 @app.route("/admin")
 def admin_dashboard():
-    return render_template("admin/dashboard.html", rol="admin")
 
+    # Simulación (luego reemplazas por consultas a tu BD)
+    total_productos = 120
+    total_categorias = 8
+    total_usuarios = 45
+    pedidos_pendientes = 3
+
+    stock_bajo = ["Mouse Gamer", "Teclado Mecánico"]  # ejemplo
+
+    ultimos_pedidos = [
+        {"id": 101, "cliente": "Ana", "fecha": "2025-12-01", "estado": "Pendiente"},
+        {"id": 102, "cliente": "Pedro", "fecha": "2025-12-01", "estado": "Enviado"},
+    ]
+
+    productos_populares = [
+        {"nombre": "Audífonos Bluetooth", "cantidad": 58},
+        {"nombre": "Laptop Lenovo", "cantidad": 34},
+        {"nombre": "Mouse Gamer", "cantidad": 33},
+    ]
+
+    clientes_top = [
+        {"nombre": "Juan Pérez", "total": 16},
+        {"nombre": "María López", "total": 12},
+        {"nombre": "Carlos Ruiz", "total": 10},
+    ]
+
+    return render_template(
+        "admin/dashboard.html",
+        rol="admin",
+        total_productos=total_productos,
+        total_categorias=total_categorias,
+        total_usuarios=total_usuarios,
+        pedidos_pendientes=pedidos_pendientes,
+        stock_bajo=stock_bajo,
+        ultimos_pedidos=ultimos_pedidos,
+        productos_populares=productos_populares,
+        clientes_top=clientes_top
+    )
 
 @app.route("/admin/categorias")
 def admin_categorias():
@@ -147,6 +182,48 @@ def admin_empleados():
 @app.route("/admin/pedidos")
 def admin_pedidos():
     return render_template("admin/pedidos.html", rol="admin")
+
+@app.route("/admin/reportes")
+def admin_reportes():
+
+    # EJEMPLOS, los reemplazas con datos reales de tu BD
+    ventas_hoy = 1500
+    ventas_mes = 32400
+    ventas_anio = 280000
+    pedidos_completados = 87
+    promedio_pedido = 175
+
+    ventas_por_mes = [
+        {"mes": "Enero", "total": 12000},
+        {"mes": "Febrero", "total": 9800},
+        {"mes": "Marzo", "total": 15200},
+        {"mes": "Abril", "total": 14300},
+    ]
+
+    productos_top = [
+        {"nombre": "Producto A", "cantidad": 40},
+        {"nombre": "Producto B", "cantidad": 28},
+        {"nombre": "Producto C", "cantidad": 21},
+    ]
+
+    clientes_top = [
+        {"nombre": "Juan Pérez", "compras": 12},
+        {"nombre": "Ana López", "compras": 9},
+        {"nombre": "Carlos Ríos", "compras": 8},
+    ]
+
+    return render_template(
+        "admin/reportes.html",
+        rol="admin",
+        ventas_hoy=ventas_hoy,
+        ventas_mes=ventas_mes,
+        ventas_anio=ventas_anio,
+        pedidos_completados=pedidos_completados,
+        promedio_pedido=promedio_pedido,
+        ventas_por_mes=ventas_por_mes,
+        productos_top=productos_top,
+        clientes_top=clientes_top
+    )
 
 @app.route("/admin/usuarios")
 def admin_usuarios():

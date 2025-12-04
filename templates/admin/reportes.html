@@ -1,0 +1,84 @@
+{% extends "layout_admin.html" %}
+
+{% block admin_content %}
+
+<h1 class="titulo-cat">Reportes Generales</h1>
+
+
+<!-- 🔷 RESUMEN GENERAL -->
+<h2 class="subtitulo">Resumen Rápido</h2>
+
+<div class="dashboard-center">
+<div class="stats-overview">
+    <div class="stat-card">
+        <h3>Ventas Hoy</h3>
+        <p>{{ ventas_hoy }} Bs</p>
+    </div>
+    <div class="stat-card">
+        <h3>Ventas Mes</h3>
+        <p>{{ ventas_mes }} Bs</p>
+    </div>
+    <div class="stat-card">
+        <h3>Ventas Año</h3>
+        <p>{{ ventas_anio }} Bs</p>
+    </div>
+    <div class="stat-card">
+        <h3>Pedidos Completados</h3>
+        <p>{{ pedidos_completados }}</p>
+    </div>
+    <div class="stat-card">
+        <h3>Promedio x Pedido</h3>
+        <p>{{ promedio_pedido }} Bs</p>
+    </div>
+</div>
+</div>
+
+<!-- 🔷 VENTAS POR MES -->
+<h2 class="subtitulo">Ventas por Mes</h2>
+
+<table class="top-table">
+    <tr>
+        <th>Mes</th>
+        <th>Total</th>
+    </tr>
+    {% for v in ventas_por_mes %}
+    <tr>
+        <td>{{ v.mes }}</td>
+        <td>{{ v.total }} Bs</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<!-- 🔷 TOP PRODUCTOS -->
+<h2 class="subtitulo">Productos Más Vendidos</h2>
+
+<table class="top-table">
+    <tr>
+        <th>Producto</th>
+        <th>Ventas</th>
+    </tr>
+    {% for p in productos_top %}
+    <tr>
+        <td>{{ p.nombre }}</td>
+        <td>{{ p.cantidad }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<!-- 🔷 TOP CLIENTES -->
+<h2 class="subtitulo">Clientes con Más Compras</h2>
+
+<table class="top-table">
+    <tr>
+        <th>Cliente</th>
+        <th>Compras</th>
+    </tr>
+    {% for c in clientes_top %}
+    <tr>
+        <td>{{ c.nombre }}</td>
+        <td>{{ c.compras }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
