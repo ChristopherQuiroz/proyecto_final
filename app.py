@@ -1,9 +1,82 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+
 import database as dbase
 from entities.products import Product
 
 db = dbase.dbConnection()
 app = Flask(__name__)
+app.secret_key = "clave_super_segura"   # Necesario para sesión
+
+
+# ============================================================
+#                LOGIN (CON DATOS SIMULADOS)
+# ============================================================
+
+usuarios_simulados = [
+    {"usuario": "admin", "password": "123", "rol": "admin"},
+    {"usuario": "empleado1", "password": "123", "rol": "empleado"},
+    {"usuario": "cliente1", "password": "123", "rol": "cliente"},
+]
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        usuario = request.form["usuario"]
+        password = request.form["password"]
+
+        # Buscar usuario
+        user = next((u for u in usuarios_simulados
+                     if u["usuario"] == usuario and u["password"] == password), None)
+
+        if not user:
+            return render_template("auth/login.html", error="Usuario o contraseña incorrectos")
+
+        # Guardar sesión
+        session["usuario"] = usuario
+        session["rol"] = user["rol"]
+
+        # Redireccionar por rol
+        if user["rol"] == "admin":
+            return redirect("/admin")
+        if user["rol"] == "empleado":
+            return redirect("/empleado")
+        return redirect("/")
+
+    return render_template("auth/login.html")
+
+
+# ============================================================
+#                REGISTRO (SE GUARDA EN MEMORIA)
+# ============================================================
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        usuario = request.form["usuario"]
+        correo = request.form["correo"]
+        password = request.form["password"]
+        rol = request.form["rol"]
+
+        usuarios_simulados.append({
+            "usuario": usuario,
+            "password": password,
+            "rol": rol
+        })
+
+        return redirect("/login")
+
+    return render_template("auth/register.html")
+
+
+# ============================================================
+#                LOGOUT
+# ============================================================
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
+
 
 # ============================================================
 #                   ROL: CLIENTE

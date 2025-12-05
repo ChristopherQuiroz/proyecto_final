@@ -9,6 +9,9 @@
 
     <!-- CSS general del cliente -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layout_cliente.css') }}">
+
+   
+    {% block cliente_extra_css %}{% endblock %}
 {% endblock %}
 
 {% block navbar %}

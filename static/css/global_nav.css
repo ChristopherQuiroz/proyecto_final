@@ -8,7 +8,10 @@
     justify-content: space-between;
     border-bottom: 2px solid #8b5e48;
     font-family: "Inter", sans-serif;
-    z-index: 999999;
+    z-index: 10000;
+    position: fixed;   /* 🔥 Necesario */
+    width: 100%;
+    top: 0;
 }
 
 .nav-title {
@@ -28,15 +31,15 @@
 /* ==== SIDEBAR ==== */
 .sidebar {
     position: fixed;
-    top: 0;
+    top: 55px;              /* 🔥 Sidebar debajo de la topbar  */
     left: -260px;
     width: 260px;
-    height: 100vh;
+    height: calc(100vh - 55px);   /* 🔥 Altura corregida */
     background: #c89b78;
     border-right: 2px solid #8b5e48;
     padding: 20px;
     transition: left 0.3s ease;
-    z-index: 999999999;  /* 🔥 Siempre arriba */
+    z-index: 99999;
     overflow-y: auto;
 }
 
@@ -56,12 +59,12 @@
 }
 
 .sidebar h3 {
-    margin-top: 60px;
+    margin-top: 40px;
     margin-bottom: 20px;
     color: #3b2b22;
 }
 
-/* Listado de opciones */
+/* Lista de opciones */
 .sidebar ul {
     list-style: none;
     padding: 0;
@@ -76,4 +79,10 @@
     color: #3b2b22;
     font-size: 18px;
     font-weight: bold;
+}
+
+/* ==== CONTENIDO ==== */
+#mainContent {
+    margin-top: 70px;      /* 🔥 Para que no quede detrás del navbar */
+    transition: margin-left 0.3s ease;
 }
