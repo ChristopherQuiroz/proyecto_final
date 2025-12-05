@@ -1,0 +1,34 @@
+{% extends "layout_cliente.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cliente/carrito.css') }}">
+{% endblock %}
+
+{% block cliente_content %}
+
+<h2 class="titulo">Mi Carrito</h2>
+
+<div class="carrito-container">
+
+    {% for i in range(1, 4) %}
+    <div class="item-carrito">
+        <img src="/static/img/cupcake.png" class="carrito-img">
+
+        <div class="carrito-info">
+            <h4>Producto {{ i }}</h4>
+            <p>Precio: {{ i * 5 }} Bs</p>
+            <p>Cantidad: 1</p>
+        </div>
+
+        <button class="btn-eliminar">X</button>
+    </div>
+    {% endfor %}
+
+</div>
+
+<div class="carrito-total">
+    <h3>Total: 45 Bs</h3>
+    <button class="btn-confirmar">Confirmar Pedido</button>
+</div>
+
+{% endblock %}
