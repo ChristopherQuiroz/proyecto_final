@@ -1,0 +1,81 @@
+.titulo-cat {
+    text-align: center;
+    font-weight: 600;
+    color: #352720;
+    margin-top: 20px;
+}
+
+.buscador-agregar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.buscador-agregar input {
+    width: 300px;
+    padding: 8px;
+    border: 2px solid #b69d8a;
+    border-radius: 5px;
+}
+
+.buscador-agregar button {
+    padding: 8px 15px;
+    background: #C49C85;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.buscador-agregar button:hover {
+    background: #A6785A;
+}
+
+.tabla-inventario {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.tabla-inventario th,
+.tabla-inventario td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.tabla-inventario th {
+    background: #C49C85;
+    color: white;
+    font-weight: 600;
+}
+
+.tabla-inventario tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+.btn-editar,
+.btn-borrar {
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-editar {
+    background: #C49C85;
+}
+
+.btn-editar:hover {
+    background: #A6785A;
+}
+
+.btn-borrar {
+    background: #E74C3C;
+}
+
+.btn-borrar:hover {
+    background: #C0392B;
+}

@@ -1,0 +1,52 @@
+body {
+    background: #ecf0f1;
+    font-family: Arial, sans-serif;
+}
+
+.login-container {
+    width: 350px;
+    padding: 25px;
+    margin: 80px auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0px 0px 12px rgba(0,0,0,0.2);
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 12px;
+    border-radius: 6px;
+    border: 1px solid #bdc3c7;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #79592f;
+    border: none;
+    color: white;
+    font-size: 16px;
+    margin-top: 15px;
+    border-radius: 6px;
+}
+
+button:hover {
+    background: #523905;
+}
+
+.error {
+    color: rgb(255, 38, 0);
+    text-align: center;
+}
+
+.registro-link {
+    text-align: center;
+    margin-top: 15px;
+    color: rgb(14, 13, 13);
+}

@@ -1,0 +1,24 @@
+{% extends "layout_admin.html" %}
+
+{% block admin_content %}
+<h2 class="titulo-cat">Clientes</h2>
+
+<table class="tabla-inventario">
+    <tr>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Acción</th>
+    </tr>
+
+    {% for i in range(1,10) %}
+    <tr>
+        <td>Cliente {{ i }}</td>
+        <td>correo{{ i }}@gmail.com</td>
+        <td>
+            <button class="btn-editar">Editar</button>
+            <button class="btn-borrar">Eliminar</button>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

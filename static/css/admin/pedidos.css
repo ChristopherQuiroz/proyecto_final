@@ -1,0 +1,33 @@
+.titulo-cat {
+    text-align: center;
+    font-weight: 600;
+    color: #352720;
+    margin-top: 20px;
+}
+
+.tabla-inventario {
+    width: 90%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.tabla-inventario th,
+.tabla-inventario td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.tabla-inventario th {
+    background: #C49C85;
+    color: white;
+    font-weight: 600;
+}
+
+.tabla-inventario tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+.tabla-inventario td {
+    font-size: 14px;
+}

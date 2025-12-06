@@ -1,0 +1,47 @@
+{% extends "layout_empleado.html" %}
+
+{% block extra_css %}
+    {{ super() }}  <!-- IMPORTANTE: sin esto NO carga el menú -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/empleado/crear_pedido.css') }}">
+{% endblock %}
+
+{% block empleado_content %}
+
+<h1 class="titulo">Crear Pedido</h1>
+
+<div class="cliente-container">
+    <label for="cliente">Seleccionar Cliente:</label>
+    <select id="cliente">
+        <option value="">-- Selecciona un cliente --</option>
+        <option value="1">Juan Pérez</option>
+        <option value="2">María López</option>
+        <option value="3">Carlos Gómez</option>
+    </select>
+</div>
+
+<h2 style="text-align:center;">Productos Disponibles</h2>
+
+<section class="productos-grid">
+    {% for p in productos %}
+    <div class="card-producto">
+        <img src="{{ p.imagen }}" class="producto-img">
+        <h3>{{ p.nombre }}</h3>
+        <p class="precio">Precio: {{ p.precio }} Bs</p>
+        <p class="descripcion">{{ p.descripcion }}</p>
+        <div class="pedido-control">
+            <input type="number" min="1" value="1">
+            <button>Agregar</button>
+        </div>
+    </div>
+    {% endfor %}
+</section>
+
+<h2 style="text-align:center;">Pedido Actual</h2>
+
+<div id="lista-pedido"></div>
+
+<div id="total">Total: 0 Bs</div>
+
+<button id="confirmar-pedido">Registrar Pedido</button>
+
+{% endblock %}

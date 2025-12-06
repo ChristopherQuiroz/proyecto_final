@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+
+{% block extra_css %}
+    <!-- CSS general del navbar -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global_nav.css') }}">
+
+    <!-- CSS específico del navbar del cliente -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cliente/nav.css') }}">
+
+    <!-- CSS general del cliente -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout_cliente.css') }}">
+
+   
+    {% block cliente_extra_css %}{% endblock %}
+{% endblock %}
+
+{% block navbar %}
+    {% include "base/nav.html" %}
+{% endblock %}
+
+{% block content %}
+    {% block cliente_content %}{% endblock %}
+{% endblock %}

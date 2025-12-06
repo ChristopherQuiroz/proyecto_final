@@ -2,5 +2,6 @@
   "git.enabled": true,
   "git.autofetch": true,
   "terminal.integrated.defaultProfile.windows": "Git Bash",
-  "git.terminalAuthentication": false
+  "git.terminalAuthentication": false,
+  "python-envs.pythonProjects": []
 }

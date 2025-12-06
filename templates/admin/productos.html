@@ -1,0 +1,28 @@
+{% extends "layout_admin.html" %}
+
+{% block admin_content %}
+<h2 class="titulo-cat">Productos</h2>
+
+<div class="buscador-agregar">
+    <input type="text" placeholder="Buscar producto...">
+    <button>Agregar Producto</button>
+</div>
+
+<div class="productos-grid">
+    {% for i in range(1,8) %}
+    <div class="card-producto">
+        <img src="https://via.placeholder.com/80" class="producto-img">
+
+        <div class="producto-info">
+            <h3>Producto {{ i }}</h3>
+            <p>Precio: Bs {{ i*10 }}</p>
+        </div>
+
+        <div class="acciones-cat">
+            <button class="btn-editar">Editar</button>
+            <button class="btn-borrar">Eliminar</button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
