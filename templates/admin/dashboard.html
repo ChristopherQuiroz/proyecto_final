@@ -1,0 +1,116 @@
+{% extends "layout_admin.html" %}
+
+{% block admin_content %}
+
+<h1 class="titulo-cat">Panel del Administrador</h1>
+
+<!--  ACCESOS RÁPIDOS MINI ARRIBA  -->
+<div class="mini-quick-access">
+    <a href="/admin/productos">Productos</a>
+    <a href="/admin/categorias">Categorías</a>
+    <a href="/admin/pedidos">Pedidos</a>
+    <a href="/admin/clientes">Clientes</a>
+    <a href="/admin/empleados">Empleados</a>
+    <a href="/admin/reportes">Reportes</a>
+</div>
+
+<h2 class="subtitulo">Resumen General</h2>
+<!--  RESUMEN GENERAL  -->
+<div class="dashboard-center">
+<div class="stats-overview">
+    <div class="stat-card">
+        <h3>Productos</h3>
+        <p>{{ total_productos }}</p>
+    </div>
+    <div class="stat-card">
+        <h3>Categorías</h3>
+        <p>{{ total_categorias }}</p>
+    </div>
+    <div class="stat-card">
+        <h3>Usuarios</h3>
+        <p>{{ total_usuarios }}</p>
+    </div>
+    <div class="stat-card">
+        <h3>Pedidos Pendientes</h3>
+        <p>{{ pedidos_pendientes }}</p>
+    </div>
+</div>
+</div>
+<!--  ALERTAS  -->
+<div class="alert-section">
+    <h2 class="alert-title">Alertas Importantes</h2>
+
+    {% if stock_bajo|length > 0 %}
+        <div class="alert-box alert-warning">
+            ⚠ Hay {{ stock_bajo|length }} productos con stock bajo.
+        </div>
+    {% else %}
+        <div class="alert-box alert-ok">
+            ✔ No hay alertas de stock.
+        </div>
+    {% endif %}
+
+    {% if pedidos_pendientes > 0 %}
+        <div class="alert-box alert-warning">
+            ⚠ Existen {{ pedidos_pendientes }} pedidos sin procesar.
+        </div>
+    {% endif %}
+</div>
+
+<!--  TABLA DE ÚLTIMOS PEDIDOS  -->
+<h2 class="subtitulo">Últimos Pedidos</h2>
+
+<table class="ultimos-table">
+    <tr>
+        <th>ID</th>
+        <th>Cliente</th>
+        <th>Fecha</th>
+        <th>Estado</th>
+    </tr>
+
+    {% for p in ultimos_pedidos %}
+    <tr>
+        <td>{{ p.id }}</td>
+        <td>{{ p.cliente }}</td>
+        <td>{{ p.fecha }}</td>
+        <td>{{ p.estado }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<!--  TOP PRODUCTOS MÁS VENDIDOS  -->
+<h2 class="subtitulo">Productos Más Vendidos</h2>
+
+<table class="top-table">
+    <tr>
+        <th>Producto</th>
+        <th>Ventas</th>
+    </tr>
+
+    {% for p in productos_populares %}
+    <tr>
+        <td>{{ p.nombre }}</td>
+        <td>{{ p.cantidad }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+<!--  TOP CLIENTES CON MÁS COMPRAS  -->
+<h2 class="subtitulo">Clientes que Más Compran</h2>
+
+<table class="top-table">
+    <tr>
+        <th>Cliente</th>
+        <th>Compras</th>
+    </tr>
+
+    {% for c in clientes_top %}
+    <tr>
+        <td>{{ c.nombre }}</td>
+        <td>{{ c.total }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+{% endblock %}

@@ -1,0 +1,88 @@
+/* ==== NAV SUPERIOR ==== */
+.topbar {
+    height: 55px;
+    padding: 0 20px;
+    background: #c89b78;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #8b5e48;
+    font-family: "Inter", sans-serif;
+    z-index: 10000;
+    position: fixed;   /* 🔥 Necesario */
+    width: 100%;
+    top: 0;
+}
+
+.nav-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #3b2b22;
+}
+
+.menu-btn {
+    background: none;
+    border: none;
+    font-size: 26px;
+    color: #3b2b22;
+    cursor: pointer;
+}
+
+/* ==== SIDEBAR ==== */
+.sidebar {
+    position: fixed;
+    top: 55px;              /* 🔥 Sidebar debajo de la topbar  */
+    left: -260px;
+    width: 260px;
+    height: calc(100vh - 55px);   /* 🔥 Altura corregida */
+    background: #c89b78;
+    border-right: 2px solid #8b5e48;
+    padding: 20px;
+    transition: left 0.3s ease;
+    z-index: 99999;
+    overflow-y: auto;
+}
+
+.sidebar.show {
+    left: 0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #3b2b22;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+}
+
+.sidebar h3 {
+    margin-top: 40px;
+    margin-bottom: 20px;
+    color: #3b2b22;
+}
+
+/* Lista de opciones */
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar li {
+    margin: 15px 0;
+}
+
+.sidebar a {
+    text-decoration: none;
+    color: #3b2b22;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* ==== CONTENIDO ==== */
+#mainContent {
+    margin-top: 70px;      /* 🔥 Para que no quede detrás del navbar */
+    transition: margin-left 0.3s ease;
+}

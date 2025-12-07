@@ -1,0 +1,41 @@
+{% extends "layout_cliente.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cliente/categorias.css') }}">
+{% endblock %}
+
+{% block cliente_content %}
+
+<h1 class="titulo-cat">CATEGORIAS</h1>
+
+<!-- Buscador -->
+<div class="buscador-container">
+    <input type="text" placeholder="Buscar" class="input-buscar">
+    <button class="btn-buscar">🔍</button>
+</div>
+
+<!-- Iconos -->
+<section class="categorias-iconos">
+    {% for cat in categorias %}
+    <div class="icono-item">
+        <img src="{{ url_for('static', filename='img/cupcake.png') }}" class="icono-categoria">
+        <p>{{ cat.nombre }}</p>
+    </div>
+    {% endfor %}
+</section>
+
+<!-- Productos -->
+<section class="productos-grid">
+    {% for p in productos %}
+    <div class="card-producto">
+        <img src="{{ p.imagen }}" class="producto-img">
+        <div class="producto-info">
+            <h3>{{ p.nombre }}</h3>
+            <p class="precio">Precio: {{ p.precio }} Bs</p>
+            <p class="descripcion">{{ p.descripcion }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</section>
+
+{% endblock %}

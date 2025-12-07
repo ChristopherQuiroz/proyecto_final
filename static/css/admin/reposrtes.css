@@ -1,0 +1,111 @@
+/* ====== TÍTULOS ====== */
+.titulo-cat {
+    text-align: center;
+    font-size: 2rem;
+    margin: 20px 0;
+    color: #4a3b32;
+    font-weight: 700;
+}
+
+.subtitulo {
+    margin-top: 40px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #352720;
+    margin-left: 10px;
+}
+
+/* ====== CENTRAR DASHBOARD ====== */
+.dashboard-center {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+/* ====== STATS OVERVIEW ====== */
+.stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto; /* centra todo */
+}
+
+.stat-card {
+    background: #E8DCC8;
+    padding: 20px;
+    border-radius: 14px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+}
+
+.stat-card h3 {
+    font-size: 1rem;
+    color: #594A3C;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.stat-card p {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #352720;
+}
+
+/* ====== TABLAS ====== */
+.top-table {
+    width: 95%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background: #F7F1EB;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.top-table th, .top-table td {
+    padding: 12px;
+    border-bottom: 1px solid #dcccb9;
+    color: #4a3b32;
+}
+
+.top-table th {
+    background: #A67B5B;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.top-table tr:hover {
+    background: #f2e8de;
+}
+
+/* ====== EXPORTACIÓN DE REPORTES ====== */
+.export-buttons {
+    display: flex;
+    gap: 15px;
+    margin: 25px 12px;
+}
+
+.export-btn {
+    display: inline-block;
+    padding: 12px 18px;
+    background: #8d6e63;
+    color: white;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    transition: background 0.2s, transform 0.2s;
+}
+
+.export-btn:hover {
+    background: #6d564c;
+    transform: translateY(-3px);
+}

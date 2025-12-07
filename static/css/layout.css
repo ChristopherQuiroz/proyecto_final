@@ -1,0 +1,9 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f9f9f7;
+}
+
+h1, h2, h3 {
+    color: #352720;
+    font-weight: bold;
+}

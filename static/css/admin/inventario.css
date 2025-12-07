@@ -1,0 +1,42 @@
+.titulo-cat {
+    text-align: center;
+    font-weight: 600;
+    color: #352720;
+    margin-top: 20px;
+}
+
+/* Tabla */
+.tabla-inventario {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.tabla-inventario th,
+.tabla-inventario td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.tabla-inventario th {
+    background: #C49C85;
+    color: white;
+    font-weight: 600;
+}
+
+.tabla-inventario tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+.btn-editar {
+    background: #C49C85;
+    border-radius: 5px;
+    padding: 5px 10px;
+    color: white;
+    cursor: pointer;
+}
+
+.btn-editar:hover {
+    background: #A6785A;
+}
