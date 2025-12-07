@@ -1,34 +1,23 @@
-{% extends "layout_cliente.html" %}
-{% block cliente_extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/cliente/carrito.css') }}">
-{% endblock %}
-
-
-{% block cliente_content %}
-
-<h2 class="titulo">Mi Carrito</h2>
-
 <div class="carrito-container">
-
-    {% for i in range(1, 4) %}
+    {% for producto in productos %}
     <div class="item-carrito">
-        <img src="/static/img/cupcake.png" class="carrito-img">
-
+        {% set img_url = url_for('static', filename='img/products/' ~ producto.imagen) %}
+        {% set default_img = url_for('static', filename='img/cupcake.png') %}
+        
+        <img src="{{ img_url }}"
+             class="carrito-img"
+             onerror="this.src='{{ default_img }}'">
+        
         <div class="carrito-info">
-            <h4>Producto {{ i }}</h4>
-            <p>Precio: {{ i * 5 }} Bs</p>
-            <p>Cantidad: 1</p>
+            <h4>{{ producto.nombre }}</h4>
+            <p>Precio: {{ producto.precio }} Bs</p>
+            <p>Cantidad: {{ producto.cantidad }}</p>
+            <p>Subtotal: {{ producto.subtotal }} Bs</p>
         </div>
-
-        <button class="btn-eliminar">X</button>
+        
+        <button class="btn-eliminar" onclick="eliminarDelCarrito('{{ producto.id }}')">X</button>
     </div>
+    {% else %}
+    <p class="carrito-vacio">Tu carrito está vacío</p>
     {% endfor %}
-
 </div>
-
-<div class="carrito-total">
-    <h3>Total: 45 Bs</h3>
-    <button class="btn-confirmar">Confirmar Pedido</button>
-</div>
-
-{% endblock %}

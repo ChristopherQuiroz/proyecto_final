@@ -3,31 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión</title>
-
+    <title>Pastelería Dulce - Iniciar Sesión</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .login-container h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #ff6b8b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #ff4d6d;
+        }
+        
+        .registro-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        
+        .registro-link a {
+            color: #ff6b8b;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .brand {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ff6b8b;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
+    <div class="login-container">
+        <div class="brand">🍰 Pastelería Dulce</div>
+        <h2>Iniciar Sesión</h2>
 
-<div class="login-container">
-    <h2>Iniciar Sesión</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-    {% if error %}
-        <p class="error">{{ error }}</p>
-    {% endif %}
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
 
-    <form method="POST">
-        <input type="text" name="usuario" placeholder="Usuario" required>
-        <input type="password" name="password" placeholder="Contraseña" required>
+        <form method="POST">
+            <input type="text" name="usuario" placeholder="Nombre de usuario" required>
+            <input type="password" name="password" placeholder="Contraseña" required>
+            <button type="submit">Entrar al Sistema</button>
+        </form>
 
-        <button type="submit">Entrar</button>
-    </form>
-
-    <p class="registro-link">
-        ¿No tienes cuenta?
-        <a href="/register">Crear cuenta</a>
-    </p>
-</div>
-
+        <p class="registro-link">
+            ¿No tienes cuenta?
+            <a href="/register">Regístrate aquí</a>
+        </p>
+        
+        <p class="registro-link" style="font-size: 14px; margin-top: 10px;">
+            <strong>Credenciales de prueba:</strong><br>
+            Admin: admin / admin123<br>
+            Empleado: empleado1 / 123<br>
+            Cliente: cliente1 / 123
+        </p>
+    </div>
 </body>
 </html>
