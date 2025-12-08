@@ -4,10 +4,14 @@
 
 <h1 class="titulo-cat">ADMIN - PRODUCTOS</h1>
 
-<div class="buscador-agregar">
-    <input type="text" id="buscar-producto" placeholder="Buscar producto...">
+<div class="buscador-agregar" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+    <input type="text" id="buscar-producto" placeholder="Buscar producto..." style="flex:1; min-width:200px;">
+    <button id="btn-agregar-producto" onclick="mostrarModalAgregar()">Agregar Producto</button>
+    <button id="btn-toggle-filtros" onclick="toggleFiltros()">Filtros ▼</button>
+</div>
 
-    <!-- FILTRO POR CATEGORÍA -->
+<!-- Contenedor de filtros oculto por defecto -->
+<div id="filtros-container" style="display:none; margin-top:10px; gap:10px; flex-wrap:wrap; display:flex;">
     <select id="filtro-categoria">
         <option value="">Todas las categorías</option>
         {% for cat in categorias %}
@@ -15,7 +19,6 @@
         {% endfor %}
     </select>
 
-    <!-- FILTRO POR STOCK -->
     <select id="filtro-stock">
         <option value="">Todos los stocks</option>
         <option value="bajo">Bajo (&lt;5)</option>
@@ -23,12 +26,10 @@
         <option value="alto">Alto (&gt;20)</option>
     </select>
 
-    <!-- FILTRO POR PRECIO -->
     <input type="number" id="filtro-min-price" placeholder="Precio min" step="0.01" min="0">
     <input type="number" id="filtro-max-price" placeholder="Precio max" step="0.01" min="0">
-
-    <button id="btn-agregar-producto" onclick="mostrarModalAgregar()">Agregar Producto</button>
 </div>
+
 
 
 <!-- Mensajes Flash -->
@@ -233,6 +234,18 @@ document.getElementById('filtro-categoria').addEventListener('change', aplicarFi
 document.getElementById('filtro-stock').addEventListener('change', aplicarFiltros);
 document.getElementById('filtro-min-price').addEventListener('input', aplicarFiltros);
 document.getElementById('filtro-max-price').addEventListener('input', aplicarFiltros);
+
+function toggleFiltros() {
+    const container = document.getElementById('filtros-container');
+    const btn = document.getElementById('btn-toggle-filtros');
+    if(container.style.display === 'none' || container.style.display === '') {
+        container.style.display = 'flex';
+        btn.textContent = 'Filtros ▲';
+    } else {
+        container.style.display = 'none';
+        btn.textContent = 'Filtros ▼';
+    }
+}
 
 
 // Cerrar modal al hacer clic fuera

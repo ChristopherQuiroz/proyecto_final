@@ -1,10 +1,14 @@
 from flask import Blueprint, render_template, request, flash, redirect, session, jsonify
 from bson.objectid import ObjectId
-from bson.errors import InvalidId
 from routes.auth import require_role
 from database import dbConnection
+
 from entities.product import Product
 from entities.category import Category, category_manager
+from routes.services import (
+    get_all_categories, create_category, update_category, delete_category,
+    get_all_products, create_product, update_product, delete_product, get_product_by_id
+)
 from werkzeug.utils import secure_filename
 import os
 UPLOAD_FOLDER = 'static/img/products'
@@ -44,116 +48,45 @@ def admin_dashboard():
 @bp_admin.route("/categorias")
 @require_role('admin')
 def ver_categorias():
-    categories_collection = db['categories']
-    products_collection = db['products']
-
-    categorias = list(categories_collection.find())
-
-    # Contar productos por categoría
-    categorias_con_count = []
-    for cat in categorias:
-        count = products_collection.count_documents({'category': cat['name']})
-        cat['cantidad_productos'] = count
-        categorias_con_count.append(cat)
-
-    return render_template("admin/categorias.html", categorias=categorias_con_count, rol="admin")
-
-@bp_admin.route("/categorias/agregar", methods=["GET", "POST"])
-@require_role('admin')
-def admin_categorias():
-
-    categories_collection = db['categories']
-
-    if request.method == "POST":
-        nombre = request.form.get("name")
-
-        if not nombre:
-            flash("El nombre es obligatorio", "error")
-            return redirect("/admin/categorias")
-
-        if categories_collection.find_one({"name": nombre}):
-            flash("La categoría ya existe", "error")
-            return redirect("/admin/categorias")
-
-        # Usar entidad Category
-        categoria = Category(nombre)
-        
-        # Guardar en MongoDB
-        categories_collection.insert_one(categoria.toDBCollection())
-
-        # Guardar en manager de memoria
-        category_manager.add_category(categoria)
-
-        flash("Categoría creada correctamente", "success")
-        return redirect("/admin/categorias")
-
-    categorias = list(categories_collection.find())
+    categorias = get_all_categories(with_count=True)
     return render_template("admin/categorias.html", categorias=categorias, rol="admin")
+
+
+@bp_admin.route("/categorias/agregar", methods=["POST"])
+@require_role('admin')
+def admin_categorias_agregar():
+    nombre = request.form.get("name")
+    ok, msg = create_category(nombre)
+    flash(msg, "success" if ok else "error")
+    return redirect("/admin/categorias")
 
 @bp_admin.route("/categorias/editar/<string:nombre_actual>", methods=["POST"])
 @require_role('admin')
-def editar_categoria(nombre_actual):
-
-    categories = db['categories']
+def admin_categorias_editar(nombre_actual):
     nuevo_nombre = request.form.get("name")
-
-    if not nuevo_nombre:
-        flash("El nombre es obligatorio", "error")
-        return redirect("/admin/categorias")
-
-    categories.update_one(
-        {"name": nombre_actual},
-        {"$set": {"name": nuevo_nombre}}
-    )
-
-    flash("Categoría actualizada", "success")
+    ok, msg = update_category(nombre_actual, nuevo_nombre)
+    flash(msg, "success" if ok else "error")
     return redirect("/admin/categorias")
-
 @bp_admin.route("/categorias/eliminar/<string:category_name>")
 @require_role('admin')
-def delete_category(category_name):
-    
-    categories_collection = db['categories']
-    products_collection = db['products']
-    
-    # Verificar si hay productos en esta categoría
-    products_in_category = products_collection.count_documents({'category': category_name})
-    
-    if products_in_category > 0:
-        flash(f'No se puede eliminar: Hay {products_in_category} productos en esta categoría', 'error')
-        return redirect('/admin/categorias')
-    
-    # Eliminar la categoría
-    result = categories_collection.delete_one({'name': category_name})
-    
-    if result.deleted_count > 0:
-        flash('Categoría eliminada exitosamente', 'success')
-    else:
-        flash('No se encontró la categoría', 'error')
-    
-    return redirect('/admin/categorias')
-
+def admin_categorias_eliminar(category_name):
+    ok, msg = delete_category(category_name)
+    flash(msg, "success" if ok else "error")
+    return redirect("/admin/categorias")
 # ============================================================
 #                        PRODUCTOS
 # ============================================================
-
 @bp_admin.route("/productos")
 @require_role('admin')
 def ver_productos():
-    products_collection = db['products']
-    categories_collection = db['categories']
-
-    productos = list(products_collection.find())
-    categorias = list(categories_collection.find())
+    productos = get_all_products()
+    categorias = get_all_categories()
     return render_template("admin/productos.html", productos=productos, categorias=categorias, rol="admin")
 
 
 @bp_admin.route("/productos/agregar", methods=['POST'])
 @require_role('admin')
-def agregar_producto():
-    products_collection = db['products']
-    categories_collection = db['categories']
-
+def admin_productos_agregar():
     name = request.form.get('name')
     description = request.form.get('description', '')
     category = request.form.get('category')
@@ -166,86 +99,43 @@ def agregar_producto():
     image_filename = None
     if image_file and image_file.filename != '':
         filename = secure_filename(image_file.filename)
-        image_path = os.path.join(UPLOAD_FOLDER, filename)
-        image_file.save(image_path)
+        image_file.save(os.path.join(UPLOAD_FOLDER, filename))
         image_filename = filename
 
-    # Validaciones
-    if not name or not category:
-        flash('Nombre y categoría son requeridos', 'error')
-        return redirect('/admin/productos')
-
-    # Verificar si la categoría existe
-    if not categories_collection.find_one({'name': category}):
-        flash('La categoría seleccionada no existe', 'error')
-        return redirect('/admin/productos')
-
-    # Crear producto usando tu entidad Product
-    product = Product(name, description, category, price, status, quantity)
-    product_data = product.toDBCollection()
-    if image_filename:
-        product_data['image'] = image_filename  # guardar el nombre de la imagen en la BD
-
-    products_collection.insert_one(product_data)
-
-    flash('Producto agregado exitosamente', 'success')
+    ok, msg = create_product(name, description, category, price, status, quantity, image_filename)
+    flash(msg, "success" if ok else "error")
     return redirect('/admin/productos')
 
 
 @bp_admin.route("/productos/editar/<product_id>", methods=['POST'])
 @require_role('admin')
-def editar_producto(product_id):
-    products_collection = db['products']
-
-    name = request.form.get('name')
-    description = request.form.get('description', '')
-    category = request.form.get('category')
-    price = float(request.form.get('price', 0))
-    status = request.form.get('status', 'Disponible')
-    quantity = int(request.form.get('quantity', 0))
-
-    update_data = {
-        'name': name,
-        'description': description,
-        'category': category,
-        'price': price,
-        'status': status,
-        'quantity': quantity
+def admin_productos_editar(product_id):
+    data = {
+        'name': request.form.get('name'),
+        'description': request.form.get('description', ''),
+        'category': request.form.get('category'),
+        'price': float(request.form.get('price', 0)),
+        'status': request.form.get('status', 'Disponible'),
+        'quantity': int(request.form.get('quantity', 0))
     }
 
     # Manejo de imagen
     image_file = request.files.get('image')
     if image_file and image_file.filename != '':
         filename = secure_filename(image_file.filename)
-        image_path = os.path.join(UPLOAD_FOLDER, filename)
-        image_file.save(image_path)
-        update_data['image'] = filename
+        image_file.save(os.path.join(UPLOAD_FOLDER, filename))
+        data['image'] = filename
 
-    result = products_collection.update_one(
-        {'_id': ObjectId(product_id)},
-        {'$set': update_data}
-    )
-
-    if result.matched_count == 0:
-        flash('Producto no encontrado', 'error')
-    else:
-        flash('Producto actualizado exitosamente', 'success')
-
+    ok, msg = update_product(product_id, data)
+    flash(msg, "success" if ok else "error")
     return redirect('/admin/productos')
 
 
 @bp_admin.route("/productos/eliminar/<product_id>")
 @require_role('admin')
-def eliminar_producto(product_id):
-    products_collection = db['products']
-
-    result = products_collection.delete_one({'_id': ObjectId(product_id)})
-
-    if result.deleted_count > 0:
-        flash('Producto eliminado exitosamente', 'success')
-    else:
-        flash('No se encontró el producto', 'error')
-
+def admin_productos_eliminar(product_id):
+    ok, msg = delete_product(product_id)
+    flash(msg, "success" if ok else "error")
     return redirect('/admin/productos')
 
 

@@ -1,5 +1,5 @@
 class Category:
-    def __init__(self, name, icono="default.png", descripcion=""):
+    def __init__(self, name, icono="default.jpg", descripcion=""):
         self.name = name
         self.icono = icono
         self.descripcion = descripcion

@@ -4,113 +4,115 @@
 
 <h1 class="titulo-cat">ADMIN - CATEGORÍAS</h1>
 
-<div class="buscador-agregar">
-    <input type="text" id="buscar-cat" placeholder="Buscar categoría">
+<div class="buscador-agregar" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+    <input type="text" id="buscar-cat" placeholder="Buscar categoría" style="flex:1; min-width:200px;">
+    <button id="btn-agregar" onclick="abrirModalAgregar()">Agregar Categoría</button>
+    <button id="btn-toggle-filtros" onclick="toggleFiltros()">Filtros ▼</button>
+</div>
 
-    <!-- FILTRO POR CANTIDAD DE PRODUCTOS -->
+<!-- Contenedor de filtros oculto -->
+<div id="filtros-container" style="display:none; margin-top:10px; gap:10px; flex-wrap:wrap; display:flex;">
     <select id="filtro-cantidad">
         <option value="">Todas las categorías</option>
         <option value="bajo">Bajo (&lt;5 productos)</option>
         <option value="medio">Medio (5-20 productos)</option>
         <option value="alto">Alto (&gt;20 productos)</option>
     </select>
-
-    <button id="btn-agregar">Agregar categoría</button>
 </div>
-
 
 <div class="productos-grid">
     {% for cat in categorias %}
     <div class="card-producto" data-cantidad="{{ cat.cantidad_productos }}">
-        <img src="{{ url_for('static', filename='img/products/cupcake.jpg') }}" class="producto-img">
+        <img src="{{ url_for('static', filename='img/categories/' ~ (cat.icono if cat.icono else 'default.jpg')) }}" 
+          class="producto-img" 
+          onerror="this.src='{{ url_for('static', filename='img/categories/default.jpg') }}'">
         <div class="producto-info">
             <h3>{{ cat.name }}</h3>
+            <p>{{ cat.descripcion }}</p>
+            <p><strong>Productos:</strong> {{ cat.cantidad_productos }}</p>
             <div class="acciones-cat">
-                <button class="btn-editar" data-nombre="{{ cat.name }}" >Modificar</button>
+                <button class="btn-editar" data-nombre="{{ cat.name }}">Modificar</button>
                 <button class="btn-borrar" data-nombre="{{ cat.name }}">Eliminar</button>
-
             </div>
         </div>
     </div>
     {% endfor %}
 </div>
 
+<!-- Modal -->
 <div id="modal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
         <form id="form-modal" method="POST">
             <h3 id="modal-title">Agregar Categoría</h3>
-            <input type="text" name="name" required>
+            <input type="text" name="name" placeholder="Nombre" required>
+            <input type="text" name="descripcion" placeholder="Descripción">
+            <label for="icono">Icono:</label>
+            <input type="file" name="icono" accept="image/*">
             <button type="submit">Guardar</button>
         </form>
     </div>
 </div>
 
 <script>
-    const modal = document.getElementById('modal');
-    const closeModal = document.querySelector('.close');
-    const btnAgregar = document.getElementById('btn-agregar');
-    const modalTitle = document.getElementById('modal-title');
-    const formModal = document.getElementById('form-modal');
+const modal = document.getElementById('modal');
+const closeModal = document.querySelector('.close');
+const btnAgregar = document.getElementById('btn-agregar');
+const modalTitle = document.getElementById('modal-title');
+const formModal = document.getElementById('form-modal');
 
-    btnAgregar.addEventListener('click', () => {
-        modal.style.display = 'block';
-        modalTitle.textContent = 'Agregar Categoría';
-        formModal.action = '/admin/categorias/agregar';
-        formModal.name.value = '';
-    });
+// Abrir modal agregar
+function abrirModalAgregar() {
+    modal.style.display = 'block';
+    modalTitle.textContent = 'Agregar Categoría';
+    formModal.action = '/admin/categorias/agregar';
+    formModal.name.value = '';
+    formModal.descripcion.value = '';
+}
 
-    document.querySelectorAll('.btn-editar').forEach(btn => {
-      btn.addEventListener('click', () => {
+// Editar categoría
+document.querySelectorAll('.btn-editar').forEach(btn => {
+    btn.addEventListener('click', () => {
         const nombre = btn.dataset.nombre;
         modal.style.display = 'block';
         modalTitle.textContent = 'Modificar Categoría';
-        formModal.action = `/admin/categorias/editar/${nombre}`; // <-- usamos el id
-        formModal.name.value = nombre;
-      });
+        formModal.action = `/admin/categorias/editar/${nombre}`;
+        const card = btn.closest('.card-producto');
+        formModal.name.value = card.querySelector('h3').textContent;
+        formModal.descripcion.value = card.querySelector('p').textContent;
     });
+});
 
-    // --- CONFIRMACIÓN DE ELIMINAR ---
-    document.querySelectorAll('.btn-borrar').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const nombre = btn.dataset.nombre;
-
-            if (confirm(`¿Seguro que quieres borrar la categoría "${nombre}"?`)) {
-                window.location.href = `/admin/categorias/eliminar/${nombre}`;
-            }
-        });
+// Eliminar categoría
+document.querySelectorAll('.btn-borrar').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const nombre = btn.dataset.nombre;
+        if (confirm(`¿Seguro que quieres borrar la categoría "${nombre}"?`)) {
+            window.location.href = `/admin/categorias/eliminar/${nombre}`;
+        }
     });
+});
 
+// Cerrar modal
+closeModal.addEventListener('click', () => modal.style.display = 'none');
+window.addEventListener('click', e => { if(e.target === modal) modal.style.display = 'none'; });
 
-    closeModal.addEventListener('click', () => modal.style.display = 'none');
+// Búsqueda en tiempo real
+const inputBuscar = document.getElementById('buscar-cat');
+inputBuscar.addEventListener('input', aplicarFiltrosCategorias);
+document.getElementById('filtro-cantidad').addEventListener('change', aplicarFiltrosCategorias);
 
-    window.addEventListener('click', e => {
-        if (e.target === modal) modal.style.display = 'none';
-    });
-
-    const inputBuscar = document.getElementById('buscar-cat');
-    inputBuscar.addEventListener('input', () => {
-        const term = inputBuscar.value.toLowerCase();
-        document.querySelectorAll('.card-producto').forEach(card => {
-            const nombre = card.querySelector('h3').textContent.toLowerCase();
-            card.style.display = nombre.includes(term) ? 'flex' : 'none';
-        });
-    });
-
-    function aplicarFiltrosCategorias() {
-    const term = document.getElementById('buscar-cat').value.toLowerCase();
+function aplicarFiltrosCategorias() {
+    const term = inputBuscar.value.toLowerCase();
     const filtroCantidad = document.getElementById('filtro-cantidad').value;
 
     document.querySelectorAll('.card-producto').forEach(card => {
         const nombre = card.querySelector('h3').textContent.toLowerCase();
         const cantidad = parseInt(card.dataset.cantidad) || 0;
-
         let mostrar = true;
 
-        // Filtrar por nombre
         if(term && !nombre.includes(term)) mostrar = false;
 
-        // Filtrar por cantidad
         if(filtroCantidad) {
             if(filtroCantidad === 'bajo' && cantidad >= 5) mostrar = false;
             if(filtroCantidad === 'medio' && (cantidad < 5 || cantidad > 20)) mostrar = false;
@@ -121,10 +123,18 @@
     });
 }
 
-// Eventos
-document.getElementById('buscar-cat').addEventListener('input', aplicarFiltrosCategorias);
-document.getElementById('filtro-cantidad').addEventListener('change', aplicarFiltrosCategorias);
-
+// Mostrar/ocultar filtros
+function toggleFiltros() {
+    const container = document.getElementById('filtros-container');
+    const btn = document.getElementById('btn-toggle-filtros');
+    if(container.style.display === 'none' || container.style.display === '') {
+        container.style.display = 'flex';
+        btn.textContent = 'Filtros ▲';
+    } else {
+        container.style.display = 'none';
+        btn.textContent = 'Filtros ▼';
+    }
+}
 </script>
 
 {% endblock %}
