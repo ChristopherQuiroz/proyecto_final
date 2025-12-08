@@ -1,17 +1,82 @@
-.pedidos-container {
-    margin: 90px auto;
-    width: 80%;
+/* Fondo general */
+body {
+    background-color: #faf5ef;
+    font-family: "Inter", sans-serif;
 }
 
-.pedido-card {
-    background: white;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 12px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
-}
-
-.pedido-estado {
+/* Título principal */
+.titulo {
+    text-align: center;
+    margin: 25px 0;
+    color: #4a3428; 
+    font-size: 32px;
     font-weight: bold;
-    color: #a06745;
+}
+
+/* Contenedor principal */
+.pedidos-contenedor {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* Tarjeta de cada pedido */
+.pedido-card {
+    background: #ffffff;
+    border: 3px solid #8b5e48; /* CAFÉ OSCURO */
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.12);
+    transition: transform .2s ease;
+}
+
+.pedido-card:hover {
+    transform: scale(1.02);
+}
+
+/* Título de cada pedido */
+.pedido-titulo {
+    color: #4a3428;
+    margin-bottom: 10px;
+}
+
+/* Texto general */
+.pedido-card p {
+    color: #6b4e3d;
+    margin: 5px 0;
+}
+
+/* Estado */
+.estado {
+    padding: 5px 12px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.pendiente { background: #d9a441; }
+.entregado { background: #4caf50; }
+.cancelado { background: #c85050; }
+
+/* Details */
+.detalle-productos summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #4a3428;
+    margin-top: 12px;
+}
+
+.detalle-productos ul {
+    margin-top: 10px;
+    padding-left: 20px;
+    color: #6b4e3d;
+}
+
+.vacio {
+    text-align: center;
+    color: #8b6f5a;
+    font-size: 20px;
 }
