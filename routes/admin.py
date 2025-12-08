@@ -38,8 +38,14 @@ def admin_dashboard():
         productos_top=productos_top,
         pedidos_pendientes=pedidos_pendientes
     )
+@bp_admin.route("/categorias")
+@require_role('admin')
+def ver_categorias():
+    categories_collection = db['categories']
+    categorias = list(categories_collection.find())
+    return render_template("admin/categorias.html", categorias=categorias, rol="admin")
 
-@bp_admin.route("/categorias", methods=["GET", "POST"])
+@bp_admin.route("/categorias/agregar", methods=["GET", "POST"])
 @require_role('admin')
 def admin_categorias():
 
@@ -71,9 +77,9 @@ def admin_categorias():
     categorias = list(categories_collection.find())
     return render_template("admin/categorias.html", categorias=categorias, rol="admin")
 
-@bp_admin.route("/categorias/editar/<id>", methods=["POST"])
+@bp_admin.route("/categorias/editar/<string:nombre_actual>", methods=["POST"])
 @require_role('admin')
-def editar_categoria(id):
+def editar_categoria(nombre_actual):
 
     categories = db['categories']
     nuevo_nombre = request.form.get("name")
@@ -83,14 +89,14 @@ def editar_categoria(id):
         return redirect("/admin/categorias")
 
     categories.update_one(
-        {"_id": ObjectId(id)},
+        {"name": nombre_actual},
         {"$set": {"name": nuevo_nombre}}
     )
 
     flash("Categoría actualizada", "success")
     return redirect("/admin/categorias")
 
-@bp_admin.route("/delete_category/<string:category_name>")
+@bp_admin.route("/categorias/eliminar/<string:category_name>")
 @require_role('admin')
 def delete_category(category_name):
     
@@ -117,7 +123,18 @@ def delete_category(category_name):
 # ============================================================
 #                        PRODUCTOS
 # ============================================================
-@bp_admin.route("/productos", methods=['GET', 'POST'])
+@bp_admin.route("/productos")
+@require_role('admin')
+def ver_productos():
+    products_collection = db['products']
+    categories_collection = db['categories']
+
+    productos = list(products_collection.find())
+    categorias = list(categories_collection.find())
+    return render_template("admin/productos.html", productos=productos, categorias=categorias, rol="admin")
+
+@bp_admin.route("/productos/agregar", methods=['GET', 'POST'])
+@require_role('admin')
 def admin_productos():
     
     products_collection = db['products']
@@ -165,10 +182,9 @@ def admin_productos():
                          rol="admin")
 
 @bp_admin.route("/productos/editar", methods=['POST'])
+@require_role('admin')
 def editar_producto():
-    if 'usuario' not in session or session['rol'] != 'admin':
-        return redirect('/login')
-    
+
     products_collection = db['products']
     
     product_id = request.form.get('product_id')
@@ -178,6 +194,16 @@ def editar_producto():
     price = float(request.form.get('price', 0))
     status = request.form.get('status', 'Disponible')
     quantity = int(request.form.get('quantity', 0))
+    
+    
+    # Determinar filtro correctamente (usar ObjectId si viene id)
+    if product_id:
+        try:
+            filtro = {'_id': ObjectId(product_id)}
+        except:
+            filtro = {'_id': product_id}  # fallback (no suele usarse)
+    else:
+        filtro = {'name': name}
     
     # Actualizar en MongoDB
     result = products_collection.update_one(
@@ -217,9 +243,7 @@ def eliminar_producto(product_name):
 # ============================================================
 @bp_admin.route("/inventario")
 def admin_inventario():
-    if 'usuario' not in session or session['rol'] != 'admin':
-        return redirect('/login')
-    
+ 
     products_collection = db['products']
     productos = list(products_collection.find())
     
@@ -229,8 +253,6 @@ def admin_inventario():
 
 @bp_admin.route("/actualizar_stock", methods=['POST'])
 def actualizar_stock():
-    if 'usuario' not in session or session['rol'] != 'admin':
-        return redirect('/login')
     
     products_collection = db['products']
     
@@ -251,9 +273,7 @@ def actualizar_stock():
 
 @bp_admin.route("/reportes")
 def admin_reportes():
-    if 'usuario' not in session or session['rol'] != 'admin':
-        return redirect('/login')
-    
+
     products_collection = db['products']
     
     # Calcular ventas totales (simulado por ahora)
@@ -307,3 +327,4 @@ def admin_reportes():
 def not_found(error=None):
     message = {'message': 'No encontrado: ' + request.url, 'status': 404}
     return jsonify(message), 404
+

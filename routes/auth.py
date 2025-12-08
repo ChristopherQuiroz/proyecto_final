@@ -12,10 +12,9 @@ db = dbConnection()
 # LOGIN
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    # Si ya está logueado, redirigir según su rol
-    if 'user_id' in session:
-        return redirect(get_redirect_url(session.get('role', 'cliente')))
-    
+    if request.method == "GET" and 'user_id' in session:
+        return render_template("auth/login.html")  # Permite cambiar de usuario
+
     if request.method == "POST":
         username = request.form["usuario"]
         password = request.form["password"]
@@ -142,10 +141,15 @@ def create_initial_admin():
 # Middleware para verificar sesión
 @auth_bp.before_app_request
 def before_request():
-    # Rutas públicas que no requieren autenticación
-    public_routes = ['login', 'register', 'cliente_home', 'cliente_productos', 
-                     'cliente_categorias', 'static', 'not_found']
-    
+    public_routes = [
+      'login',
+      'register',
+      'cliente.productos',
+      'cliente.categorias',
+      'static',
+      'not_found'
+   ]
+
     if request.endpoint in public_routes:
         return
     
@@ -165,13 +169,15 @@ def before_request():
 
 # Función para obtener URL de redirección
 def get_redirect_url(role):
-    """Obtener la URL de redirección según el rol"""
     if role == "admin":
-        return "/admin"
+        return "/admin"  # reemplazar si tienes dashboard admin
     elif role == "empleado":
-        return "/empleado"
+        return "/empleado"  # reemplazar si tienes dashboard empleado
+    elif role == "cliente":
+        return "/cliente/index"  # ahora apunta al index del cliente
     else:
-        return "/cliente"
+        return "/login"
+
 
 # Decoradores para verificar roles
 def require_role(role):
@@ -193,9 +199,9 @@ def require_employee_or_admin(f):
     def decorated_function(*args, **kwargs):
         if 'role' not in session:
             return redirect('/login')
-        if session['role'] not in ['empleado', 'admin']:
+        if session.get['role'] not in ['empleado', 'admin']:
             flash('No tienes permisos para acceder a esta página', 'error')
-            return redirect('/')
+            return redirect(get_redirect_url(session.get('role', 'cliente')))
         return f(*args, **kwargs)
     return decorated_function
 

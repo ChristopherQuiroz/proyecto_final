@@ -14,10 +14,11 @@
     <div class="card-producto">
         <img src="{{ url_for('static', filename='img/cupcake.png') }}" class="producto-img">
         <div class="producto-info">
-            <h3>{{ cat.nombre }}</h3>
+            <h3>{{ cat.name }}</h3>
             <div class="acciones-cat">
-                <button class="btn-editar" data-nombre="{{ cat.nombre }}">Modificar</button>
-                <a href="/delete_category/{{ cat.nombre }}" class="btn-borrar">Eliminar</a>
+                <button class="btn-editar" data-nombre="{{ cat.name }}" >Modificar</button>
+                <button class="btn-borrar" data-nombre="{{ cat.name }}">Eliminar</button>
+
             </div>
         </div>
     </div>
@@ -45,19 +46,31 @@
     btnAgregar.addEventListener('click', () => {
         modal.style.display = 'block';
         modalTitle.textContent = 'Agregar Categoría';
-        formModal.action = '/add_category';
+        formModal.action = '/admin/categorias/agregar';
         formModal.name.value = '';
     });
 
     document.querySelectorAll('.btn-editar').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const nombre = btn.dataset.nombre;
+        modal.style.display = 'block';
+        modalTitle.textContent = 'Modificar Categoría';
+        formModal.action = `/admin/categorias/editar/${nombre}`; // <-- usamos el id
+        formModal.name.value = nombre;
+      });
+    });
+
+    // --- CONFIRMACIÓN DE ELIMINAR ---
+    document.querySelectorAll('.btn-borrar').forEach(btn => {
         btn.addEventListener('click', () => {
             const nombre = btn.dataset.nombre;
-            modal.style.display = 'block';
-            modalTitle.textContent = 'Modificar Categoría';
-            formModal.action = `/edit_category/${nombre}`;
-            formModal.name.value = nombre;
+
+            if (confirm(`¿Seguro que quieres borrar la categoría "${nombre}"?`)) {
+                window.location.href = `/admin/categorias/eliminar/${nombre}`;
+            }
         });
     });
+
 
     closeModal.addEventListener('click', () => modal.style.display = 'none');
 

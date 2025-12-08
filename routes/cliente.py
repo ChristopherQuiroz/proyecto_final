@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, session, flash, redirect
 from bson.objectid import ObjectId
 from database import dbConnection
-from routes.auth import require_role
+from routes.auth import require_role  
 
 bp_cliente = Blueprint("cliente", __name__, url_prefix="/cliente")
 db = dbConnection()
@@ -23,22 +23,24 @@ def format_product_for_template(product):
     }
 
 def format_category_for_template(category):
-    """Convertir categoría de BD a template"""
+    """Convertir categoría de BD (inglés) a template (español)"""
     return {
         'id': str(category.get('_id', '')),
         'nombre': category.get('name', 'Sin nombre'),
-        'icono': category.get('icono', 'cupcake.png'),
-        'descripcion': category.get('descripcion', '')
+        'icono': category.get('icon', 'cupcake.png'),   # campo correcto de BD
+        'descripcion': category.get('description', '')  # campo correcto de BD
     }
+
     
-@bp_cliente.route("/")
+@bp_cliente.route("/index")
+@require_role('cliente')
 def cliente_home():
     # Obtener productos y categorías de la BD
     products_collection = db['products']
     categories_collection = db['categories']
     
     # Productos disponibles (limitar a 8 para home)
-    productos_db = list(products_collection.find({'status': 'Disponible'}).limit(8))
+    productos_db = list(products_collection.find({'status': 'Available'}).limit(8))
     productos = [format_product_for_template(p) for p in productos_db]
     
     # Categorías
@@ -52,6 +54,7 @@ def cliente_home():
                          rol=rol_actual)
 
 @bp_cliente.route("/productos")
+@require_role('cliente')
 def cliente_productos():
     # Obtener productos de la BD
     products_collection = db['products']
@@ -80,6 +83,7 @@ def cliente_productos():
                          rol=rol_actual)
 
 @bp_cliente.route("/categorias")
+@require_role('cliente')
 def cliente_categorias():
     # Obtener categorías de la BD
     categories_collection = db['categories']
@@ -98,7 +102,7 @@ def cliente_categorias():
                          rol=rol_actual)
 
 @bp_cliente.route("/carrito")
-@require_role("cliente")
+@require_role('cliente')
 def cliente_carrito():
     # Verificar que esté logueado
     if 'user_id' not in session:
@@ -132,6 +136,7 @@ def cliente_carrito():
                          rol=rol_actual)
 
 @bp_cliente.route("/mis_pedidos")
+@require_role('cliente')
 def cliente_mis_pedidos():
     # Verificar que esté logueado
     if 'user_id' not in session:
@@ -161,6 +166,7 @@ def cliente_mis_pedidos():
                          rol=rol_actual)
 
 @bp_cliente.route("/producto/<product_id>")
+@require_role('cliente')
 def cliente_detalle_producto(product_id):
     try:
         products_collection = db['products']
