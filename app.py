@@ -18,10 +18,5 @@ app.register_blueprint(bp_cliente)
 app.register_blueprint(bp_empleado)
 app.register_blueprint(bp_admin)
 
-from werkzeug.security import generate_password_hash
-
-pw_hash = generate_password_hash("123")  # tu contraseña
-print(pw_hash)
-
 if __name__ == '__main__':
     app.run(debug=True, port=4000)

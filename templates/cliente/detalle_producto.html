@@ -9,7 +9,7 @@
 <div class="detalle-container">
 
     {% set img_url = url_for('static', filename='img/products/' ~ producto.imagen) %}
-    {% set default_img = url_for('static', filename='img/cupcake.png') %}
+    {% set default_img = url_for('static', filename='img/products/cupcake.jpg') %}
 
     <img src="{{ img_url }}" class="detalle-img" onerror="this.src='{{ default_img }}'">
 

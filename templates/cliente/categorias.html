@@ -22,7 +22,7 @@
     <div class="icono-item">
 
         {% set icon_url = url_for('static', filename='img/categories/' ~ cat.icono) %}
-        {% set default_icon = url_for('static', filename='img/cupcake.png') %}
+        {% set default_icon = url_for('static', filename='img/products/cupcake.jpg') %}
 
         <img src="{{ icon_url }}" class="icono-categoria"
              onerror="this.src='{{ default_icon }}'">
