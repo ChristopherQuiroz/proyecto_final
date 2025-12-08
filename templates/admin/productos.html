@@ -1,12 +1,35 @@
 {% extends "layout_admin.html" %}
 
 {% block admin_content %}
-<h2 class="titulo-cat">Productos</h2>
+
+<h1 class="titulo-cat">ADMIN - PRODUCTOS</h1>
 
 <div class="buscador-agregar">
     <input type="text" id="buscar-producto" placeholder="Buscar producto...">
-    <button id="btn-agregar-producto" onclick="mostrarModal('agregar')">Agregar Producto</button>
+
+    <!-- FILTRO POR CATEGORÍA -->
+    <select id="filtro-categoria">
+        <option value="">Todas las categorías</option>
+        {% for cat in categorias %}
+        <option value="{{ cat.name }}">{{ cat.name }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- FILTRO POR STOCK -->
+    <select id="filtro-stock">
+        <option value="">Todos los stocks</option>
+        <option value="bajo">Bajo (&lt;5)</option>
+        <option value="medio">Medio (5-20)</option>
+        <option value="alto">Alto (&gt;20)</option>
+    </select>
+
+    <!-- FILTRO POR PRECIO -->
+    <input type="number" id="filtro-min-price" placeholder="Precio min" step="0.01" min="0">
+    <input type="number" id="filtro-max-price" placeholder="Precio max" step="0.01" min="0">
+
+    <button id="btn-agregar-producto" onclick="mostrarModalAgregar()">Agregar Producto</button>
 </div>
+
 
 <!-- Mensajes Flash -->
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -21,33 +44,31 @@
 
 <div class="productos-grid">
     {% for producto in productos %}
-    <div class="card-producto">
-        <div class="card-producto">
-      {% set img_url = url_for('static', filename='img/products/' ~ producto.name ~ '.jpg') %}
-      {% set default_img = url_for('static', filename='img/cupcake.png') %}
-      
-      <img src="{{ img_url }}"
-           class="producto-img"
-           onerror="this.src='{{ default_img }}'">
-        
+    <div class="card-producto"
+         data-id="{{ producto._id|string }}"
+         data-name="{{ producto.name }}"
+         data-description="{{ producto.description }}"
+         data-category="{{ producto.category }}"
+         data-price="{{ producto.price }}"
+         data-quantity="{{ producto.quantity }}"
+         data-status="{{ producto.status }}">
+        {% set default_img = url_for('static', filename='img/products/cupcake.jpg') %}
+        {% set img_url = url_for('static', filename='img/products/' ~ (producto.image if producto.image else 'cupcake.jpg')) %}
+        <img src="{{ img_url }}" class="producto-img" onerror="this.src='{{ default_img }}'">
+
         <div class="producto-info">
             <h3>{{ producto.name }}</h3>
-            <p><strong>Descripción:</strong> {{ producto.description[:50] }}...</p>
-            <p><strong>Precio:</strong> Bs {{ "%.2f"|format(producto.price|float) if producto.price else '0.00' }}</p>
+            <p><strong>Descripción:</strong> {{ producto.description[:50] }}{% if producto.description|length > 50 %}...{% endif %}</p>
+            <p><strong>Precio:</strong> Bs {{ "%.2f"|format(producto.price|float) }}</p>
             <p><strong>Stock:</strong> {{ producto.quantity }}</p>
             <p><strong>Categoría:</strong> {{ producto.category }}</p>
-            <p><strong>Estado:</strong> 
-                <span class="status-{{ producto.status|lower }}">
-                    {{ producto.status }}
-                </span>
-            </p>
+            <p><strong>Estado:</strong> <span class="status-{{ producto.status|lower }}">{{ producto.status }}</span></p>
         </div>
-        
+
         <div class="acciones-cat">
-            <button class="btn-editar" data-id="{{ producto._id }}" onclick="editarProducto('{{ producto._id|string }}')">
-                Editar
-            </button>
-            <a href="/admin/productos/eliminar/{{ producto.name }}" 
+            <!-- Pasar el _id como string para JS -->
+            <button class="btn-editar" onclick="mostrarModalEditar(this)">Editar</button>
+            <a href="/admin/productos/eliminar/{{ producto._id|string }}" 
                class="btn-borrar"
                onclick="return confirm('¿Eliminar {{ producto.name }}?')">
                 Eliminar
@@ -57,104 +78,112 @@
     {% endfor %}
 </div>
 
-<!-- Modal para productos -->
-<div id="modal-producto" class="modal">
+<!-- Modal Agregar -->
+<div id="modal-agregar" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="cerrarModal()">&times;</span>
-        <form id="form-producto" method="POST" action="/admin/productos">
-            <h3 id="modal-title">Agregar Producto</h3>
-            <input type="hidden" id="product_id" name="product_id">
+        <span class="close" onclick="cerrarModal('modal-agregar')">&times;</span>
+        <form method="POST" action="/admin/productos/agregar" enctype="multipart/form-data">
+
+            <h3>Agregar Producto</h3>
+            <input type="text" name="name" placeholder="Nombre" required>
+            <textarea name="description" placeholder="Descripción"></textarea>
+            <select name="category" required>
+                <option value="">Seleccionar categoría</option>
+                {% for cat in categorias %}
+                <option value="{{ cat.name }}">{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+            <input type="number" name="price" step="0.01" min="0" placeholder="Precio" required>
+            <input type="number" name="quantity" min="0" placeholder="Cantidad" required>
+            <select name="status">
+                <option value="Disponible">Disponible</option>
+                <option value="Agotado">Agotado</option>
+                <option value="Descontinuado">Descontinuado</option>
+            </select>
+            <!-- NUEVO: Imagen del producto -->
+            <label for="image">Imagen:</label>
+            <input type="file" name="image" accept="image/*">
             
-            <div class="form-group">
-                <label>Nombre:</label>
-                <input type="text" name="name" id="product_name" required>
-            </div>
-            
-            <div class="form-group">
-                <label>Descripción:</label>
-                <textarea name="description" id="product_desc" rows="3"></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label>Categoría:</label>
-                <select name="category" id="product_category" required>
-                    <option value="">Seleccionar categoría</option>
-                    {% for cat in categorias %}
-                    <option value="{{ cat.name }}">{{ cat.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Precio (Bs):</label>
-                    <input type="number" name="price" id="product_price" step="0.01" min="0" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Cantidad:</label>
-                    <input type="number" name="quantity" id="product_quantity" min="0" required>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label>Estado:</label>
-                <select name="status" id="product_status">
-                    <option value="Disponible">Disponible</option>
-                    <option value="Agotado">Agotado</option>
-                    <option value="Descontinuado">Descontinuado</option>
-                </select>
-            </div>
-            
-            <button type="submit" class="btn-guardar">Guardar</button>
+            <button type="submit">Agregar</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Editar -->
+<div id="modal-editar" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal('modal-editar')">&times;</span>
+        <form id="form-editar-producto" method="POST" enctype="multipart/form-data">
+            <h3>Editar Producto</h3>
+            <input type="hidden" name="old_name" id="editar_old_name">
+            <input type="text" name="name" id="editar_name" placeholder="Nombre" required>
+            <textarea name="description" id="editar_description" placeholder="Descripción"></textarea>
+            <select name="category" id="editar_category" required>
+                <option value="">Seleccionar categoría</option>
+                {% for cat in categorias %}
+                <option value="{{ cat.name }}">{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+            <input type="number" name="price" id="editar_price" step="0.01" min="0" placeholder="Precio" required>
+            <input type="number" name="quantity" id="editar_quantity" min="0" placeholder="Cantidad" required>
+            <select name="status" id="editar_status">
+                <option value="Disponible">Disponible</option>
+                <option value="Agotado">Agotado</option>
+                <option value="Descontinuado">Descontinuado</option>
+            </select>
+            <!-- NUEVO: Imagen del producto -->
+            <label for="editar_image">Imagen:</label>
+            <input type="file" name="image" id="editar_image" accept="image/*">
+            <br>
+            <img id="editar_image_preview" src="{{ url_for('static', filename='img/products/cupcake.png') }}" alt="Preview" style="max-width:100px; margin-top:5px;">
+
+            <button type="submit">Guardar Cambios</button>
         </form>
     </div>
 </div>
 
 <script>
-let modalProducto = document.getElementById('modal-producto');
+// Abrir modal agregar
+function mostrarModalAgregar() {
+    document.getElementById('modal-agregar').style.display = 'block';
+}
 
-// Función para mostrar modal
-function mostrarModal(tipo, productId = null) {
-    if (tipo === 'agregar') {
-        document.getElementById('modal-title').textContent = 'Agregar Producto';
-        document.getElementById('form-producto').action = '/admin/productos';
-        document.getElementById('form-producto').reset();
-    } else if (tipo === 'editar' && productId) {
-        // Hacer petición AJAX para obtener datos del producto
-        fetch(`/api/producto/${productId}`)
-            .then(response => response.json())
-            .then(producto => {
-                document.getElementById('modal-title').textContent = 'Editar Producto';
-                document.getElementById('form-producto').action = '/admin/productos/editar';
-                document.getElementById('product_id').value = producto._id;
-                document.getElementById('product_name').value = producto.name;
-                document.getElementById('product_desc').value = producto.description || '';
-                document.getElementById('product_price').value = producto.price;
-                document.getElementById('product_quantity').value = producto.quantity;
-                document.getElementById('product_status').value = producto.status || 'Disponible';
-                document.getElementById('product_category').value = producto.category || '';
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al cargar producto');
-            });
+// Abrir modal editar y cargar datos
+function mostrarModalEditar(btn) {
+    const card = btn.closest('.card-producto');
+    
+    document.getElementById('editar_old_name').value = card.dataset.name;
+    document.getElementById('editar_name').value = card.dataset.name;
+    document.getElementById('editar_description').value = card.dataset.description || '';
+    document.getElementById('editar_category').value = card.dataset.category || '';
+    document.getElementById('editar_price').value = card.dataset.price;
+    document.getElementById('editar_quantity').value = card.dataset.quantity;
+    document.getElementById('editar_status').value = card.dataset.status || 'Disponible';
+
+    document.getElementById('form-editar-producto').action = `/admin/productos/editar/${card.dataset.id}`;
+
+    document.getElementById('modal-editar').style.display = 'block';
+}
+// Actualizar preview de imagen en editar
+document.getElementById('editar_image').addEventListener('change', function(event){
+    const file = event.target.files[0];
+    if(file){
+        const reader = new FileReader();
+        reader.onload = function(e){
+            document.getElementById('editar_image_preview').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
     }
-    modalProducto.style.display = 'block';
-}
+});
 
-// Función para editar producto
-function editarProducto(productId) {
-    mostrarModal('editar', productId);
-}
 
-// Función para cerrar modal
-function cerrarModal() {
-    modalProducto.style.display = 'none';
+// Cerrar modales
+function cerrarModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
 }
 
 // Búsqueda en tiempo real
-document.getElementById('buscar-producto').addEventListener('input', function(e) {
+document.getElementById('buscar-producto').addEventListener('input', function(e){
     const term = e.target.value.toLowerCase();
     document.querySelectorAll('.card-producto').forEach(card => {
         const nombre = card.querySelector('h3').textContent.toLowerCase();
@@ -162,18 +191,56 @@ document.getElementById('buscar-producto').addEventListener('input', function(e)
         card.style.display = (nombre.includes(term) || desc.includes(term)) ? 'flex' : 'none';
     });
 });
+function aplicarFiltros() {
+    const term = document.getElementById('buscar-producto').value.toLowerCase();
+    const categoria = document.getElementById('filtro-categoria').value;
+    const stock = document.getElementById('filtro-stock').value;
+    const minPrice = parseFloat(document.getElementById('filtro-min-price').value) || 0;
+    const maxPrice = parseFloat(document.getElementById('filtro-max-price').value) || Infinity;
+
+    document.querySelectorAll('.card-producto').forEach(card => {
+        const nombre = card.querySelector('h3').textContent.toLowerCase();
+        const desc = card.querySelector('.producto-info p').textContent.toLowerCase();
+        const cardCategoria = card.dataset.category;
+        const cardStock = parseInt(card.dataset.quantity);
+        const cardPrice = parseFloat(card.dataset.price);
+
+        let mostrar = true;
+
+        // Búsqueda por nombre o descripción
+        if(term && !(nombre.includes(term) || desc.includes(term))) mostrar = false;
+
+        // Filtrar por categoría
+        if(categoria && cardCategoria !== categoria) mostrar = false;
+
+        // Filtrar por stock
+        if(stock) {
+            if(stock === 'bajo' && cardStock >= 5) mostrar = false;
+            if(stock === 'medio' && (cardStock < 5 || cardStock > 20)) mostrar = false;
+            if(stock === 'alto' && cardStock <= 20) mostrar = false;
+        }
+
+        // Filtrar por precio
+        if(cardPrice < minPrice || cardPrice > maxPrice) mostrar = false;
+
+        card.style.display = mostrar ? 'flex' : 'none';
+    });
+}
+
+// Eventos para filtros
+document.getElementById('buscar-producto').addEventListener('input', aplicarFiltros);
+document.getElementById('filtro-categoria').addEventListener('change', aplicarFiltros);
+document.getElementById('filtro-stock').addEventListener('change', aplicarFiltros);
+document.getElementById('filtro-min-price').addEventListener('input', aplicarFiltros);
+document.getElementById('filtro-max-price').addEventListener('input', aplicarFiltros);
+
 
 // Cerrar modal al hacer clic fuera
 window.onclick = function(event) {
-    if (event.target == modalProducto) {
-        cerrarModal();
+    if(event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
     }
-}
-
-// Event listener para el botón agregar
-document.getElementById('btn-agregar-producto').addEventListener('click', function() {
-    mostrarModal('agregar');
-});
+};
 </script>
 
 {% endblock %}

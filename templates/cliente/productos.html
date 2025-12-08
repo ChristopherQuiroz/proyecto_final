@@ -1,24 +1,52 @@
 {% extends "layout_cliente.html" %}
 
+{% block cliente_extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cliente/productos.css') }}">
+{% endblock %}
+
 {% block cliente_content %}
 
-<h1 class="text-center mb-4">PRODUCTOS</h1>
+<h1 class="text-center mb-4">Productos Disponibles</h1>
 
-<!-- Barra de búsqueda -->
-<div class="d-flex justify-content-center mb-4">
-    <form method="GET" class="d-flex" style="max-width: 400px; width:100%;">
-        <input type="text" class="form-control me-2" name="buscar" placeholder="Buscar">
-        <button class="btn btn-outline-dark" type="submit">
-            <i class="bi bi-search"></i>
-        </button>
-    </form>
+<!-- 🔎 BUSCADOR + FILTROS -->
+<div class="filtros-container">
+
+    <input type="text" id="buscar" class="input-text" placeholder="Buscar producto...">
+
+    <!-- Filtro por Categoría -->
+    <select id="filtro-categoria" class="input-select">
+        <option value="">Todas las categorías</option>
+        {% for cat in categorias %}
+        <option value="{{ cat.nombre }}">{{ cat.nombre }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Filtro por Precio -->
+    <input type="number" id="precio-min" class="input-number" placeholder="Precio mínimo" min="0" step="0.1">
+    <input type="number" id="precio-max" class="input-number" placeholder="Precio máximo" min="0" step="0.1">
+
+    <!-- Filtro por Stock -->
+    <select id="filtro-stock" class="input-select">
+        <option value="">Stock</option>
+        <option value="bajo">Bajo (&lt;5)</option>
+        <option value="medio">Medio (5–20)</option>
+        <option value="alto">Alto (&gt;20)</option>
+    </select>
+
 </div>
 
-<!-- Grid de productos -->
-<div class="row justify-content-center">
+<hr>
+
+<!-- 🛒 GRID DE PRODUCTOS -->
+<div class="row justify-content-center" id="productos-grid">
 
     {% for p in productos %}
-    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4 card-wrapper"
+         data-nombre="{{ p.nombre }}"
+         data-descripcion="{{ p.descripcion }}"
+         data-categoria="{{ p.categoria }}"
+         data-precio="{{ p.precio }}"
+         data-stock="{{ p.cantidad }}">
 
         <div class="card producto-card">
 
@@ -41,10 +69,66 @@
             </div>
 
         </div>
-
     </div>
     {% endfor %}
 
 </div>
+
+<script>
+// ===========================
+// FILTROS EN TIEMPO REAL
+// ===========================
+
+function aplicarFiltros() {
+    let buscar = document.getElementById("buscar").value.toLowerCase();
+    let categoria = document.getElementById("filtro-categoria").value;
+    let pMin = parseFloat(document.getElementById("precio-min").value) || 0;
+    let pMax = parseFloat(document.getElementById("precio-max").value) || Infinity;
+    let stock = document.getElementById("filtro-stock").value;
+
+    document.querySelectorAll('.card-wrapper').forEach(card => {
+
+        let nombre = card.dataset.nombre.toLowerCase();
+        let descripcion = card.dataset.descripcion.toLowerCase();
+        let cardCat = card.dataset.categoria;
+        let precio = parseFloat(card.dataset.precio);
+        let cantidad = parseInt(card.dataset.stock);
+
+        let mostrar = true;
+
+        // Buscar texto
+        if (buscar && !(nombre.includes(buscar) || descripcion.includes(buscar))) {
+            mostrar = false;
+        }
+
+        // Categoría
+        if (categoria && categoria !== cardCat) {
+            mostrar = false;
+        }
+
+        // Precio
+        if (precio < pMin || precio > pMax) {
+            mostrar = false;
+        }
+
+        // Stock
+        if (stock) {
+            if (stock === "bajo" && cantidad >= 5) mostrar = false;
+            if (stock === "medio" && (cantidad < 5 || cantidad > 20)) mostrar = false;
+            if (stock === "alto" && cantidad <= 20) mostrar = false;
+        }
+
+        card.style.display = mostrar ? "block" : "none";
+    });
+}
+
+// Eventos
+document.getElementById("buscar").addEventListener("input", aplicarFiltros);
+document.getElementById("filtro-categoria").addEventListener("change", aplicarFiltros);
+document.getElementById("precio-min").addEventListener("input", aplicarFiltros);
+document.getElementById("precio-max").addEventListener("input", aplicarFiltros);
+document.getElementById("filtro-stock").addEventListener("change", aplicarFiltros);
+
+</script>
 
 {% endblock %}
