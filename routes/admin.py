@@ -5,7 +5,9 @@ from routes.auth import require_role
 from database import dbConnection
 from entities.product import Product
 from entities.category import Category, category_manager
-
+from werkzeug.utils import secure_filename
+import os
+UPLOAD_FOLDER = 'static/img/products'
 bp_admin = Blueprint("admin", __name__, url_prefix="/admin")
 db = dbConnection()
 
@@ -149,6 +151,15 @@ def agregar_producto():
     status = request.form.get('status', 'Disponible')
     quantity = int(request.form.get('quantity', 0))
 
+    # Manejo de imagen
+    image_file = request.files.get('image')
+    image_filename = None
+    if image_file and image_file.filename != '':
+        filename = secure_filename(image_file.filename)
+        image_path = os.path.join(UPLOAD_FOLDER, filename)
+        image_file.save(image_path)
+        image_filename = filename
+
     # Validaciones
     if not name or not category:
         flash('Nombre y categoría son requeridos', 'error')
@@ -161,7 +172,11 @@ def agregar_producto():
 
     # Crear producto usando tu entidad Product
     product = Product(name, description, category, price, status, quantity)
-    products_collection.insert_one(product.toDBCollection())
+    product_data = product.toDBCollection()
+    if image_filename:
+        product_data['image'] = image_filename  # guardar el nombre de la imagen en la BD
+
+    products_collection.insert_one(product_data)
 
     flash('Producto agregado exitosamente', 'success')
     return redirect('/admin/productos')
@@ -179,16 +194,26 @@ def editar_producto(product_id):
     status = request.form.get('status', 'Disponible')
     quantity = int(request.form.get('quantity', 0))
 
+    update_data = {
+        'name': name,
+        'description': description,
+        'category': category,
+        'price': price,
+        'status': status,
+        'quantity': quantity
+    }
+
+    # Manejo de imagen
+    image_file = request.files.get('image')
+    if image_file and image_file.filename != '':
+        filename = secure_filename(image_file.filename)
+        image_path = os.path.join(UPLOAD_FOLDER, filename)
+        image_file.save(image_path)
+        update_data['image'] = filename
+
     result = products_collection.update_one(
         {'_id': ObjectId(product_id)},
-        {'$set': {
-            'name': name,
-            'description': description,
-            'category': category,
-            'price': price,
-            'status': status,
-            'quantity': quantity
-        }}
+        {'$set': update_data}
     )
 
     if result.matched_count == 0:
@@ -213,24 +238,6 @@ def eliminar_producto(product_id):
 
     return redirect('/admin/productos')
 
-
-# Endpoint API para obtener producto por _id (para rellenar modal de edición)
-@bp_admin.route("/api/producto/<product_id>")
-@require_role('admin')
-def api_producto(product_id):
-    products_collection = db['products']
-    print("ID recibido:", product_id)  # depuración
-    try:
-        producto = products_collection.find_one({"_id": ObjectId(product_id)})
-        if not producto:
-            return jsonify({"error": "Producto no encontrado"}), 404
-        producto['_id'] = str(producto['_id'])
-        return jsonify(producto)
-    except InvalidId:
-        return jsonify({"error": "ID inválido"}), 400
-    except Exception as e:
-        print("Error al buscar producto:", e)
-        return jsonify({"error": "Error al buscar producto"}), 400
 
 # ============================================================
 #                      STOCK Y REPORTES

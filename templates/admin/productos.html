@@ -29,9 +29,9 @@
          data-category="{{ producto.category }}"
          data-price="{{ producto.price }}"
          data-quantity="{{ producto.quantity }}"
-         data-status="{{ producto.status }}">>
-        {% set img_url = url_for('static', filename='img/products/' ~ producto.name|replace(' ', '_') ~ '.jpg') %}
-        {% set default_img = url_for('static', filename='img/cupcake.png') %}
+         data-status="{{ producto.status }}">
+        {% set default_img = url_for('static', filename='img/products/cupcake.jpg') %}
+        {% set img_url = url_for('static', filename='img/products/' ~ (producto.image if producto.image else 'cupcake.jpg')) %}
         <img src="{{ img_url }}" class="producto-img" onerror="this.src='{{ default_img }}'">
 
         <div class="producto-info">
@@ -60,7 +60,8 @@
 <div id="modal-agregar" class="modal">
     <div class="modal-content">
         <span class="close" onclick="cerrarModal('modal-agregar')">&times;</span>
-        <form method="POST" action="/admin/productos/agregar">
+        <form method="POST" action="/admin/productos/agregar" enctype="multipart/form-data">
+
             <h3>Agregar Producto</h3>
             <input type="text" name="name" placeholder="Nombre" required>
             <textarea name="description" placeholder="Descripción"></textarea>
@@ -77,6 +78,10 @@
                 <option value="Agotado">Agotado</option>
                 <option value="Descontinuado">Descontinuado</option>
             </select>
+            <!-- NUEVO: Imagen del producto -->
+            <label for="image">Imagen:</label>
+            <input type="file" name="image" accept="image/*">
+            
             <button type="submit">Agregar</button>
         </form>
     </div>
@@ -86,7 +91,7 @@
 <div id="modal-editar" class="modal">
     <div class="modal-content">
         <span class="close" onclick="cerrarModal('modal-editar')">&times;</span>
-        <form id="form-editar-producto" method="POST">
+        <form id="form-editar-producto" method="POST" enctype="multipart/form-data">
             <h3>Editar Producto</h3>
             <input type="hidden" name="old_name" id="editar_old_name">
             <input type="text" name="name" id="editar_name" placeholder="Nombre" required>
@@ -104,6 +109,12 @@
                 <option value="Agotado">Agotado</option>
                 <option value="Descontinuado">Descontinuado</option>
             </select>
+            <!-- NUEVO: Imagen del producto -->
+            <label for="editar_image">Imagen:</label>
+            <input type="file" name="image" id="editar_image" accept="image/*">
+            <br>
+            <img id="editar_image_preview" src="{{ url_for('static', filename='img/products/cupcake.png') }}" alt="Preview" style="max-width:100px; margin-top:5px;">
+
             <button type="submit">Guardar Cambios</button>
         </form>
     </div>
@@ -131,6 +142,18 @@ function mostrarModalEditar(btn) {
 
     document.getElementById('modal-editar').style.display = 'block';
 }
+// Actualizar preview de imagen en editar
+document.getElementById('editar_image').addEventListener('change', function(event){
+    const file = event.target.files[0];
+    if(file){
+        const reader = new FileReader();
+        reader.onload = function(e){
+            document.getElementById('editar_image_preview').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
 
 // Cerrar modales
 function cerrarModal(modalId) {
