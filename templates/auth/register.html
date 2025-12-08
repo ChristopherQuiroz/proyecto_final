@@ -3,34 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro</title>
-
+    <title>Pastelería Dulce - Registro</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 30px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .login-container h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        .registro-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        
+        .registro-link a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .brand {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ff6b8b;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .role-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
+    <div class="login-container">
+        <div class="brand">🍰 Pastelería Dulce</div>
+        <h2>Crear Cuenta</h2>
 
-<div class="login-container">
-    <h2>Crear Cuenta</h2>
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
 
-    <form method="POST">
-        <input type="text" name="usuario" placeholder="Usuario" required>
-        <input type="email" name="correo" placeholder="Correo" required>
-        <input type="password" name="password" placeholder="Contraseña" required>
+        <form method="POST">
+            <input type="text" name="usuario" placeholder="Nombre de usuario" required 
+                   pattern="[A-Za-z0-9_]{3,20}"
+                   title="3-20 caracteres, solo letras, números y guiones bajos">
+            
+            <input type="email" name="correo" placeholder="Correo electrónico" required>
+            
+            <input type="password" name="password" placeholder="Contraseña" required
+                   minlength="6"
+                   title="Mínimo 6 caracteres">
+            
+            {% if 'role' in session and session.role == 'admin' %}
+                <select name="rol">
+                    <option value="cliente">Cliente</option>
+                    <option value="empleado">Empleado</option>
+                    <option value="admin">Administrador</option>
+                </select>
+                <p class="role-info">Como administrador, puedes crear cualquier tipo de usuario</p>
+            {% else %}
+                <input type="hidden" name="rol" value="cliente">
+                <p class="role-info">Te registrarás como cliente. Los empleados y administradores solo pueden ser creados por un administrador.</p>
+            {% endif %}
 
-        <select name="rol">
-            <option value="cliente">Cliente</option>
-            <option value="empleado">Empleado</option>
-            <option value="admin">Admin</option>
-        </select>
+            <button type="submit">Crear Cuenta</button>
+        </form>
 
-        <button type="submit">Registrarse</button>
-    </form>
-
-    <p class="registro-link">
-        ¿Ya tienes cuenta?
-        <a href="/login">Iniciar sesión</a>
-    </p>
-</div>
-
+        <p class="registro-link">
+            ¿Ya tienes cuenta?
+            <a href="/login">Inicia sesión aquí</a>
+        </p>
+    </div>
 </body>
 </html>

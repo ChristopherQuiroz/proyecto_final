@@ -1,44 +1,169 @@
-/* Título */
+/* -------- MINI ACCESOS RÁPIDOS ARRIBA -------- */
+.mini-quick-access {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    padding: 10px 0;
+    margin-bottom: 25px;
+}
+
+.mini-quick-access a {
+    background: #D9C4A6;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #4a3b32;
+    text-decoration: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    transition: 0.3s;
+}
+
+.mini-quick-access a:hover {
+    background: #c8b498;
+    transform: translateY(-3px);
+}
+
+/* -------- TÍTULO -------- */
 .titulo-cat {
     text-align: center;
     font-weight: 700;
     color: #352720;
     margin-top: 20px;
+    margin-bottom: 10px;
     font-size: 2rem;
 }
 
-/* Contenedor de tarjetas */
-.dashboard-cards {
+/* -------- SUBTÍTULOS -------- */
+.subtitulo {
+    margin-top: 35px;
+    margin-left: 20px;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #4a3b32;
+}
+
+/* -------- STATS OVERVIEW -------- */
+.stats-overview {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px;
+    
+    padding: 20px;
+}
+.dashboard-center {
+    width: 90%;
+    max-width: 900px;  /* evita que se vea muy ancho */
+    margin: 0 auto;    /* centra horizontalmente */
+}
+.stat-card {
+    background: #E8DCC8;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.stat-card h3 {
+    font-size: 1rem;
+    color: #594A3C;
+    margin-bottom: 10px;
+}
+
+.stat-card p {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #352720;
+}
+
+/* -------- ALERTAS -------- */
+.alert-section {
     padding: 20px;
 }
 
-/* Tarjeta general */
-.dashboard-cards .card {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 120px;
-    border-radius: 12px;
+.alert-title {
+    font-size: 1.3rem;
+    color: #4a3b32;
+    margin-bottom: 10px;
+}
+
+.alert-box {
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 12px;
     font-weight: 600;
-    font-size: 1.2rem;
+}
+
+.alert-warning {
+    background: #F3D9A4;
+    color: #5c4422;
+}
+
+.alert-ok {
+    background: #CDE8C3;
+    color: #355e2a;
+}
+
+/* -------- TABLA Últimos pedidos -------- */
+.ultimos-table {
+    width: 95%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background: #F7F1EB;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.ultimos-table th, .ultimos-table td {
+    padding: 12px;
+    border-bottom: 1px solid #dcccb9;
+    color: #4a3b32;
+}
+
+.ultimos-table th {
+    background: #E2D2C3;
+    font-weight: 700;
+}
+
+.ultimos-table tr:hover {
+    background: #f2e8de;
+}
+/* Subtítulos */
+.subtitulo {
+    margin-top: 40px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #352720;
+    text-align: left;
+    margin-left: 10px;
+}
+
+/* Tablas TOP */
+.top-table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.top-table th {
+    background: #A67B5B;
     color: white;
-    text-decoration: none;
-    transition: transform 0.3s, box-shadow 0.3s;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    padding: 12px;
+    font-size: 1.1rem;
 }
 
-/* Efecto hover */
-.dashboard-cards .card:hover {
-    transform: translateY(-5px) scale(1.05);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+.top-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e5d5c5;
+    color: #352720;
 }
 
-/* Colores pastel/café por tarjeta */
-.card-productos { background: #A67B5B; }     /* marrón claro */
-.card-categorias { background: #D9C4A6; color: #352720; } /* beige, texto oscuro */
-.card-pedidos { background: #C9A66B; }      /* café suave */
-.card-clientes { background: #BFA17A; }     /* marrón medio */
-.card-empleados { background: #E0C097; color: #352720; } /* beige más claro */
+.top-table tr:hover {
+    background: #f5ede5;
+}
+
