@@ -4,25 +4,232 @@
 <h2 class="titulo-cat">Productos</h2>
 
 <div class="buscador-agregar">
-    <input type="text" placeholder="Buscar producto...">
-    <button>Agregar Producto</button>
+    <input type="text" id="buscar-producto" placeholder="Buscar producto...">
+    <button id="btn-agregar-producto" onclick="mostrarModal('agregar')">Agregar Producto</button>
 </div>
 
+<!-- Mensajes Flash -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
 <div class="productos-grid">
-    {% for i in range(1,8) %}
+    {% for producto in productos %}
     <div class="card-producto">
-        <img src="https://via.placeholder.com/80" class="producto-img">
-
+        <div class="card-producto">
+      {% set img_url = url_for('static', filename='img/products/' ~ producto.name ~ '.jpg') %}
+      {% set default_img = url_for('static', filename='img/cupcake.png') %}
+      
+      <img src="{{ img_url }}"
+           class="producto-img"
+           onerror="this.src='{{ default_img }}'">
+        
         <div class="producto-info">
-            <h3>Producto {{ i }}</h3>
-            <p>Precio: Bs {{ i*10 }}</p>
+            <h3>{{ producto.name }}</h3>
+            <p><strong>Descripción:</strong> {{ producto.description[:50] }}...</p>
+            <p><strong>Precio:</strong> Bs {{ "%.2f"|format(producto.price|float) if producto.price else '0.00' }}</p>
+            <p><strong>Stock:</strong> {{ producto.quantity }}</p>
+            <p><strong>Categoría:</strong> {{ producto.category }}</p>
+            <p><strong>Estado:</strong> 
+                <span class="status-{{ producto.status|lower }}">
+                    {{ producto.status }}
+                </span>
+            </p>
         </div>
-
+        
         <div class="acciones-cat">
-            <button class="btn-editar">Editar</button>
-            <button class="btn-borrar">Eliminar</button>
+            <button class="btn-editar" data-id="{{ producto._id }}" onclick="editarProducto('{{ producto._id|string }}')">
+                Editar
+            </button>
+            <a href="/admin/productos/eliminar/{{ producto.name }}" 
+               class="btn-borrar"
+               onclick="return confirm('¿Eliminar {{ producto.name }}?')">
+                Eliminar
+            </a>
         </div>
     </div>
     {% endfor %}
 </div>
+
+<!-- Modal para productos -->
+<div id="modal-producto" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal()">&times;</span>
+        <form id="form-producto" method="POST" action="/admin/productos">
+            <h3 id="modal-title">Agregar Producto</h3>
+            <input type="hidden" id="product_id" name="product_id">
+            
+            <div class="form-group">
+                <label>Nombre:</label>
+                <input type="text" name="name" id="product_name" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Descripción:</label>
+                <textarea name="description" id="product_desc" rows="3"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Categoría:</label>
+                <select name="category" id="product_category" required>
+                    <option value="">Seleccionar categoría</option>
+                    {% for cat in categorias %}
+                    <option value="{{ cat.name }}">{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Precio (Bs):</label>
+                    <input type="number" name="price" id="product_price" step="0.01" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Cantidad:</label>
+                    <input type="number" name="quantity" id="product_quantity" min="0" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Estado:</label>
+                <select name="status" id="product_status">
+                    <option value="Disponible">Disponible</option>
+                    <option value="Agotado">Agotado</option>
+                    <option value="Descontinuado">Descontinuado</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn-guardar">Guardar</button>
+        </form>
+    </div>
+</div>
+
+<script>
+let modalProducto = document.getElementById('modal-producto');
+
+// Función para mostrar modal
+function mostrarModal(tipo, productId = null) {
+    if (tipo === 'agregar') {
+        document.getElementById('modal-title').textContent = 'Agregar Producto';
+        document.getElementById('form-producto').action = '/admin/productos';
+        document.getElementById('form-producto').reset();
+    } else if (tipo === 'editar' && productId) {
+        // Hacer petición AJAX para obtener datos del producto
+        fetch(`/api/producto/${productId}`)
+            .then(response => response.json())
+            .then(producto => {
+                document.getElementById('modal-title').textContent = 'Editar Producto';
+                document.getElementById('form-producto').action = '/admin/productos/editar';
+                document.getElementById('product_id').value = producto._id;
+                document.getElementById('product_name').value = producto.name;
+                document.getElementById('product_desc').value = producto.description || '';
+                document.getElementById('product_price').value = producto.price;
+                document.getElementById('product_quantity').value = producto.quantity;
+                document.getElementById('product_status').value = producto.status || 'Disponible';
+                document.getElementById('product_category').value = producto.category || '';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar producto');
+            });
+    }
+    modalProducto.style.display = 'block';
+}
+
+// Función para editar producto
+function editarProducto(productId) {
+    mostrarModal('editar', productId);
+}
+
+// Función para cerrar modal
+function cerrarModal() {
+    modalProducto.style.display = 'none';
+}
+
+// Búsqueda en tiempo real
+document.getElementById('buscar-producto').addEventListener('input', function(e) {
+    const term = e.target.value.toLowerCase();
+    document.querySelectorAll('.card-producto').forEach(card => {
+        const nombre = card.querySelector('h3').textContent.toLowerCase();
+        const desc = card.querySelector('.producto-info p').textContent.toLowerCase();
+        card.style.display = (nombre.includes(term) || desc.includes(term)) ? 'flex' : 'none';
+    });
+});
+
+// Cerrar modal al hacer clic fuera
+window.onclick = function(event) {
+    if (event.target == modalProducto) {
+        cerrarModal();
+    }
+}
+
+// Event listener para el botón agregar
+document.getElementById('btn-agregar-producto').addEventListener('click', function() {
+    mostrarModal('agregar');
+});
+</script>
+
+<style>
+.flash-messages {
+    margin: 10px 0;
+}
+
+.flash {
+    padding: 10px;
+    border-radius: 4px;
+    margin: 5px 0;
+}
+
+.flash.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.flash.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.status-disponible {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.status-agotado {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.productos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.card-producto {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.producto-img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+</style>
 {% endblock %}
