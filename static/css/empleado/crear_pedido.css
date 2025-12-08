@@ -1,155 +1,125 @@
 body {
-    margin: 0;
-    padding: 0;
-    background: #fafafa;
-    font-family: "Poppins", sans-serif;
-    color: #4B3A36;
+    background: #f9f5f0;
+    font-family: "Inter", sans-serif;
 }
 
-/* HEADER */
-.header {
-    background: #C49C85;
-    height: 55px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
-}
-.menu-icon, .user-icon {
-    font-size: 22px;
-    cursor: pointer;
-}
-
-/* TITULO */
 .titulo {
     text-align: center;
-    margin-top: 25px;
-    color: #6B4F45;
+    margin-bottom: 20px;
+    color: #4a3428;
 }
 
-/* CLIENTE */
 .cliente-container {
-    width: 80%;
-    margin: 20px auto;
-}
-.cliente-container label {
-    display: block;
-    margin-bottom: 5px;
-}
-.cliente-container select {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #b69d8a;
-    border-radius: 5px;
-    outline: none;
+    width: 60%;
+    margin: 0 auto 30px auto;
+    display: flex;
+    flex-direction: column;
 }
 
-/* PRODUCTOS GRID */
+.cliente-container label {
+    font-weight: bold;
+    color: #4a3428;
+}
+
+.cliente-container select {
+    padding: 10px;
+    border-radius: 8px;
+    border: 2px solid #c89b78;
+}
+
+.subtitulo {
+    text-align: center;
+    margin-top: 40px;
+    color: #3b2b22;
+}
+
 .productos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    width: 80%;
-    margin: 0 auto 30px auto;
-}
-.card-producto {
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-    padding: 10px;
-    text-align: center;
-    border: 1px solid #ddd;
-    transition: 0.3s;
-}
-.card-producto:hover {
-    transform: scale(1.03);
-}
-.producto-img {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-}
-.precio {
-    font-weight: 600;
-    margin: 5px 0;
-}
-.descripcion {
-    font-size: 13px;
-    opacity: 0.7;
-    margin-bottom: 10px;
-}
-.pedido-control {
-    display: flex;
-    gap: 5px;
-    justify-content: center;
-}
-.pedido-control input {
-    width: 50px;
-    padding: 5px;
-    border: 2px solid #b69d8a;
-    border-radius: 5px;
-    text-align: center;
-}
-.pedido-control button {
-    padding: 5px 10px;
-    background: #C49C85;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-.pedido-control button:hover {
-    background: #A6785A;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 25px;
+    padding: 20px 50px;
 }
 
-/* PEDIDO ACTUAL */
-#lista-pedido {
-    width: 80%;
-    margin: 0 auto 20px auto;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 10px;
+.card-producto {
     background: white;
+    border-radius: 12px;
+    border: 2px solid #c89b78;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
 }
+
+.card-producto img {
+    width: 100%;
+    height: 170px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.pedido-control {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.pedido-control input {
+    width: 60px;
+    padding: 6px;
+}
+
+.btn-agregar-producto {
+    background: #c89b78;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: white;
+}
+
+.lista-pedido {
+    width: 60%;
+    margin: 0 auto;
+    padding: 10px;
+}
+
 .item-pedido {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #ddd;
-    padding: 5px 0;
-}
-.item-pedido button {
-    padding: 3px 7px;
-    margin-left: 3px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    background: #C49C85;
-    color: white;
-}
-.item-pedido button:hover {
-    background: #A6785A;
+    background: white;
+    border: 2px solid #c89b78;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
 }
 
-/* TOTAL Y BOTÓN */
-#total {
-    width: 80%;
-    margin: 0 auto 20px auto;
-    text-align: right;
-    font-weight: 600;
-    font-size: 18px;
-}
-#confirmar-pedido {
-    display: block;
-    margin: 0 auto 50px auto;
-    padding: 10px 20px;
-    background: #C49C85;
+.btn-eliminar {
+    background: #c85050;
     color: white;
+    border-radius: 6px;
     border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
+    padding: 6px 10px;
 }
-#confirmar-pedido:hover {
-    background: #A6785A;
+
+.total {
+    text-align: center;
+    font-size: 22px;
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+.btn-confirmar {
+    display: block;
+    margin: 25px auto;
+    padding: 12px 20px;
+    background: #4a3428;
+    color: white;
+    border-radius: 10px;
+    font-size: 18px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-confirmar:disabled {
+    background: #8f8f8f;
 }
