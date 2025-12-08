@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, session, flash, redirect
 from bson.objectid import ObjectId
 from database import dbConnection
 from routes.auth import require_role  
+from datetime import datetime
 
 bp_cliente = Blueprint("cliente", __name__, url_prefix="/cliente")
 db = dbConnection()
@@ -224,6 +225,56 @@ def actualizar_cantidad(product_id, accion):
 
     session.modified = True
     return redirect("/cliente/carrito")
+
+@bp_cliente.route("/pagar", methods=["POST"])
+@require_role("cliente")
+def cliente_pagar():
+
+    if "carrito" not in session or not session["carrito"]:
+        flash("Tu carrito está vacío", "error")
+        return redirect("/cliente/carrito")
+
+    carrito = session["carrito"]
+    products_collection = db["products"]
+
+    productos_pedido = []
+    total = 0
+
+    for product_id, cantidad in carrito.items():
+        producto_db = products_collection.find_one({"_id": ObjectId(product_id)})
+
+        if not producto_db:
+            continue
+
+        subtotal = producto_db["price"] * cantidad
+
+        productos_pedido.append({
+            "product_id": product_id,
+            "nombre": producto_db["name"],
+            "cantidad": cantidad,
+            "precio": producto_db["price"],
+            "subtotal": subtotal
+        })
+
+        total += subtotal
+
+    # Guardar pedido en BD
+    pedido = {
+        "user_id": session["user_id"],
+        "productos": productos_pedido,
+        "total": total,
+        "estado": "Pendiente",       # <-- ADMIN / EMPLEADO revisan esto
+        "fecha": datetime.now().strftime("%Y-%m-%d %H:%M")
+    }
+
+    db["orders"].insert_one(pedido)
+
+    # Vaciar carrito
+    session["carrito"] = {}
+    session.modified = True
+
+    flash("¡Pedido realizado con éxito!", "success")
+    return redirect("/cliente/mis_pedidos")
 
 @bp_cliente.route("/producto/<product_id>")
 @require_role('cliente')
