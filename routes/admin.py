@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, flash, redirect, session, jsonify
 from bson.objectid import ObjectId
+from bson.errors import InvalidId
 from routes.auth import require_role
 from database import dbConnection
 from entities.product import Product
@@ -123,6 +124,7 @@ def delete_category(category_name):
 # ============================================================
 #                        PRODUCTOS
 # ============================================================
+
 @bp_admin.route("/productos")
 @require_role('admin')
 def ver_productos():
@@ -133,81 +135,52 @@ def ver_productos():
     categorias = list(categories_collection.find())
     return render_template("admin/productos.html", productos=productos, categorias=categorias, rol="admin")
 
-@bp_admin.route("/productos/agregar", methods=['GET', 'POST'])
+
+@bp_admin.route("/productos/agregar", methods=['POST'])
 @require_role('admin')
-def admin_productos():
-    
+def agregar_producto():
     products_collection = db['products']
     categories_collection = db['categories']
-    
-    if request.method == 'POST':
-        # Agregar nuevo producto
-        name = request.form.get('name')
-        description = request.form.get('description', '')
-        category = request.form.get('category')
-        price = float(request.form.get('price', 0))
-        status = request.form.get('status', 'Disponible')
-        quantity = int(request.form.get('quantity', 0))
-        
-        # Validaciones
-        if not name or not category:
-            flash('Nombre y categoría son requeridos', 'error')
-            return redirect('/admin/productos')
-        
-        # Verificar si la categoría existe
-        category_exists = categories_collection.find_one({'name': category})
-        if not category_exists:
-            flash('La categoría seleccionada no existe', 'error')
-            return redirect('/admin/productos')
-        
-        # Crear producto usando tu entidad
-        product = Product(name, description, category, price, status, quantity)
-        
-        # Insertar en MongoDB
-        products_collection.insert_one(product.toDBCollection())
-        
-        # Actualizar manager en memoria
-        category_manager.add_product(product)
-        
-        flash('Producto agregado exitosamente', 'success')
-        return redirect('/admin/productos')
-    
-    # GET: Mostrar todos los productos
-    productos = list(products_collection.find())
-    categorias = list(categories_collection.find())
-    
-    return render_template("admin/productos.html", 
-                         productos=productos, 
-                         categorias=categorias,
-                         rol="admin")
 
-@bp_admin.route("/productos/editar", methods=['POST'])
-@require_role('admin')
-def editar_producto():
-
-    products_collection = db['products']
-    
-    product_id = request.form.get('product_id')
     name = request.form.get('name')
     description = request.form.get('description', '')
     category = request.form.get('category')
     price = float(request.form.get('price', 0))
     status = request.form.get('status', 'Disponible')
     quantity = int(request.form.get('quantity', 0))
-    
-    
-    # Determinar filtro correctamente (usar ObjectId si viene id)
-    if product_id:
-        try:
-            filtro = {'_id': ObjectId(product_id)}
-        except:
-            filtro = {'_id': product_id}  # fallback (no suele usarse)
-    else:
-        filtro = {'name': name}
-    
-    # Actualizar en MongoDB
+
+    # Validaciones
+    if not name or not category:
+        flash('Nombre y categoría son requeridos', 'error')
+        return redirect('/admin/productos')
+
+    # Verificar si la categoría existe
+    if not categories_collection.find_one({'name': category}):
+        flash('La categoría seleccionada no existe', 'error')
+        return redirect('/admin/productos')
+
+    # Crear producto usando tu entidad Product
+    product = Product(name, description, category, price, status, quantity)
+    products_collection.insert_one(product.toDBCollection())
+
+    flash('Producto agregado exitosamente', 'success')
+    return redirect('/admin/productos')
+
+
+@bp_admin.route("/productos/editar/<product_id>", methods=['POST'])
+@require_role('admin')
+def editar_producto(product_id):
+    products_collection = db['products']
+
+    name = request.form.get('name')
+    description = request.form.get('description', '')
+    category = request.form.get('category')
+    price = float(request.form.get('price', 0))
+    status = request.form.get('status', 'Disponible')
+    quantity = int(request.form.get('quantity', 0))
+
     result = products_collection.update_one(
-        {'_id': product_id} if '_id' in request.form else {'name': name},
+        {'_id': ObjectId(product_id)},
         {'$set': {
             'name': name,
             'description': description,
@@ -217,26 +190,47 @@ def editar_producto():
             'quantity': quantity
         }}
     )
-    
-    if result.modified_count > 0:
-        flash('Producto actualizado exitosamente', 'success')
+
+    if result.matched_count == 0:
+        flash('Producto no encontrado', 'error')
     else:
-        flash('No se pudo actualizar el producto', 'error')
-    
+        flash('Producto actualizado exitosamente', 'success')
+
     return redirect('/admin/productos')
 
-@bp_admin.route("/productos/eliminar/<string:product_name>")
-def eliminar_producto(product_name):
+
+@bp_admin.route("/productos/eliminar/<product_id>")
+@require_role('admin')
+def eliminar_producto(product_id):
     products_collection = db['products']
-    
-    result = products_collection.delete_one({'name': product_name})
-    
+
+    result = products_collection.delete_one({'_id': ObjectId(product_id)})
+
     if result.deleted_count > 0:
         flash('Producto eliminado exitosamente', 'success')
     else:
         flash('No se encontró el producto', 'error')
-    
+
     return redirect('/admin/productos')
+
+
+# Endpoint API para obtener producto por _id (para rellenar modal de edición)
+@bp_admin.route("/api/producto/<product_id>")
+@require_role('admin')
+def api_producto(product_id):
+    products_collection = db['products']
+    print("ID recibido:", product_id)  # depuración
+    try:
+        producto = products_collection.find_one({"_id": ObjectId(product_id)})
+        if not producto:
+            return jsonify({"error": "Producto no encontrado"}), 404
+        producto['_id'] = str(producto['_id'])
+        return jsonify(producto)
+    except InvalidId:
+        return jsonify({"error": "ID inválido"}), 400
+    except Exception as e:
+        print("Error al buscar producto:", e)
+        return jsonify({"error": "Error al buscar producto"}), 400
 
 # ============================================================
 #                      STOCK Y REPORTES
