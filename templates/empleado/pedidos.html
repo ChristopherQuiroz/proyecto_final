@@ -1,0 +1,35 @@
+{% extends "layout_empleado.html" %}
+
+{% block empleado_content %}
+<h2 class="titulo-cat">Pedidos Asignados</h2>
+
+{% if pedidos_asignados %}
+<table class="tabla-pedidos">
+    <thead>
+        <tr>
+            <th>ID Pedido</th>
+            <th>Cliente</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for p in pedidos_asignados %}
+        <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.cliente }}</td>
+            <td>{{ p.total }} Bs</td>
+            <td>{{ p.estado }}</td>
+            <td>{{ p.fecha }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% else %}
+<p class="no-pedidos">No tienes pedidos asignados aún.</p>
+{% endif %}
+
+{% endblock %}

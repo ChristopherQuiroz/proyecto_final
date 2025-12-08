@@ -8,7 +8,7 @@ import database as dbase
 from routes.cliente import bp_cliente
 from routes.empleado import bp_empleado
 from routes.admin import bp_admin
-from routes.auth import auth_bp, create_initial_admin
+from routes.auth import auth_bp
 db = dbase.dbConnection()
 app = Flask(__name__)
 app.secret_key = "clave_super_segura"
@@ -18,9 +18,10 @@ app.register_blueprint(bp_cliente)
 app.register_blueprint(bp_empleado)
 app.register_blueprint(bp_admin)
 
-# Crear admin al inicio
-with app.app_context():
-    create_initial_admin()
+from werkzeug.security import generate_password_hash
+
+pw_hash = generate_password_hash("123")  # tu contraseña
+print(pw_hash)
 
 if __name__ == '__main__':
     app.run(debug=True, port=4000)

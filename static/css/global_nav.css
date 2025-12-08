@@ -9,7 +9,7 @@
     border-bottom: 2px solid #8b5e48;
     font-family: "Inter", sans-serif;
     z-index: 10000;
-    position: fixed;   /* 🔥 Necesario */
+    position: fixed;
     width: 100%;
     top: 0;
 }
@@ -31,10 +31,10 @@
 /* ==== SIDEBAR ==== */
 .sidebar {
     position: fixed;
-    top: 55px;              /* 🔥 Sidebar debajo de la topbar  */
+    top: 55px;
     left: -260px;
     width: 260px;
-    height: calc(100vh - 55px);   /* 🔥 Altura corregida */
+    height: calc(100vh - 55px);
     background: #c89b78;
     border-right: 2px solid #8b5e48;
     padding: 20px;
@@ -43,6 +43,7 @@
     overflow-y: auto;
 }
 
+/* Mostrar sidebar cuando esté activo */
 .sidebar.show {
     left: 0;
 }
@@ -83,6 +84,10 @@
 
 /* ==== CONTENIDO ==== */
 #mainContent {
-    margin-top: 70px;      /* 🔥 Para que no quede detrás del navbar */
+    margin-top: 70px;
     transition: margin-left 0.3s ease;
+}
+/* Evitar que el contenido quede debajo del navbar */
+body {
+    padding-top: 70px;  /* Ajusta según altura de tu navbar */
 }

@@ -1,0 +1,64 @@
+{% extends "layout_empleado.html" %}
+
+{% block extra_css %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/empleado/productos.css') }}">
+{% endblock %}
+
+{% block empleado_content %}
+
+<h2 class="titulo-cat">Productos</h2>
+
+<div class="buscador-agregar">
+    <input type="text" id="buscar-producto" placeholder="Buscar producto...">
+</div>
+
+<div class="productos-grid">
+    {% for producto in productos %}
+    <div class="card-producto">
+
+        {% set img_url = url_for('static', filename='img/products/' ~ producto.name ~ '.jpg') %}
+        {% set default_img = url_for('static', filename='img/cupcake.png') %}
+
+        <img src="{{ img_url }}"
+             class="producto-img"
+             onerror="this.src='{{ default_img }}'">
+
+        <div class="producto-info">
+            <h3>{{ producto.name }}</h3>
+
+            <p><strong>Descripción:</strong> 
+                {{ producto.description[:50] if producto.description else '' }}...</p>
+
+            <p><strong>Precio:</strong> Bs 
+                {{ "%.2f"|format(producto.price|float) if producto.price else '0.00' }}</p>
+
+            <p><strong>Stock:</strong> {{ producto.quantity }}</p>
+
+            <p><strong>Categoría:</strong> {{ producto.category }}</p>
+
+            <p><strong>Estado:</strong>
+                <span class="status-{{ producto.status|lower }}">{{ producto.status }}</span>
+            </p>
+        </div>
+
+        <!-- EMPLEADO SOLO VE, NO MODIFICA -->
+        <div class="acciones-cat">
+            <button disabled class="btn-editar disabled">Ver</button>
+        </div>
+
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+document.getElementById('buscar-producto').addEventListener('input', function(e) {
+    const term = e.target.value.toLowerCase();
+    document.querySelectorAll('.card-producto').forEach(card => {
+        const nombre = card.querySelector('h3').textContent.toLowerCase();
+        card.style.display = nombre.includes(term) ? 'flex' : 'none';
+    });
+});
+</script>
+
+{% endblock %}

@@ -4,13 +4,13 @@
     <!-- CSS general del navbar -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global_nav.css') }}">
 
+
     <!-- CSS específico del navbar del cliente -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/cliente/nav.css') }}">
 
     <!-- CSS general del cliente -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layout_cliente.css') }}">
 
-   
     {% block cliente_extra_css %}{% endblock %}
 {% endblock %}
 
@@ -18,6 +18,11 @@
     {% include "base/nav.html" %}
 {% endblock %}
 
+<!-- 🔥 NECESARIO PARA QUE EL NAV NO TAPE EL CONTENIDO -->
+<div id="mainContent">
+
 {% block content %}
     {% block cliente_content %}{% endblock %}
 {% endblock %}
+
+</div>

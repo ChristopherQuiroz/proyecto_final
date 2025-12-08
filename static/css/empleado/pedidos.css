@@ -1,0 +1,69 @@
+/* ====== TÍTULO ====== */
+.titulo-cat {
+    text-align: center;
+    margin-top: 90px; /* Evita que lo tape el navbar */
+    font-size: 2rem;
+    font-weight: 700;
+    color: #352720;
+}
+
+/* ====== TABLA DE PEDIDOS ====== */
+.tabla-pedidos {
+    width: 90%;
+    margin: 30px auto;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.20);
+}
+
+.tabla-pedidos th {
+    background: #A67B5B;
+    color: white;
+    padding: 14px;
+    font-size: 1rem;
+}
+
+.tabla-pedidos td {
+    padding: 12px;
+    color: #352720;
+    border-bottom: 1px solid #e4d5c7;
+}
+
+/* Hover en filas */
+.tabla-pedidos tr:hover td {
+    background: #f8efe7;
+}
+
+/* SIN PEDIDOS */
+.no-pedidos {
+    text-align: center;
+    font-size: 1.3rem;
+    color: #5c4b3a;
+    margin-top: 40px;
+    font-style: italic;
+}
+
+/* ESTADOS */
+.estado {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.estado.pendiente {
+    background: #F3D9A4;
+    color: #72521c;
+}
+
+.estado.completado {
+    background: #CDE8C3;
+    color: #2d5c20;
+}
+
+.estado.cancelado {
+    background: #F8C0AE;
+    color: #8b2f1c;
+}

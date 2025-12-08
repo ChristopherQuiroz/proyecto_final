@@ -10,25 +10,35 @@
 
     <ul>
         {% if rol == "empleado" %}
-       <li><a href="/empleado/clientes" >Gestionar Clientes</a></li>
-        <li><a href="/empleado/crear_pedido">Crear Pedido</a></li>
-        <li><a href="/empleado/pedidos">Ver Pedidos</a></li>
+            <li><a href="/empleado">Inicio</a></li>
+            <li><a href="/empleado/clientes">Gestionar Clientes</a></li>
+            <li><a href="/empleado/crear_pedido">Crear Pedido</a></li>
+            <li><a href="/empleado/pedidos">Ver Pedidos</a></li>
+            <li><a href="/empleado/productos">Productos</a></li>
+            <li><a href="/empleado/inventario">Inventario</a></li>
+
         {% elif rol == "admin" %}
-        <li><a href="/admin">Inicio</a></li>
-        <li><a href="/admin/clientes">Clientes</a></li>
-        <li><a href="/admin/empleados">Empleados</a></li>
-        <li><a href="/admin/categorias">Categorías</a></li>
-        <li><a href="/admin/productos">Productos</a></li>
-        <li><a href="/admin/pedidos">Pedidos</a></li>
-        <li><a href="/admin/inventario">Inventario</a></li>
-        <li><a href="/admin/reportes">Reportes</a></li>
+            <li><a href="/admin">Inicio</a></li>
+            <li><a href="/admin/clientes">Clientes</a></li>
+            <li><a href="/admin/empleados">Empleados</a></li>
+            <li><a href="/admin/categorias">Categorías</a></li>
+            <li><a href="/admin/productos">Productos</a></li>
+            <li><a href="/admin/pedidos">Pedidos</a></li>
+            <li><a href="/admin/inventario">Inventario</a></li>
+            <li><a href="/admin/reportes">Reportes</a></li>
 
         {% elif rol == "cliente" %}
-        <li><a href="/cliente/productos">Productos</a></li>
-        <li><a href="/cliente/carrito">Carrito</a></li>
-        <li><a href="/cliente/pedidos">Mis pedidos</a></li>
+            <li><a href="/cliente">Inicio</a></li>
+            <li><a href="/cliente/productos">Productos</a></li>
+            <li><a href="/cliente/carrito">Carrito</a></li>
+            <li><a href="/cliente/mis_pedidos">Mis pedidos</a></li>
+            <li><a href="/logout">Cerrar sesión</a></li>
         {% endif %}
-
-        
     </ul>
 </div>
+
+<script>
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("show");
+}
+</script>

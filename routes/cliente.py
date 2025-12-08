@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, session, flash, redirect
 from bson.objectid import ObjectId
 from database import dbConnection
-from routes.auth import require_role
+from routes.auth import require_role  
 
 bp_cliente = Blueprint("cliente", __name__, url_prefix="/cliente")
 db = dbConnection()
@@ -23,16 +23,18 @@ def format_product_for_template(product):
     }
 
 def format_category_for_template(category):
-    """Convertir categoría de BD a template"""
+    """Convertir categoría de BD (inglés) a template (español)"""
     return {
         'id': str(category.get('_id', '')),
         'nombre': category.get('name', 'Sin nombre'),
-        'icono': category.get('icono', 'cupcake.png'),
-        'descripcion': category.get('descripcion', '')
+        'icono': category.get('icon', 'cupcake.png'),   # campo correcto de BD
+        'descripcion': category.get('description', '')  # campo correcto de BD
     }
+
     
 @bp_cliente.route("/")
-def cliente_home():
+@require_role('cliente')
+def cliente_dashboard():
     # Obtener productos y categorías de la BD
     products_collection = db['products']
     categories_collection = db['categories']
@@ -46,12 +48,13 @@ def cliente_home():
     categorias = [format_category_for_template(c) for c in categorias_db]
     
     rol_actual = session.get('role', 'cliente')
-    return render_template("cliente/index.html", 
+    return render_template("cliente/dashboard.html", 
                          productos=productos, 
                          categorias=categorias,
                          rol=rol_actual)
 
 @bp_cliente.route("/productos")
+@require_role('cliente')
 def cliente_productos():
     # Obtener productos de la BD
     products_collection = db['products']
@@ -80,6 +83,7 @@ def cliente_productos():
                          rol=rol_actual)
 
 @bp_cliente.route("/categorias")
+@require_role('cliente')
 def cliente_categorias():
     # Obtener categorías de la BD
     categories_collection = db['categories']
@@ -98,7 +102,7 @@ def cliente_categorias():
                          rol=rol_actual)
 
 @bp_cliente.route("/carrito")
-@require_role("cliente")
+@require_role('cliente')
 def cliente_carrito():
     # Verificar que esté logueado
     if 'user_id' not in session:
@@ -132,6 +136,7 @@ def cliente_carrito():
                          rol=rol_actual)
 
 @bp_cliente.route("/mis_pedidos")
+@require_role('cliente')
 def cliente_mis_pedidos():
     # Verificar que esté logueado
     if 'user_id' not in session:
@@ -160,7 +165,68 @@ def cliente_mis_pedidos():
                          pedidos=pedidos, 
                          rol=rol_actual)
 
+@bp_cliente.route("/carrito/agregar/<product_id>", methods=["POST"])
+@require_role('cliente')
+def agregar_al_carrito(product_id):
+
+    cantidad = int(request.form.get("cantidad", 1))
+
+    # Crear el carrito si no existe
+    if "carrito" not in session:
+        session["carrito"] = {}
+
+    # Convertir id a string
+    product_id = str(product_id)
+
+    # Actualizar cantidad si el producto ya está
+    if product_id in session["carrito"]:
+        session["carrito"][product_id] += cantidad
+    else:
+        session["carrito"][product_id] = cantidad
+
+    session.modified = True
+
+    flash("Producto agregado al carrito", "success")
+    return redirect("/cliente/carrito")
+
+@bp_cliente.route("/carrito/eliminar/<product_id>")
+@require_role('cliente')
+def eliminar_del_carrito(product_id):
+
+    product_id = str(product_id)
+
+    if "carrito" in session and product_id in session["carrito"]:
+        session["carrito"].pop(product_id)
+
+    session.modified = True
+    flash("Producto eliminado del carrito", "success")
+    return redirect("/cliente/carrito")
+
+@bp_cliente.route("/carrito/actualizar/<product_id>/<accion>")
+@require_role('cliente')
+def actualizar_cantidad(product_id, accion):
+
+    product_id = str(product_id)
+
+    if "carrito" not in session or product_id not in session["carrito"]:
+        return redirect("/cliente/carrito")
+
+    # SUMAR
+    if accion == "sumar":
+        session["carrito"][product_id] += 1
+
+    # RESTAR
+    elif accion == "restar":
+        if session["carrito"][product_id] > 1:
+            session["carrito"][product_id] -= 1
+        else:
+            session["carrito"].pop(product_id)
+
+    session.modified = True
+    return redirect("/cliente/carrito")
+
 @bp_cliente.route("/producto/<product_id>")
+@require_role('cliente')
 def cliente_detalle_producto(product_id):
     try:
         products_collection = db['products']

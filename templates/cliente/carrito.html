@@ -1,23 +1,59 @@
+{% extends "layout_cliente.html" %}
+
+{% block cliente_extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cliente/carrito.css') }}">
+{% endblock %}
+
+{% block cliente_content %}
+
+<h2 class="titulo">Mi Carrito</h2>
+
 <div class="carrito-container">
+
     {% for producto in productos %}
     <div class="item-carrito">
+
         {% set img_url = url_for('static', filename='img/products/' ~ producto.imagen) %}
         {% set default_img = url_for('static', filename='img/cupcake.png') %}
-        
-        <img src="{{ img_url }}"
-             class="carrito-img"
-             onerror="this.src='{{ default_img }}'">
-        
+
+        <img src="{{ img_url }}" class="carrito-img" onerror="this.src='{{ default_img }}'">
+
         <div class="carrito-info">
             <h4>{{ producto.nombre }}</h4>
             <p>Precio: {{ producto.precio }} Bs</p>
-            <p>Cantidad: {{ producto.cantidad }}</p>
+
+            <!-- CONTROLES DE CANTIDAD -->
+            <div class="cantidad-control">
+                <button onclick="actualizarCantidad('{{ producto.id }}', 'restar')">−</button>
+                <span>{{ producto.cantidad }}</span>
+                <button onclick="actualizarCantidad('{{ producto.id }}', 'sumar')">+</button>
+            </div>
+
             <p>Subtotal: {{ producto.subtotal }} Bs</p>
         </div>
-        
+
         <button class="btn-eliminar" onclick="eliminarDelCarrito('{{ producto.id }}')">X</button>
     </div>
+
     {% else %}
     <p class="carrito-vacio">Tu carrito está vacío</p>
     {% endfor %}
+
 </div>
+
+<!-- TOTAL GENERAL -->
+<div class="carrito-total">
+    <h3>Total: {{ total }} Bs</h3>
+</div>
+
+<script>
+function eliminarDelCarrito(id) {
+    window.location.href = "/cliente/carrito/eliminar/" + id;
+}
+
+function actualizarCantidad(id, accion) {
+    window.location.href = "/cliente/carrito/actualizar/" + id + "/" + accion;
+}
+</script>
+
+{% endblock %}

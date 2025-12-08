@@ -9,16 +9,24 @@
 <h1 class="titulo-cat">CATEGORIAS</h1>
 
 <!-- Buscador -->
-<div class="buscador-container">
-    <input type="text" placeholder="Buscar" class="input-buscar">
+<form method="GET" class="buscador-container">
+    <input type="text" name="buscar" placeholder="Buscar"
+           class="input-buscar"
+           value="{{ request.args.get('buscar', '') }}">
     <button class="btn-buscar">🔍</button>
-</div>
+</form>
 
 <!-- Iconos -->
 <section class="categorias-iconos">
     {% for cat in categorias %}
     <div class="icono-item">
-        <img src="{{ url_for('static', filename='img/cupcake.png') }}" class="icono-categoria">
+
+        {% set icon_url = url_for('static', filename='img/categories/' ~ cat.icono) %}
+        {% set default_icon = url_for('static', filename='img/cupcake.png') %}
+
+        <img src="{{ icon_url }}" class="icono-categoria"
+             onerror="this.src='{{ default_icon }}'">
+
         <p>{{ cat.nombre }}</p>
     </div>
     {% endfor %}
@@ -28,11 +36,17 @@
 <section class="productos-grid">
     {% for p in productos %}
     <div class="card-producto">
-        <img src="{{ p.imagen }}" class="producto-img">
+
+        {% set img_url = url_for('static', filename='img/products/' ~ p.imagen) %}
+        {% set default_img = url_for('static', filename='img/cupcake.png') %}
+
+        <img src="{{ img_url }}" class="producto-img"
+             onerror="this.src='{{ default_img }}'">
+
         <div class="producto-info">
             <h3>{{ p.nombre }}</h3>
             <p class="precio">Precio: {{ p.precio }} Bs</p>
-            <p class="descripcion">{{ p.descripcion }}</p>
+            <p class="descripcion">{{ p.descripcion[:60] }}...</p>
         </div>
     </div>
     {% endfor %}

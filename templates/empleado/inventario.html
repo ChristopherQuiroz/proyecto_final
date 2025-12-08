@@ -1,0 +1,27 @@
+{% extends "layout_empleado.html" %}
+
+{% block empleado_content %}
+<h2 class="titulo-cat">Inventario</h2>
+
+<table class="tabla-inventario">
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Stock</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for p in productos %}
+        <tr>
+            <td>{{ p.name }}</td>
+            <td>{{ p.category }}</td>
+            <td>{{ p.quantity }}</td>
+            <td>{{ p.status }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

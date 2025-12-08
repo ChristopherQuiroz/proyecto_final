@@ -1,0 +1,43 @@
+{% extends "layout_cliente.html" %}
+
+{% block cliente_extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cliente/pedidos.css') }}">
+{% endblock %}
+
+{% block cliente_content %}
+
+<h2 class="titulo">Mis Pedidos</h2>
+
+<div class="pedidos-lista">
+
+    {% if pedidos %}
+        {% for p in pedidos %}
+        <div class="pedido-card">
+
+            <h3>Pedido #{{ p.id }}</h3>
+
+            <p><strong>Fecha:</strong> {{ p.fecha }}</p>
+            <p><strong>Total:</strong> {{ p.total }} Bs</p>
+            <p><strong>Estado:</strong> 
+                <span class="estado {{ p.estado | lower }}">{{ p.estado }}</span>
+            </p>
+
+            <details>
+                <summary>Ver productos</summary>
+                <ul>
+                    {% for item in p.productos %}
+                    <li>{{ item.cantidad }} × {{ item.nombre }} — {{ item.subtotal }} Bs</li>
+                    {% endfor %}
+                </ul>
+            </details>
+
+        </div>
+        {% endfor %}
+
+    {% else %}
+        <p class="vacio">No tienes pedidos aún.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

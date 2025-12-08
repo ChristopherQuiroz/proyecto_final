@@ -1,0 +1,17 @@
+.pedidos-container {
+    margin: 90px auto;
+    width: 80%;
+}
+
+.pedido-card {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+
+.pedido-estado {
+    font-weight: bold;
+    color: #a06745;
+}

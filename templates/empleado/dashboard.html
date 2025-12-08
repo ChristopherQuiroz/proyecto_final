@@ -1,0 +1,110 @@
+{% extends "layout_empleado.html" %}
+
+{% block empleado_content %}
+
+<div class="dashboard-content">
+
+    <!-- TÍTULO -->
+    <h1 class="titulo-cat">Panel del Empleado</h1>
+
+    <!-- MINI ACCESOS RÁPIDOS -->
+    <div class="mini-quick-access">
+        <a href="/empleado/productos">Productos</a>
+        <a href="/empleado/inventario">Inventario</a>
+        <a href="/empleado/clientes">Clientes</a>
+    </div>
+
+    <!-- RESUMEN GENERAL -->
+    <h2 class="subtitulo">Resumen General</h2>
+
+    <section class="stats-overview dashboard-center">
+
+        <div class="stat-card">
+            <h3>Pedidos Pendientes</h3>
+            <p>{{ pedidos_pendientes }}</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Pedidos Completados Hoy</h3>
+            <p>{{ pedidos_hoy }}</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Productos con Poco Stock</h3>
+            <p>{{ stock_bajo }}</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Clientes Atendidos</h3>
+            <p>{{ clientes_hoy }}</p>
+        </div>
+
+    </section>
+
+
+    <!-- ALERTAS IMPORTANTES -->
+    <div class="alert-section">
+        <h3 class="alert-title">Alertas Importantes</h3>
+
+        {% if productos_bajo_stock|length > 0 %}
+            <div class="alert-box alert-warning">
+                ⚠ Hay productos con stock crítico.
+            </div>
+        {% else %}
+            <div class="alert-box alert-ok">
+                ✔ No hay alertas de stock.
+            </div>
+        {% endif %}
+    </div>
+
+
+    <!-- TABLA DE PEDIDOS ASIGNADOS -->
+    <h2 class="subtitulo">Pedidos Asignados</h2>
+
+    <table class="ultimos-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for p in pedidos_asignados %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.cliente }}</td>
+                <td>{{ p.fecha }}</td>
+                <td>{{ p.estado }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+    <!-- TABLA STOCK BAJO -->
+    <h2 class="subtitulo">Productos con Poco Stock</h2>
+
+    <table class="top-table">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Stock</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for p in productos_bajo_stock %}
+            <tr>
+                <td>{{ p.name if p.name else p['name'] }}</td>
+                <td>{{ p.quantity if p.quantity else p['quantity'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}

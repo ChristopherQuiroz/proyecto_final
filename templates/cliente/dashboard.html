@@ -1,0 +1,66 @@
+{% extends "layout_cliente.html" %}
+
+{% block cliente_extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cliente/dashboard.css') }}">
+{% endblock %}
+
+{% block cliente_content %}
+
+<!-- ============================
+         BANNER PRINCIPAL
+=============================== -->
+<section class="banner">
+    <img src="{{ url_for('static', filename='img/banner.jpg') }}" class="banner-img" alt="Banner">
+    <h1 class="banner-title">Bienvenido a la Pastelería</h1>
+</section>
+
+<!-- ============================
+      PRODUCTOS DESTACADOS
+=============================== -->
+<h2 class="section-title">Productos Destacados</h2>
+
+<section class="productos">
+    {% for p in productos %}
+    <div class="product-card">
+
+        {% set img_url = url_for('static', filename='img/products/' ~ p.imagen) %}
+        {% set default_img = url_for('static', filename='img/cupcake.png') %}
+
+        <img src="{{ img_url }}"
+             class="product-img"
+             onerror="this.src='{{ default_img }}';">
+
+        <h3>{{ p.nombre }}</h3>
+        <p class="precio">{{ p.precio }} Bs</p>
+        <p class="desc">{{ p.descripcion[:60] }}...</p>
+
+        <a href="/cliente/producto/{{ p.id }}" class="btn-ver">Ver más</a>
+    </div>
+    {% endfor %}
+</section>
+
+<!-- ============================
+             CATEGORÍAS
+=============================== -->
+<h2 class="section-title-cats">Categorías</h2>
+
+<section class="categorias">
+    {% for cat in categorias %}
+    <div class="cat-card">
+
+        {% set img_url = url_for('static', filename='img/categories/' ~ cat.icono) %}
+        {% set default_img = url_for('static', filename='img/cupcake.png') %}
+
+        <img src="{{ img_url }}"
+             class="cat-img"
+             onerror="this.src='{{ default_img }}';">
+
+        <h3>{{ cat.nombre }}</h3>
+        <p>{{ cat.descripcion[:70] }}...</p>
+
+        <a href="/cliente/productos?buscar={{ cat.nombre }}" class="btn-cat">Ver Productos</a>
+    </div>
+    {% endfor %}
+</section>
+
+{% endblock %}

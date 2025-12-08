@@ -1,0 +1,61 @@
+/* ====== TÍTULO ====== */
+.titulo-cat {
+    text-align: center;
+    margin-top: 90px; /* Para que no lo tape el navbar */
+    font-size: 2rem;
+    font-weight: 700;
+    color: #352720;
+}
+
+/* ====== TABLA DE INVENTARIO ====== */
+.tabla-inventario {
+    width: 90%;
+    margin: 25px auto;
+    border-collapse: collapse;
+    background: #F7F1EB;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
+.tabla-inventario th {
+    background: #D9C4A6;
+    color: #352720;
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.tabla-inventario td {
+    padding: 12px;
+    color: #4a3b32;
+    border-bottom: 1px solid #dac9b4;
+}
+
+/* Hover fila */
+.tabla-inventario tr:hover td {
+    background: #efe6dc;
+}
+
+/* Estado */
+.estado {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.estado.disponible {
+    background: #CDE8C3;
+    color: #2d5c20;
+}
+
+.estado.agotado {
+    background: #F8C0AE;
+    color: #8b2f1c;
+}
+
+.estado.bajo {
+    background: #F3D9A4;
+    color: #72521c;
+}

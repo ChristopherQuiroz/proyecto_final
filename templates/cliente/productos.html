@@ -21,17 +21,25 @@
     <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
 
         <div class="card producto-card">
-            <img src="{{ p.imagen }}" class="card-img-top" alt="{{ p.nombre }}">
+
+            {% set img_url = url_for('static', filename='img/products/' ~ p.imagen) %}
+            {% set default_img = url_for('static', filename='img/cupcake.png') %}
+
+            <img src="{{ img_url }}"
+                 class="card-img-top"
+                 alt="{{ p.nombre }}"
+                 onerror="this.src='{{ default_img }}'">
 
             <div class="card-body">
                 <h5 class="card-title">{{ p.nombre }}</h5>
                 <p class="card-text precio">Bs. {{ p.precio }}</p>
-                <p class="card-text descripcion">{{ p.descripcion }}</p>
+                <p class="card-text descripcion">{{ p.descripcion[:60] }}...</p>
 
                 <a href="/cliente/producto/{{ p.id }}" class="btn btn-dark w-100">
                     Ver más
                 </a>
             </div>
+
         </div>
 
     </div>

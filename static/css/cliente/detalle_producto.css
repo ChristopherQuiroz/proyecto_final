@@ -1,0 +1,96 @@
+/* -----------------------------
+        CONTENEDOR GENERAL
+------------------------------ */
+.detalle-container {
+    margin: 100px auto;
+    width: 80%;
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+/* -----------------------------
+             IMAGEN
+------------------------------ */
+.detalle-img {
+    width: 350px;
+    height: 350px;
+    object-fit: cover;
+    border-radius: 15px;
+    border: 3px solid #c89b78;
+}
+
+/* -----------------------------
+           INFORMACIÓN
+------------------------------ */
+.info {
+    flex: 1;
+}
+
+.info h2 {
+    margin-top: 0;
+    font-size: 32px;
+    color: #4a3428;
+}
+
+.precio {
+    font-size: 24px;
+    color: #8b5e48;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.desc {
+    font-size: 16px;
+    color: #4a3428;
+    margin-bottom: 20px;
+}
+
+/* -----------------------------
+    INPUT DE CANTIDAD
+------------------------------ */
+.cantidad-input {
+    width: 80px;
+    padding: 8px;
+    border-radius: 6px;
+    border: 2px solid #c89b78;
+    margin-right: 15px;
+    font-size: 16px;
+}
+
+/* -----------------------------
+      BOTÓN AGREGAR AL CARRITO
+------------------------------ */
+.btn-agregar {
+    padding: 10px 18px;
+    background: #c89b78;
+    border: none;
+    color: #ffffff;
+    border-radius: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: .2s;
+    font-weight: bold;
+}
+
+.btn-agregar:hover {
+    background: #b68565;
+}
+
+/* -----------------------------
+        BOTÓN VOLVER
+------------------------------ */
+.btn-volver {
+    display: inline-block;
+    margin-top: 20px;
+    text-decoration: none;
+    background: #d7c2b3;
+    padding: 8px 15px;
+    border-radius: 8px;
+    color: #3b2b22;
+    font-weight: bold;
+}
+
+.btn-volver:hover {
+    background: #c3ab99;
+}
