@@ -44,6 +44,14 @@
 <!-- TOTAL GENERAL -->
 <div class="carrito-total">
     <h3>Total: {{ total }} Bs</h3>
+    <h3>Total: {{ total }} Bs</h3>
+
+<div class="carrito-total">
+    <form method="POST" action="/cliente/pagar">
+        <button type="submit" class="btn-confirmar">Pagar Pedido</button>
+    </form>
+</div>
+
 </div>
 
 <script>

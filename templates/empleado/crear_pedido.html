@@ -1,47 +1,131 @@
 {% extends "layout_empleado.html" %}
 
 {% block extra_css %}
-    {{ super() }}  <!-- IMPORTANTE: sin esto NO carga el menú -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/empleado/crear_pedido.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/empleado/crear_pedido.css') }}">
 {% endblock %}
 
 {% block empleado_content %}
 
 <h1 class="titulo">Crear Pedido</h1>
 
+<!-- SELECCIÓN DE CLIENTE -->
 <div class="cliente-container">
     <label for="cliente">Seleccionar Cliente:</label>
-    <select id="cliente">
+    <select id="cliente" required>
         <option value="">-- Selecciona un cliente --</option>
-        <option value="1">Juan Pérez</option>
-        <option value="2">María López</option>
-        <option value="3">Carlos Gómez</option>
+        {% for c in clientes %}
+            <option value="{{ c.id }}">{{ c.nombre }}</option>
+        {% endfor %}
     </select>
 </div>
 
-<h2 style="text-align:center;">Productos Disponibles</h2>
+<h2 class="subtitulo">Productos Disponibles</h2>
 
+<!-- LISTA DE PRODUCTOS -->
 <section class="productos-grid">
     {% for p in productos %}
-    <div class="card-producto">
-        <img src="{{ p.imagen }}" class="producto-img">
+    <div class="card-producto" data-id="{{ p.id }}" data-nombre="{{ p.nombre }}" data-precio="{{ p.precio }}">
+        
+        {% set img_url = url_for('static', filename='img/products/' ~ p.imagen) %}
+        {% set default_img = url_for('static', filename='img/cupcake.png') %}
+
+        <img src="{{ img_url }}" class="producto-img" onerror="this.src='{{ default_img }}'">
+
         <h3>{{ p.nombre }}</h3>
         <p class="precio">Precio: {{ p.precio }} Bs</p>
         <p class="descripcion">{{ p.descripcion }}</p>
+
         <div class="pedido-control">
-            <input type="number" min="1" value="1">
-            <button>Agregar</button>
+            <input type="number" class="cantidad" min="1" value="1">
+            <button class="btn-agregar-producto">Agregar</button>
         </div>
     </div>
     {% endfor %}
 </section>
 
-<h2 style="text-align:center;">Pedido Actual</h2>
+<h2 class="subtitulo">Pedido Actual</h2>
 
-<div id="lista-pedido"></div>
+<div id="lista-pedido" class="lista-pedido"></div>
 
-<div id="total">Total: 0 Bs</div>
+<div id="total" class="total">
+    Total: <span id="total-valor">0</span> Bs
+</div>
 
-<button id="confirmar-pedido">Registrar Pedido</button>
+<button id="confirmar-pedido" class="btn-confirmar" disabled>Registrar Pedido</button>
+
+<script>
+// Carrito temporal del pedido
+let pedido = [];
+let total = 0;
+
+function actualizarLista() {
+    const contenedor = document.getElementById("lista-pedido");
+    const totalElemento = document.getElementById("total-valor");
+
+    contenedor.innerHTML = "";
+
+    if (pedido.length === 0) {
+        contenedor.innerHTML = "<p style='text-align:center;'>Aún no hay productos agregados</p>";
+        document.getElementById("confirmar-pedido").disabled = true;
+        totalElemento.textContent = "0";
+        return;
+    }
+
+    pedido.forEach((item, index) => {
+        contenedor.innerHTML += `
+            <div class="item-pedido">
+                <span>${item.nombre}</span>
+                <span>${item.cantidad} u.</span>
+                <span>${item.subtotal} Bs</span>
+                <button onclick="eliminarItem(${index})" class="btn-eliminar">X</button>
+            </div>
+        `;
+    });
+
+    totalElemento.textContent = total;
+    document.getElementById("confirmar-pedido").disabled = false;
+}
+
+function eliminarItem(index) {
+    total -= pedido[index].subtotal;
+    pedido.splice(index, 1);
+    actualizarLista();
+}
+
+// Agregar producto al pedido
+document.querySelectorAll(".btn-agregar-producto").forEach(btn => {
+    btn.addEventListener("click", function () {
+        const card = this.closest(".card-producto");
+        const id = card.dataset.id;
+        const nombre = card.dataset.nombre;
+        const precio = Number(card.dataset.precio);
+        const cantidad = Number(card.querySelector(".cantidad").value);
+
+        const subtotal = precio * cantidad;
+
+        pedido.push({ id, nombre, precio, cantidad, subtotal });
+        total += subtotal;
+
+        actualizarLista();
+    });
+});
+
+// Registrar pedido (AQUÍ SE HARÁ EL POST A FUTURO)
+document.getElementById("confirmar-pedido").addEventListener("click", function () {
+    if (pedido.length === 0) {
+        alert("No hay productos en el pedido.");
+        return;
+    }
+
+    const cliente = document.getElementById("cliente").value;
+
+    if (!cliente) {
+        alert("Debes seleccionar un cliente.");
+        return;
+    }
+
+    alert("Pedido registrado correctamente (falta implementar backend).");
+});
+</script>
 
 {% endblock %}
