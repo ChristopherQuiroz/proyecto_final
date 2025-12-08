@@ -45,8 +45,18 @@ def admin_dashboard():
 @require_role('admin')
 def ver_categorias():
     categories_collection = db['categories']
+    products_collection = db['products']
+
     categorias = list(categories_collection.find())
-    return render_template("admin/categorias.html", categorias=categorias, rol="admin")
+
+    # Contar productos por categoría
+    categorias_con_count = []
+    for cat in categorias:
+        count = products_collection.count_documents({'category': cat['name']})
+        cat['cantidad_productos'] = count
+        categorias_con_count.append(cat)
+
+    return render_template("admin/categorias.html", categorias=categorias_con_count, rol="admin")
 
 @bp_admin.route("/categorias/agregar", methods=["GET", "POST"])
 @require_role('admin')

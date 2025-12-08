@@ -6,13 +6,23 @@
 
 <div class="buscador-agregar">
     <input type="text" id="buscar-cat" placeholder="Buscar categoría">
+
+    <!-- FILTRO POR CANTIDAD DE PRODUCTOS -->
+    <select id="filtro-cantidad">
+        <option value="">Todas las categorías</option>
+        <option value="bajo">Bajo (&lt;5 productos)</option>
+        <option value="medio">Medio (5-20 productos)</option>
+        <option value="alto">Alto (&gt;20 productos)</option>
+    </select>
+
     <button id="btn-agregar">Agregar categoría</button>
 </div>
 
+
 <div class="productos-grid">
     {% for cat in categorias %}
-    <div class="card-producto">
-        <img src="{{ url_for('static', filename='img/cupcake.png') }}" class="producto-img">
+    <div class="card-producto" data-cantidad="{{ cat.cantidad_productos }}">
+        <img src="{{ url_for('static', filename='img/products/cupcake.jpg') }}" class="producto-img">
         <div class="producto-info">
             <h3>{{ cat.name }}</h3>
             <div class="acciones-cat">
@@ -86,6 +96,35 @@
             card.style.display = nombre.includes(term) ? 'flex' : 'none';
         });
     });
+
+    function aplicarFiltrosCategorias() {
+    const term = document.getElementById('buscar-cat').value.toLowerCase();
+    const filtroCantidad = document.getElementById('filtro-cantidad').value;
+
+    document.querySelectorAll('.card-producto').forEach(card => {
+        const nombre = card.querySelector('h3').textContent.toLowerCase();
+        const cantidad = parseInt(card.dataset.cantidad) || 0;
+
+        let mostrar = true;
+
+        // Filtrar por nombre
+        if(term && !nombre.includes(term)) mostrar = false;
+
+        // Filtrar por cantidad
+        if(filtroCantidad) {
+            if(filtroCantidad === 'bajo' && cantidad >= 5) mostrar = false;
+            if(filtroCantidad === 'medio' && (cantidad < 5 || cantidad > 20)) mostrar = false;
+            if(filtroCantidad === 'alto' && cantidad <= 20) mostrar = false;
+        }
+
+        card.style.display = mostrar ? 'flex' : 'none';
+    });
+}
+
+// Eventos
+document.getElementById('buscar-cat').addEventListener('input', aplicarFiltrosCategorias);
+document.getElementById('filtro-cantidad').addEventListener('change', aplicarFiltrosCategorias);
+
 </script>
 
 {% endblock %}

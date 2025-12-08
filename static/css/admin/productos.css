@@ -94,3 +94,30 @@
 .btn-borrar:hover {
     background: #C0392B;
 }
+.buscador-agregar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.buscador-agregar input,
+.buscador-agregar select,
+.buscador-agregar button {
+    padding: 8px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.buscador-agregar button {
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.buscador-agregar button:hover {
+    background-color: #45a049;
+}

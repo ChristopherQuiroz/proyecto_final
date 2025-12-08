@@ -6,8 +6,30 @@
 
 <div class="buscador-agregar">
     <input type="text" id="buscar-producto" placeholder="Buscar producto...">
+
+    <!-- FILTRO POR CATEGORÍA -->
+    <select id="filtro-categoria">
+        <option value="">Todas las categorías</option>
+        {% for cat in categorias %}
+        <option value="{{ cat.name }}">{{ cat.name }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- FILTRO POR STOCK -->
+    <select id="filtro-stock">
+        <option value="">Todos los stocks</option>
+        <option value="bajo">Bajo (&lt;5)</option>
+        <option value="medio">Medio (5-20)</option>
+        <option value="alto">Alto (&gt;20)</option>
+    </select>
+
+    <!-- FILTRO POR PRECIO -->
+    <input type="number" id="filtro-min-price" placeholder="Precio min" step="0.01" min="0">
+    <input type="number" id="filtro-max-price" placeholder="Precio max" step="0.01" min="0">
+
     <button id="btn-agregar-producto" onclick="mostrarModalAgregar()">Agregar Producto</button>
 </div>
+
 
 <!-- Mensajes Flash -->
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -169,6 +191,49 @@ document.getElementById('buscar-producto').addEventListener('input', function(e)
         card.style.display = (nombre.includes(term) || desc.includes(term)) ? 'flex' : 'none';
     });
 });
+function aplicarFiltros() {
+    const term = document.getElementById('buscar-producto').value.toLowerCase();
+    const categoria = document.getElementById('filtro-categoria').value;
+    const stock = document.getElementById('filtro-stock').value;
+    const minPrice = parseFloat(document.getElementById('filtro-min-price').value) || 0;
+    const maxPrice = parseFloat(document.getElementById('filtro-max-price').value) || Infinity;
+
+    document.querySelectorAll('.card-producto').forEach(card => {
+        const nombre = card.querySelector('h3').textContent.toLowerCase();
+        const desc = card.querySelector('.producto-info p').textContent.toLowerCase();
+        const cardCategoria = card.dataset.category;
+        const cardStock = parseInt(card.dataset.quantity);
+        const cardPrice = parseFloat(card.dataset.price);
+
+        let mostrar = true;
+
+        // Búsqueda por nombre o descripción
+        if(term && !(nombre.includes(term) || desc.includes(term))) mostrar = false;
+
+        // Filtrar por categoría
+        if(categoria && cardCategoria !== categoria) mostrar = false;
+
+        // Filtrar por stock
+        if(stock) {
+            if(stock === 'bajo' && cardStock >= 5) mostrar = false;
+            if(stock === 'medio' && (cardStock < 5 || cardStock > 20)) mostrar = false;
+            if(stock === 'alto' && cardStock <= 20) mostrar = false;
+        }
+
+        // Filtrar por precio
+        if(cardPrice < minPrice || cardPrice > maxPrice) mostrar = false;
+
+        card.style.display = mostrar ? 'flex' : 'none';
+    });
+}
+
+// Eventos para filtros
+document.getElementById('buscar-producto').addEventListener('input', aplicarFiltros);
+document.getElementById('filtro-categoria').addEventListener('change', aplicarFiltros);
+document.getElementById('filtro-stock').addEventListener('change', aplicarFiltros);
+document.getElementById('filtro-min-price').addEventListener('input', aplicarFiltros);
+document.getElementById('filtro-max-price').addEventListener('input', aplicarFiltros);
+
 
 // Cerrar modal al hacer clic fuera
 window.onclick = function(event) {
