@@ -1,45 +1,27 @@
+from datetime import datetime
 class Category:
-    def __init__(self, name, icono="default.jpg", descripcion=""):
+    def __init__(self, name, icon="default.jpg", description="", is_active=True, created_at=None):
         self.name = name
-        self.icono = icono
-        self.descripcion = descripcion
+        self.icon = icon
+        self.description = description
+        self.is_active = is_active
+        self.created_at = created_at if created_at else datetime.utcnow()
 
-    def toDBCollection(self):
+    def to_dict(self):
         return {
             "name": self.name,
-            "icono": self.icono,
-            "descripcion": self.descripcion
+            "icon": self.icon,
+            "description": self.description,
+            "is_active": self.is_active,
+            "created_at": self.created_at
         }
-
-class ProductCategoryManager:
-    def __init__(self):
-        self.categories = {}  # {nombre_categoria: Category}
-        self.products = []    # Lista de Product
-
-    def add_category(self, category):
-        if category.name not in self.categories:
-            self.categories[category.name] = category
-            return True
-        else:
-            print("Category already exists")
-            return False
-
-    def add_product(self, product):
-        if product.category in self.categories:
-            self.products.append(product)
-            return True
-        else:
-            print("Category does not exist")
-            return False
-
-    def get_products_by_category(self, category_name):
-        return [p for p in self.products if p.category == category_name]
-
-    def get_products_by_name(self, product_name):
-        for product in self.products:
-            if product.name.lower() == product_name.lower():
-                return product
-        return None
-
-# Instancia global
-category_manager = ProductCategoryManager()
+        
+    @staticmethod
+    def from_dict(data):
+        return Category(
+            name=data.get("name"),
+            icon=data.get("icon"),
+            description=data.get("description"),
+            is_active=data.get("is_active"),
+            created_at=data.get("created_at")
+        )
