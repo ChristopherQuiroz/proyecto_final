@@ -86,21 +86,37 @@ def cliente_productos():
 @bp_cliente.route("/categorias")
 @require_role('cliente')
 def cliente_categorias():
-    # Obtener categorías de la BD
     categories_collection = db['categories']
+    products_collection = db['products']
+
+    # Todas las categorías
     categorias_db = list(categories_collection.find())
     categorias = [format_category_for_template(c) for c in categorias_db]
-    
-    # Obtener productos de ejemplo (esto se podría cambiar a productos por categoría)
-    products_collection = db['products']
-    productos_db = list(products_collection.find({'status': 'Disponible'}).limit(12))
+
+    # Todos los productos disponibles
+    productos_db = list(products_collection.find({'status': 'Disponible'}))
     productos = [format_product_for_template(p) for p in productos_db]
-    
-    rol_actual = session.get('role', 'cliente')
-    return render_template("cliente/categorias.html", 
-                         categorias=categorias, 
-                         productos=productos, 
-                         rol=rol_actual)
+
+    # ==========================
+    # CALCULAR CONTEO DE PRODUCTOS POR CATEGORÍA
+    # ==========================
+    conteo = {}
+    for cat in categorias:
+        nombre_categoria = cat['nombre']
+        conteo[nombre_categoria] = sum(
+            1 for p in productos if p['categoria'] == nombre_categoria
+        )
+
+    # ==========================
+    # ENVÍO DE VARIABLES AL HTML
+    # ==========================
+    return render_template(
+        "cliente/categorias.html",
+        categorias=categorias,
+        productos=productos,
+        conteo=conteo, 
+        rol=session.get("role", "cliente")
+    )
 
 @bp_cliente.route("/carrito")
 @require_role('cliente')
@@ -279,20 +295,38 @@ def cliente_pagar():
 @bp_cliente.route("/producto/<product_id>")
 @require_role('cliente')
 def cliente_detalle_producto(product_id):
+    products_collection = db['products']
+
     try:
-        products_collection = db['products']
+        # Producto principal
         producto_db = products_collection.find_one({'_id': ObjectId(product_id)})
-        
         if not producto_db:
-            flash('Producto no encontrado', 'error')
-            return redirect('/cliente/productos')
+            flash("Producto no encontrado", "error")
+            return redirect("/cliente/productos")
         
         producto = format_product_for_template(producto_db)
-        
-        rol_actual = session.get('role', 'cliente')
-        return render_template("cliente/detalle_producto.html", 
-                             producto=producto, 
-                             rol=rol_actual)
-    except:
-        flash('ID de producto inválido', 'error')
-        return redirect('/cliente/productos')
+
+       
+        categoria = producto['categoria']
+
+        relacionados_db = list(products_collection.find({
+            "category": categoria,
+            "_id": {"$ne": ObjectId(product_id)},   # excluir actual
+            "status": "Disponible"
+        }).limit(3))  # mostrar 3 o puedes usar limit(4)
+
+        relacionados = [format_product_for_template(r) for r in relacionados_db]
+
+        rol_actual = session.get("role", "cliente")
+
+        return render_template(
+            "cliente/detalle_producto.html",
+            producto=producto,
+            relacionados=relacionados,
+            rol=rol_actual
+        )
+
+    except Exception as e:
+        print("Error:", e)
+        flash("ID de producto inválido", "error")
+        return redirect("/cliente/productos")
