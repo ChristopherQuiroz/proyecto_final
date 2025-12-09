@@ -9,7 +9,15 @@ from functools import wraps
 auth_bp = Blueprint("auth", __name__)
 db = dbConnection()
 
-# LOGIN
+@auth_bp.route("/")
+def home():
+    # Si el usuario ya tiene sesión
+    if 'role' in session:
+        # Redirige según su rol
+        return redirect(get_redirect_url(session['role']))
+    
+    # Si no tiene sesión, mostrar la página principal de invitado
+    return render_template("cliente/dashboard.html", rol="invitado")
 
 # LOGIN
 @auth_bp.route("/login", methods=["GET", "POST"])
@@ -138,23 +146,37 @@ def create_initial_admin():
 # Middleware para verificar sesión
 @auth_bp.before_app_request
 def before_request():
-    public_routes = [
-      'auth.login',
-      'auth.register',
-      'cliente.productos',
-      'cliente.categorias',
-      'static',
-      'not_found'
-   ]
+    public_endpoints = [
+        'auth.login',
+        'auth.register',
+        'auth.home',
+        'static',
+        'not_found'
+    ]
 
-    if request.endpoint in public_routes:
+    # Rutas específicas del cliente permitidas a INVITADO
+    public_cliente = [
+      'cliente.cliente_dashboard',
+      'cliente.cliente_productos',
+      'cliente.cliente_categorias'
+    ]
+
+
+    endpoint = request.endpoint or ""
+
+    # --- Rutas públicas generales ---
+    if endpoint in public_endpoints:
         return
-    
-    # Verificar si el usuario está logueado
+
+    # --- Rutas públicas específicas del cliente (solo estas 3) ---
+    if endpoint in public_cliente:
+        return
+
+    # --- A partir de aquí, TODO requiere login ---
     if 'user_id' not in session:
         return redirect('/login')
-    
-    # Verificar si el usuario existe y está activo
+
+    # --- Validar estado del usuario ---
     try:
         user_data = db['users'].find_one({'_id': ObjectId(session['user_id'])})
         if not user_data or not user_data.get('is_active', True):

@@ -49,7 +49,7 @@ def empleado_panel():
     )
 
 # ============================================================
-#                   CLIENTES (DATOS SIMULADOS POR AHORA)
+#                   CLIENTES 
 # ============================================================
 @bp_empleado.route("/clientes")
 @require_employee_or_admin
@@ -149,24 +149,23 @@ def empleado_inventario():
 @bp_empleado.route("/pedidos")
 @require_employee_or_admin
 def empleado_pedidos():
-    orders_collection = db["orders"]
-    pedidos_db = list(orders_collection.find())
+    pedidos_db = list(db["orders"].find())
     pedidos = []
+
     for p in pedidos_db:
+        cliente = db["users"].find_one({"_id": p["customer_id"]})
         pedidos.append({
             "id": str(p["_id"]),
-            "cliente": db["users"].find_one({"_id": p["customer_id"]}).get("username", "Cliente"),
+            "cliente": cliente["username"] if cliente else "Cliente",
             "total": p.get("total", 0),
             "estado": p.get("status", "pendiente"),
             "fecha": p.get("date", datetime.utcnow()).strftime("%Y-%m-%d %H:%M"),
-            "employee_id": str(p.get("employee_id")) if p.get("employee_id") else None
+            "empleado": str(p.get("employee_id")) if p.get("employee_id") else None
         })
 
-    return render_template(
-        "empleado/pedidos.html",
-        pedidos=pedidos,
-        rol="empleado"
-    )
+    return render_template("empleado/pedidos.html", pedidos=pedidos, rol="empleado")
+
+
 # ============================================================
 #                   ACEPTAR PEDIDO
 # ============================================================
@@ -189,3 +188,92 @@ def empleado_aceptar_pedido(order_id):
 
     flash("Pedido aceptado correctamente", "success")
     return redirect("/empleado/pedidos")
+
+@bp_empleado.route("/pedidos/entregar/<order_id>")
+@require_employee_or_admin
+def empleado_entregar_pedido(order_id):
+    order = db["orders"].find_one({"_id": ObjectId(order_id)})
+
+    if not order:
+        flash("Pedido no encontrado", "error")
+        return redirect("/empleado/pedidos")
+
+    if order["status"] != "aceptado":
+        flash("Solo puedes entregar pedidos ya aceptados", "warning")
+        return redirect("/empleado/pedidos")
+
+    db["orders"].update_one(
+        {"_id": ObjectId(order_id)},
+        {"$set": {"status": "entregado"}}
+    )
+
+    flash("Pedido marcado como entregado", "success")
+    return redirect("/empleado/pedidos")
+
+@bp_empleado.route("/pedidos/cancelar/<order_id>")
+@require_employee_or_admin
+def empleado_cancelar_pedido(order_id):
+    order = db["orders"].find_one({"_id": ObjectId(order_id)})
+
+    if not order:
+        flash("Pedido no encontrado", "error")
+        return redirect("/empleado/pedidos")
+
+    if order["status"] == "entregado":
+        flash("No puedes cancelar un pedido entregado", "error")
+        return redirect("/empleado/pedidos")
+
+    db["orders"].update_one(
+        {"_id": ObjectId(order_id)},
+        {"$set": {"status": "cancelado"}}
+    )
+
+    flash("Pedido cancelado correctamente", "success")
+    return redirect("/empleado/pedidos")
+
+@bp_empleado.route("/pedidos/editar/<order_id>", methods=["GET", "POST"])
+@require_employee_or_admin
+def empleado_editar_pedido(order_id):
+    order = db["orders"].find_one({"_id": ObjectId(order_id)})
+
+    if not order:
+        flash("Pedido no encontrado", "error")
+        return redirect("/empleado/pedidos")
+
+    if order["status"] != "pendiente":
+        flash("Solo puedes editar pedidos pendientes", "warning")
+        return redirect("/empleado/pedidos")
+
+    if request.method == "POST":
+        detalles = []
+        productos = request.form.getlist("product_id")
+        cantidades = request.form.getlist("quantity")
+
+        for i in range(len(productos)):
+            prod = productos[i]
+            cant = int(cantidades[i])
+            producto = db["products"].find_one({"_id": ObjectId(prod)})
+            subtotal = cant * float(producto["price"])
+            detalles.append({
+                "product_id": prod,
+                "quantity": cant,
+                "subtotal": subtotal
+            })
+
+        total = sum(d["subtotal"] for d in detalles)
+
+        db["orders"].update_one(
+            {"_id": ObjectId(order_id)},
+            {"$set": {"details": detalles, "total": total}}
+        )
+
+        flash("Pedido actualizado correctamente", "success")
+        return redirect("/empleado/pedidos")
+
+    productos = list(db["products"].find())
+    return render_template(
+        "empleado/editar_pedido.html",
+        pedido=order,
+        productos=productos,
+        rol="empleado"
+    )

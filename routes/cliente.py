@@ -34,7 +34,6 @@ def format_category_for_template(category):
 
     
 @bp_cliente.route("/")
-@require_role('cliente')
 def cliente_dashboard():
     # Obtener productos y categorías de la BD
     products_collection = db['products']
@@ -48,14 +47,13 @@ def cliente_dashboard():
     categorias_db = list(categories_collection.find().limit(6))
     categorias = [format_category_for_template(c) for c in categorias_db]
     
-    rol_actual = session.get('role', 'cliente')
+    rol_actual = session.get('role', 'invitado')
     return render_template("cliente/dashboard.html", 
                          productos=productos, 
                          categorias=categorias,
                          rol=rol_actual)
 
 @bp_cliente.route("/productos")
-@require_role('cliente')
 def cliente_productos():
     # Obtener productos de la BD
     products_collection = db['products']
@@ -78,13 +76,12 @@ def cliente_productos():
     
     productos = [format_product_for_template(p) for p in productos_db]
     
-    rol_actual = session.get('role', 'cliente')
+    rol_actual = session.get('role', 'invitado')
     return render_template("cliente/productos.html", 
                          productos=productos, 
                          rol=rol_actual)
 
 @bp_cliente.route("/categorias")
-@require_role('cliente')
 def cliente_categorias():
     categories_collection = db['categories']
     products_collection = db['products']
@@ -115,7 +112,7 @@ def cliente_categorias():
         categorias=categorias,
         productos=productos,
         conteo=conteo, 
-        rol=session.get("role", "cliente")
+        rol=session.get("role", "invitado")
     )
 
 @bp_cliente.route("/carrito")

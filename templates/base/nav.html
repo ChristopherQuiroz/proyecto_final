@@ -34,6 +34,13 @@
             <li><a href="/cliente/carrito">Carrito</a></li>
             <li><a href="/cliente/mis_pedidos">Mis pedidos</a></li>
             <li><a href="/logout">Cerrar sesión</a></li>
+
+        {% elif rol == "invitado" %}
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/cliente/categorias">Categorias</a></li>
+            <li><a href="/cliente/productos">Productos</a></li>
+            <li><a href="/login">Iniciar Sesión</a></li>
+            <li><a href="/register">Registrarse</a></li>
         {% endif %}
     </ul>
 </div>
