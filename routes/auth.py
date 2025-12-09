@@ -10,41 +10,36 @@ auth_bp = Blueprint("auth", __name__)
 db = dbConnection()
 
 # LOGIN
+
+# LOGIN
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "GET":
-        session.pop('_flashes', None)
     if request.method == "GET" and 'user_id' in session:
-        return render_template("auth/login.html")  # Permite cambiar de usuario
+        return render_template("auth/login.html")  # permite cambiar usuario
 
     if request.method == "POST":
-        username = request.form["usuario"]
-        password = request.form["password"]
-        
-        # Buscar usuario en la base de datos
-        users_collection = db['users']
-        user_data = users_collection.find_one({'username': username})
-        
+        username = request.form.get("usuario")
+        password = request.form.get("password")
+
+        user_data = db['users'].find_one({'username': username})
         if not user_data:
             return render_template("auth/login.html", error="Usuario no encontrado")
-        
-        # Verificar contraseña
-        if not check_password_hash(user_data['password_hash'], password):
+
+        user = User.from_dict(user_data)
+        if not user.verify_password(password):
             return render_template("auth/login.html", error="Contraseña incorrecta")
-        
-        # Verificar si el usuario está activo
-        if not user_data.get('is_active', True):
+
+        if not user.is_active:
             return render_template("auth/login.html", error="Cuenta desactivada")
-        
+
         # Guardar sesión
         session['user_id'] = str(user_data['_id'])
-        session['usuario'] = user_data['username']
-        session['role'] = user_data['role']
-        session['email'] = user_data.get('email', '')
-        
-        # Redireccionar según rol
-        return redirect(get_redirect_url(user_data['role']))
-    
+        session['usuario'] = user.username
+        session['role'] = user.role
+        session['email'] = user.email
+
+        return redirect(get_redirect_url(user.role))
+
     return render_template("auth/login.html")
 
 

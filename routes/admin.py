@@ -1,16 +1,16 @@
-from flask import Blueprint, render_template, request, flash, redirect, session, jsonify
+from flask import Blueprint, render_template, request, flash, redirect, jsonify
+from werkzeug.utils import secure_filename
 from bson.objectid import ObjectId
+import os
+
 from routes.auth import require_role
 from database import dbConnection
-
-from entities.product import Product
-from entities.category import Category, category_manager
 from routes.services import (
     get_all_categories, create_category, update_category, delete_category,
-    get_all_products, create_product, update_product, delete_product, get_product_by_id
+    get_all_products, create_product, update_product, delete_product, get_product_by_id,
+    get_all_stock, update_stock
 )
-from werkzeug.utils import secure_filename
-import os
+
 UPLOAD_FOLDER = 'static/img/products'
 bp_admin = Blueprint("admin", __name__, url_prefix="/admin")
 db = dbConnection()
@@ -21,19 +21,18 @@ db = dbConnection()
 @bp_admin.route("/")
 @require_role('admin')
 def admin_dashboard():
-
     products = db['products']
     categories = db['categories']
     users = db['users']
+    orders = db['orders'] if 'orders' in db.list_collection_names() else []
 
     total_productos = products.count_documents({})
     total_categorias = categories.count_documents({})
     total_usuarios = users.count_documents({})
+    pedidos_pendientes = orders.count_documents({"status": "pendiente"}) if orders else 0
 
     productos_bajo_stock = list(products.find({'quantity': {'$lt': 5}}))
     productos_top = list(products.find().sort("price", -1).limit(3))
-
-    pedidos_pendientes = db['orders'].count_documents({"estado": "Pendiente"}) if "orders" in db.list_collection_names() else 0
 
     return render_template(
         "admin/dashboard.html",
@@ -45,6 +44,7 @@ def admin_dashboard():
         productos_top=productos_top,
         pedidos_pendientes=pedidos_pendientes
     )
+
 @bp_admin.route("/categorias")
 @require_role('admin')
 def ver_categorias():
@@ -60,17 +60,18 @@ def admin_categorias_agregar():
     flash(msg, "success" if ok else "error")
     return redirect("/admin/categorias")
 
-@bp_admin.route("/categorias/editar/<string:nombre_actual>", methods=["POST"])
+@bp_admin.route("/categorias/editar/<string:category_id>", methods=["POST"])
 @require_role('admin')
-def admin_categorias_editar(nombre_actual):
+def admin_categorias_editar(category_id):
     nuevo_nombre = request.form.get("name")
-    ok, msg = update_category(nombre_actual, nuevo_nombre)
+    ok, msg = update_category(category_id, {"name": nuevo_nombre})
     flash(msg, "success" if ok else "error")
     return redirect("/admin/categorias")
-@bp_admin.route("/categorias/eliminar/<string:category_name>")
+
+@bp_admin.route("/categorias/eliminar/<string:category_id>")
 @require_role('admin')
-def admin_categorias_eliminar(category_name):
-    ok, msg = delete_category(category_name)
+def admin_categorias_eliminar(category_id):
+    ok, msg = delete_category(category_id)
     flash(msg, "success" if ok else "error")
     return redirect("/admin/categorias")
 # ============================================================
@@ -82,7 +83,6 @@ def ver_productos():
     productos = get_all_products()
     categorias = get_all_categories()
     return render_template("admin/productos.html", productos=productos, categorias=categorias, rol="admin")
-
 
 @bp_admin.route("/productos/agregar", methods=['POST'])
 @require_role('admin')
@@ -140,23 +140,20 @@ def admin_productos_eliminar(product_id):
 
 
 # ============================================================
-#                      STOCK Y REPORTES
+#                      STOCK 
 # ============================================================
 @bp_admin.route("/inventario")
+@require_role('admin')
 def admin_inventario():
- 
     products_collection = db['products']
     productos = list(products_collection.find())
-    
     return render_template("admin/inventario.html", 
                          productos=productos, 
                          rol="admin")
 
 @bp_admin.route("/actualizar_stock", methods=['POST'])
 def actualizar_stock():
-    
     products_collection = db['products']
-    
     product_name = request.form.get('product_name')
     nueva_cantidad = int(request.form.get('cantidad', 0))
     
@@ -171,58 +168,40 @@ def actualizar_stock():
         flash('No se pudo actualizar el stock', 'error')
     
     return redirect('/admin/inventario')
-
 @bp_admin.route("/reportes")
+@require_role('admin')
 def admin_reportes():
-
     products_collection = db['products']
-    
-    # Calcular ventas totales (simulado por ahora)
-    total_products = products_collection.count_documents({})
-    ventas_hoy = total_products * 125  # Simulación
+    categories_collection = db['categories']
+
+    # Ventas y stock
+    ventas_hoy = sum(p.get('price', 0) * p.get('quantity', 0) for p in products_collection.find())
     ventas_mes = ventas_hoy * 30
     ventas_anio = ventas_mes * 12
-    
-    # Productos con poco stock
+
     productos_bajo_stock = list(products_collection.find({'quantity': {'$lt': 5}}))
-    
-    # Productos más caros (top 5)
     productos_top = list(products_collection.find().sort('price', -1).limit(5))
-    
+
     # Productos por categoría
-    categorias_collection = db['categories']
-    categorias = list(categorias_collection.find())
+    categorias = list(categories_collection.find())
     productos_por_categoria = []
-    
     for cat in categorias:
-        count = products_collection.count_documents({'category': cat['name']})
-        productos_por_categoria.append({
-            'categoria': cat['name'],
-            'cantidad': count
-        })
-    
+        count = products_collection.count_documents({'category_id': cat['_id']})
+        productos_por_categoria.append({'categoria': cat['name'], 'cantidad': count})
+
     return render_template(
         "admin/reportes.html",
         rol="admin",
         ventas_hoy=ventas_hoy,
         ventas_mes=ventas_mes,
         ventas_anio=ventas_anio,
-        pedidos_completados=87,  # Simulado
-        promedio_pedido=175,     # Simulado
-        ventas_por_mes=[         # Simulado
-            {"mes": "Enero", "total": 12000},
-            {"mes": "Febrero", "total": 9800},
-            {"mes": "Marzo", "total": 15200},
-            {"mes": "Abril", "total": 14300},
-        ],
+        pedidos_completados=db['orders'].count_documents({'status': 'pagado'}) if 'orders' in db.list_collection_names() else 0,
+        promedio_pedido=ventas_hoy / db['orders'].count_documents({}) if 'orders' in db.list_collection_names() and db['orders'].count_documents({}) else 0,
         productos_top=productos_top,
         productos_bajo_stock=productos_bajo_stock,
-        productos_por_categoria=productos_por_categoria,
-        clientes_top=[           # Simulado
-            {"nombre": "Juan Pérez", "compras": 12},
-            {"nombre": "Ana López", "compras": 9},
-        ]
+        productos_por_categoria=productos_por_categoria
     )
+
     
 @bp_admin.errorhandler(404)
 def not_found(error=None):
