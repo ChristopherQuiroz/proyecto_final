@@ -10,72 +10,111 @@
                 HERO PRINCIPAL
 ======================================== -->
 <section class="hero">
-    <div class="hero-overlay"></div>
-
     <img src="{{ url_for('static', filename='img/banner.jpg') }}" class="hero-img">
 
+    <div class="hero-overlay"></div>
+
     <div class="hero-content">
-        <h1>REGÁLATE UN <span>GRAN DULCE MOMENTO</span></h1>
-        <p>Ordena en línea y recoge en tu sucursal favorita</p>
+        <p class="hero-kicker">Pastelería artesanal</p>
+        <h1>Regálate un<br><span>gran dulce momento</span></h1>
+        <p class="hero-sub">Ordena en línea y recoge en tu sucursal favorita.</p>
         <a href="/cliente/productos" class="hero-btn">Comprar ahora</a>
     </div>
 </section>
 
 
-<!-- ========================================
-         ESPECIALES DEL MES
-======================================== -->
-<h2 class="section-title">Especiales del mes</h2>
 
-<section class="productos-grid">
-    {% for p in productos %}
-    <div class="product-card">
+<!-- ========================================
+            CATEGORÍAS (CARRUSEL)
+======================================== -->
+<section class="section section-categorias">
+    <h2 class="section-title">Categorías</h2>
+
+    <div class="categorias-carrusel">
+
+        <!-- Flecha izquierda -->
+        <button type="button" class="arrow arrow-left">‹</button>
+
+        <div class="categorias-track">
+
+            {% for cat in categorias %}
+            {% set img_url = url_for('static', filename='img/categories/' ~ cat.icono) %}
+            {% set default_img = url_for('static', filename='img/products/cupcake.jpg') %}
+
+            <!-- TARJETA COMPLETA CLICKEABLE -->
+            <a href="/cliente/categorias?buscar={{ cat.nombre }}" class="cat-card-link">
+                <article class="cat-card">
+                    <div class="cat-img-container">
+                        <img src="{{ img_url }}"
+                             class="cat-img"
+                             onerror="this.src='{{ default_img }}'">
+                    </div>
+                    <h3 class="cat-name">{{ cat.nombre }}</h3>
+                </article>
+            </a>
+
+            {% endfor %}
+        </div>
+
+        <!-- Flecha derecha -->
+        <button type="button" class="arrow arrow-right">›</button>
+
+    </div>
+</section>
+
+
+
+<!-- ========================================
+            ESPECIALES DEL MES
+======================================== -->
+<section class="section">
+    <h2 class="section-title">Especiales del mes</h2>
+
+    <div class="productos-grid">
+        {% for p in productos %}
 
         {% set img_url = url_for('static', filename='img/products/' ~ p.imagen) %}
         {% set default_img = url_for('static', filename='img/products/cupcake.jpg') %}
 
-        <div class="img-container">
-            <img src="{{ img_url }}" onerror="this.src='{{ default_img }}'" class="product-img">
-        </div>
+        <article class="product-card">
+            <div class="img-container">
+                <img src="{{ img_url }}"
+                     class="product-img"
+                     onerror="this.src='{{ default_img }}'"
+                     alt="{{ p.nombre }}">
+            </div>
 
-        <div class="info">
-            <h3>{{ p.nombre }}</h3>
-            <p class="precio">Bs {{ p.precio }}</p>
-        </div>
+            <div class="info">
+                <h3>{{ p.nombre }}</h3>
+                <p class="precio">Bs {{ p.precio }}</p>
+            </div>
 
-        <a href="/cliente/producto/{{ p.id }}" class="btn-comprar">Ver producto</a>
+            <a href="/cliente/producto/{{ p.id }}" class="btn-comprar">Ver producto</a>
+        </article>
+
+        {% endfor %}
     </div>
-    {% endfor %}
 </section>
 
+{% endblock %}
 
-<!-- ========================================
-                 CATEGORÍAS
-======================================== -->
-<h2 class="section-title">Categorías</h2>
+{% block extra_js %}
+<script>
+// Carrusel de categorías
+document.addEventListener("DOMContentLoaded", () => {
+    const track = document.querySelector(".categorias-track");
+    const btnLeft = document.querySelector(".arrow-left");
+    const btnRight = document.querySelector(".arrow-right");
 
-<section class="categorias-grid">
+    if (!track) return;
 
-    {% for cat in categorias %}
+    btnRight.addEventListener("click", () => {
+        track.scrollBy({ left: 260, behavior: "smooth" });
+    });
 
-    {% set img_url = url_for('static', filename='img/categories/' ~ cat.icono) %}
-    {% set default_img = url_for('static', filename='img/products/cupcake.jpg') %}
-
-    <div class="cat-item">
-
-        <div class="cat-img-container">
-            <img src="{{ img_url }}" onerror="this.src='{{ default_img }}'" class="cat-img">
-        </div>
-
-        <h3>{{ cat.nombre }}</h3>
-
-        <a href="/cliente/categorias?buscar={{ cat.nombre }}" class="cat-btn">
-            Ver productos
-        </a>
-    </div>
-
-    {% endfor %}
-
-</section>
-
+    btnLeft.addEventListener("click", () => {
+        track.scrollBy({ left: -260, behavior: "smooth" });
+    });
+});
+</script>
 {% endblock %}

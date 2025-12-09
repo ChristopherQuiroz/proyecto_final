@@ -1,125 +1,117 @@
 /* =========================================
-            ESTILOS GENERALES
+                HERO PRINCIPAL
 ========================================= */
-body {
-    background-color: #F5EFE7;
-    font-family: 'Poppins', sans-serif;
-}
 
-.section-title {
-    text-align: center;
-    font-size: 30px;
-    margin: 40px 0 25px;
-    color: #5A3C1F;
-    font-weight: 600;
-}
-
-/* =========================================
-                HERO
-========================================= */
 .hero {
     position: relative;
     width: 100%;
-    height: 330px;
+    height: 70vh;
+    border-radius: 0 0 25px 25px;
     overflow: hidden;
-    border-radius: 12px;
-    margin: 20px auto 40px;
-    max-width: 1150px;
 }
 
 .hero-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: brightness(70%);
+    filter: brightness(72%);
 }
 
 .hero-overlay {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.55));
 }
 
 .hero-content {
     position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
+    bottom: 18%;
+    left: 8%;
     color: white;
 }
 
+.hero-kicker {
+    font-size: 18px;
+    letter-spacing: 2px;
+    font-weight: 300;
+}
+
 .hero-content h1 {
-    font-size: 38px;
-    font-weight: 700;
-    text-shadow: 0px 3px 10px rgba(0,0,0,0.4);
+    font-size: 52px;
+    line-height: 1.2;
+    margin: 10px 0;
 }
 
-.hero-content h1 span {
-    color: #E0C7A3;
+.hero-content span {
+    color: #EAD9C3;
 }
 
-.hero-content p {
-    margin-top: 10px;
+.hero-sub {
     font-size: 17px;
+    margin-bottom: 15px;
 }
 
 .hero-btn {
     display: inline-block;
-    margin-top: 20px;
+    padding: 12px 25px;
     background: #8B5E34;
-    padding: 12px 26px;
-    border-radius: 12px;
+    border-radius: 14px;
     color: white;
-    font-weight: 600;
-    transition: 0.25s ease-in-out;
+    font-weight: 500;
+    transition: 0.25s;
 }
 
 .hero-btn:hover {
     background: #5A3C1F;
-    transform: scale(1.05);
 }
 
 
 /* =========================================
-        GRID DE PRODUCTOS DESTACADOS
+                SECCIONES
 ========================================= */
+
+.section {
+    padding: 50px 0;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 25px;
+    color: #5A3C1F;
+}
+
+
+/* =========================================
+                PRODUCTOS
+========================================= */
+
 .productos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 28px;
-    max-width: 1150px;
+    width: 90%;
     margin: auto;
 }
 
 .product-card {
     background: white;
     border-radius: 18px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     overflow: hidden;
-    box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+    position: relative;
+    padding-bottom: 20px;
     transition: 0.25s ease;
-    padding-bottom: 15px;
 }
 
 .product-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0px 6px 18px rgba(0,0,0,0.18);
+    transform: translateY(-4px);
 }
 
-.img-container {
+.img-container img {
     width: 100%;
-    height: 180px;
-    overflow: hidden;
-}
-
-.product-img {
-    width: 100%;
-    height: 100%;
+    height: 190px;
     object-fit: cover;
-    transition: 0.3s ease;
-}
-
-.product-card:hover .product-img {
-    transform: scale(1.08);
 }
 
 .info {
@@ -127,28 +119,25 @@ body {
 }
 
 .info h3 {
-    color: #5A3C1F;
-    font-size: 18px;
-    margin-bottom: 4px;
+    font-size: 17px;
+    color: #4A3320;
 }
 
 .precio {
     color: #8B5E34;
-    font-weight: 600;
+    font-weight: bold;
+    margin-top: 5px;
 }
 
-
-/* Botón de producto */
 .btn-comprar {
     display: block;
-    margin: 12px auto 0;
-    background: #8B5E34;
-    width: 80%;
-    padding: 10px 0;
+    margin: 15px auto 0;
+    width: 85%;
     text-align: center;
-    border-radius: 12px;
+    padding: 10px;
+    background: #8B5E34;
     color: white;
-    font-weight: 600;
+    border-radius: 12px;
     transition: 0.25s;
 }
 
@@ -160,64 +149,94 @@ body {
 /* =========================================
                 CATEGORÍAS
 ========================================= */
-.categorias-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 28px;
-    max-width: 1100px;
+
+.categorias-carrusel {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 90%;
     margin: auto;
 }
 
-.cat-item {
-    background: white;
-    text-align: center;
-    padding: 20px;
-    border-radius: 18px;
-    box-shadow: 0px 4px 12px rgba(0,0,0,0.10);
+.arrow {
+    border: none;
+    background: rgba(138, 100, 69, 0.15);
+    color: #5A3C1F;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 22px;
+    cursor: pointer;
     transition: 0.25s ease;
 }
 
-.cat-item:hover {
-    transform: translateY(-6px);
-}
-
-.cat-img-container {
-    width: 110px;
-    height: 110px;
-    margin: auto;
-    border-radius: 50%;
-    overflow: hidden;
-}
-
-.cat-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: 0.3s ease;
-}
-
-.cat-item:hover .cat-img {
-    transform: scale(1.12);
-}
-
-.cat-item h3 {
-    margin: 12px 0 6px;
-    color: #5A3C1F;
-    font-size: 18px;
-}
-
-/* Botón categoría */
-.cat-btn {
+.arrow:hover {
     background: #8B5E34;
-    padding: 8px 15px;
-    border-radius: 12px;
     color: white;
-    font-weight: 500;
+}
+
+.categorias-track {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    scrollbar-width: none;
+}
+
+.categorias-track::-webkit-scrollbar { display: none; }
+
+.cat-card {
+    min-width: 160px;
+    padding: 20px;
+    background: white;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+    transition: 0.25s ease;
+}
+
+.cat-card:hover {
+    transform: translateY(-4px);
+}
+
+.cat-img-container img {
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.cat-name {
+    margin-top: 10px;
+    color: #4A3320;
+    font-size: 15px;
+}
+
+.cat-btn {
     display: inline-block;
     margin-top: 12px;
-    transition: 0.25s;
+    padding: 8px 16px;
+    background: #8B5E34;
+    color: white;
+    border-radius: 12px;
+    transition: 0.25s ease;
 }
 
 .cat-btn:hover {
     background: #5A3C1F;
+}
+/* Tarjeta clickeable */
+.cat-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Hover elegante minimalista */
+.cat-card-link .cat-card {
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.cat-card-link:hover .cat-card {
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
 }
