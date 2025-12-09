@@ -144,8 +144,8 @@ def create_initial_admin():
 @auth_bp.before_app_request
 def before_request():
     public_routes = [
-      'login',
-      'register',
+      'auth.login',
+      'auth.register',
       'cliente.productos',
       'cliente.categorias',
       'static',
