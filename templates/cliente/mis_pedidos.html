@@ -6,23 +6,25 @@
 
 {% block cliente_content %}
 
-<h2 class="titulo">Mis Pedidos</h2>
+<h2 class="pedidos-title">Mis Pedidos</h2>
 
-<div class="pedidos-contenedor">
-
+<section class="pedidos">
+    
     {% if pedidos %}
         {% for p in pedidos %}
-        <div class="pedido-card">
+        <article class="pedido-card">
 
-            <h3 class="pedido-titulo">Pedido #{{ p.id }}</h3>
+            <header class="pedido-header">
+                <h3 class="pedido-id">Pedido #{{ p.id }}</h3>
+                <span class="pedido-estado estado-{{ p.estado | lower }}">{{ p.estado }}</span>
+            </header>
 
-            <p><strong> Fecha:</strong> {{ p.fecha }}</p>
-            <p><strong> Total:</strong> {{ p.total }} Bs</p>
-            <p><strong>Estado:</strong> 
-                <span class="estado {{ p.estado | lower }}">{{ p.estado }}</span>
-            </p>
+            <div class="pedido-info">
+                <p><strong>Fecha:</strong> {{ p.fecha }}</p>
+                <p><strong>Total:</strong> {{ p.total }} Bs</p>
+            </div>
 
-            <details class="detalle-productos">
+            <details class="pedido-detalle">
                 <summary>Ver productos</summary>
                 <ul>
                     {% for item in p.productos %}
@@ -31,12 +33,13 @@
                 </ul>
             </details>
 
-        </div>
+        </article>
         {% endfor %}
+
     {% else %}
-        <p class="vacio">No tienes pedidos aún.</p>
+        <p class="pedidos-empty">No tienes pedidos aún.</p>
     {% endif %}
 
-</div>
+</section>
 
 {% endblock %}

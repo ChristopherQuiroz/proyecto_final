@@ -3,5 +3,10 @@
   "git.autofetch": true,
   "terminal.integrated.defaultProfile.windows": "Git Bash",
   "git.terminalAuthentication": false,
-  "python-envs.pythonProjects": []
+  "python-envs.pythonProjects": [],
+  
+  "emmet.includeLanguages": {
+    "jinja-html": "html",
+    "jinja": "html"
+  }
 }

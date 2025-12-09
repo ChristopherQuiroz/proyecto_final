@@ -1,0 +1,107 @@
+#mainContent {
+    max-width: 1100px;
+    margin: auto;
+    padding-top: 80px;
+}
+/* ======== ESTILO GENERAL ======== */
+body {
+    background: #faf5ef;
+    font-family: "Inter", sans-serif;
+}
+
+/* ======== TÍTULO PRINCIPAL ======== */
+.pedidos-title {
+    text-align: center;
+    margin: 25px 0 35px;
+    color: #4a3428;
+    font-size: 34px;
+    font-weight: 700;
+}
+
+/* ======== CONTENEDOR GENERAL ======== */
+.pedidos {
+    max-width: 900px;
+    margin: 0 auto 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding: 0 15px;
+}
+
+/* ======== TARJETA DEL PEDIDO ======== */
+.pedido-card {
+    background: #ffffff;
+    border: 2px solid #b8977a;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.pedido-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+
+/* ======== ENCABEZADO (ID + ESTADO) ======== */
+.pedido-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.pedido-id {
+    color: #4a3428;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+/* ======== BADGES DE ESTADO ======== */
+.pedido-estado {
+    padding: 6px 14px;
+    border-radius: 18px;
+    font-weight: 700;
+    font-size: 14px;
+    color: #fff;
+    text-transform: capitalize;
+}
+
+/* Colores por estado */
+.estado-pendiente { background: #d9a441; }
+.estado-entregado { background: #4caf50; }
+.estado-cancelado { background: #c85050; }
+
+/* ======== INFO GENERAL ======== */
+.pedido-info p {
+    color: #6b4e3d;
+    margin: 4px 0;
+}
+
+/* ======== DETAILS ======== */
+.pedido-detalle summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #4a3428;
+    margin-top: 15px;
+    transition: color .2s ease;
+}
+
+.pedido-detalle summary:hover {
+    color: #8b5e48;
+}
+
+.pedido-detalle ul {
+    margin-top: 12px;
+    padding-left: 22px;
+    color: #6b4e3d;
+    line-height: 1.5;
+}
+
+/* ======== MENSAJE CUANDO NO HAY PEDIDOS ======== */
+.pedidos-empty {
+    text-align: center;
+    color: #8b6f5a;
+    font-size: 20px;
+    margin-top: 50px;
+}

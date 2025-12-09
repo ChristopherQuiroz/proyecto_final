@@ -6,61 +6,76 @@
 
 {% block cliente_content %}
 
-<!-- ============================
-         BANNER PRINCIPAL
-=============================== -->
-<section class="banner">
-    <img src="{{ url_for('static', filename='img/banner.jpg') }}" class="banner-img" alt="Banner">
-    <h1 class="banner-title">Bienvenido a la Pastelería</h1>
+<!-- ========================================
+                HERO PRINCIPAL
+======================================== -->
+<section class="hero">
+    <div class="hero-overlay"></div>
+
+    <img src="{{ url_for('static', filename='img/banner.jpg') }}" class="hero-img">
+
+    <div class="hero-content">
+        <h1>REGÁLATE UN <span>GRAN DULCE MOMENTO</span></h1>
+        <p>Ordena en línea y recoge en tu sucursal favorita</p>
+        <a href="/cliente/productos" class="hero-btn">Comprar ahora</a>
+    </div>
 </section>
 
-<!-- ============================
-      PRODUCTOS DESTACADOS
-=============================== -->
-<h2 class="section-title">Productos Destacados</h2>
 
-<section class="productos">
+<!-- ========================================
+         ESPECIALES DEL MES
+======================================== -->
+<h2 class="section-title">Especiales del mes</h2>
+
+<section class="productos-grid">
     {% for p in productos %}
     <div class="product-card">
 
         {% set img_url = url_for('static', filename='img/products/' ~ p.imagen) %}
         {% set default_img = url_for('static', filename='img/products/cupcake.jpg') %}
 
-        <img src="{{ img_url }}"
-             class="product-img"
-             onerror="this.src='{{ default_img }}';">
+        <div class="img-container">
+            <img src="{{ img_url }}" onerror="this.src='{{ default_img }}'" class="product-img">
+        </div>
 
-        <h3>{{ p.nombre }}</h3>
-        <p class="precio">{{ p.precio }} Bs</p>
-        <p class="desc">{{ p.descripcion[:60] }}...</p>
+        <div class="info">
+            <h3>{{ p.nombre }}</h3>
+            <p class="precio">Bs {{ p.precio }}</p>
+        </div>
 
-        <a href="/cliente/producto/{{ p.id }}" class="btn-ver">Ver más</a>
+        <a href="/cliente/producto/{{ p.id }}" class="btn-comprar">Ver producto</a>
     </div>
     {% endfor %}
 </section>
 
-<!-- ============================
-             CATEGORÍAS
-=============================== -->
-<h2 class="section-title-cats">Categorías</h2>
 
-<section class="categorias">
+<!-- ========================================
+                 CATEGORÍAS
+======================================== -->
+<h2 class="section-title">Categorías</h2>
+
+<section class="categorias-grid">
+
     {% for cat in categorias %}
-    <div class="cat-card">
 
-        {% set img_url = url_for('static', filename='img/categories/' ~ cat.icono) %}
-        {% set default_img = url_for('static', filename='img/cupcake.png') %}
+    {% set img_url = url_for('static', filename='img/categories/' ~ cat.icono) %}
+    {% set default_img = url_for('static', filename='img/products/cupcake.jpg') %}
 
-        <img src="{{ img_url }}"
-             class="cat-img"
-             onerror="this.src='{{ default_img }}';">
+    <div class="cat-item">
+
+        <div class="cat-img-container">
+            <img src="{{ img_url }}" onerror="this.src='{{ default_img }}'" class="cat-img">
+        </div>
 
         <h3>{{ cat.nombre }}</h3>
-        <p>{{ cat.descripcion[:70] }}...</p>
 
-        <a href="/cliente/productos?buscar={{ cat.nombre }}" class="btn-cat">Ver Productos</a>
+        <a href="/cliente/categorias?buscar={{ cat.nombre }}" class="cat-btn">
+            Ver productos
+        </a>
     </div>
+
     {% endfor %}
+
 </section>
 
 {% endblock %}

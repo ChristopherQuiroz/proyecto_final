@@ -169,11 +169,13 @@ def cliente_mis_pedidos():
         pedidos = []
         for pedido in pedidos_db:
             pedidos.append({
-                'id': str(pedido.get('_id', '')),
-                'total': pedido.get('total', 0),
-                'estado': pedido.get('estado', 'Pendiente'),
-                'fecha': pedido.get('fecha', '')
-            })
+            'id': str(pedido.get('_id', '')),
+            'total': pedido.get('total', 0),
+            'estado': pedido.get('estado', 'Pendiente'),
+            'fecha': pedido.get('fecha', ''),
+            'productos': pedido.get('productos', [])
+})
+
     else:
         pedidos = []
     

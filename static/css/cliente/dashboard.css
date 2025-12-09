@@ -1,104 +1,223 @@
-/* ======= BANNER ======= */
-.banner {
-    position: relative;
-    width: 100%;
-    height: 250px;
-    overflow: hidden;
+/* =========================================
+            ESTILOS GENERALES
+========================================= */
+body {
+    background-color: #F5EFE7;
+    font-family: 'Poppins', sans-serif;
 }
 
-.banner-img {
+.section-title {
+    text-align: center;
+    font-size: 30px;
+    margin: 40px 0 25px;
+    color: #5A3C1F;
+    font-weight: 600;
+}
+
+/* =========================================
+                HERO
+========================================= */
+.hero {
+    position: relative;
+    width: 100%;
+    height: 330px;
+    overflow: hidden;
+    border-radius: 12px;
+    margin: 20px auto 40px;
+    max-width: 1150px;
+}
+
+.hero-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    filter: brightness(70%);
 }
 
-.banner-title {
+.hero-overlay {
     position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    font-size: 40px;
-    font-weight: bold;
-    text-shadow: 2px 2px 4px black;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
 }
 
-/* ======= TITULOS ======= */
-.section-title,
-.section-title-cats {
-    background: #c39374;
+.hero-content {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
     text-align: center;
-    padding: 12px;
-    font-size: 22px;
-    font-weight: bold;
     color: white;
-    margin-top: 25px;
 }
 
-/* ======= PRODUCTOS ======= */
-.productos {
+.hero-content h1 {
+    font-size: 38px;
+    font-weight: 700;
+    text-shadow: 0px 3px 10px rgba(0,0,0,0.4);
+}
+
+.hero-content h1 span {
+    color: #E0C7A3;
+}
+
+.hero-content p {
+    margin-top: 10px;
+    font-size: 17px;
+}
+
+.hero-btn {
+    display: inline-block;
+    margin-top: 20px;
+    background: #8B5E34;
+    padding: 12px 26px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    transition: 0.25s ease-in-out;
+}
+
+.hero-btn:hover {
+    background: #5A3C1F;
+    transform: scale(1.05);
+}
+
+
+/* =========================================
+        GRID DE PRODUCTOS DESTACADOS
+========================================= */
+.productos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 25px;
-    padding: 20px 40px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 28px;
+    max-width: 1150px;
+    margin: auto;
 }
 
 .product-card {
-    background: #fff;
-    padding: 15px;
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-    transition: transform .2s;
+    background: white;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+    transition: 0.25s ease;
+    padding-bottom: 15px;
 }
 
 .product-card:hover {
-    transform: scale(1.03);
+    transform: translateY(-6px);
+    box-shadow: 0px 6px 18px rgba(0,0,0,0.18);
+}
+
+.img-container {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
 }
 
 .product-img {
     width: 100%;
-    border-radius: 10px;
+    height: 100%;
+    object-fit: cover;
+    transition: 0.3s ease;
 }
 
-.btn-ver {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 8px 15px;
-    background: #c39374;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: bold;
+.product-card:hover .product-img {
+    transform: scale(1.08);
 }
 
-/* ======= CATEGORÍAS ======= */
-.categorias {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 30px;
-    padding: 20px 40px;
+.info {
+    padding: 12px 18px;
 }
 
-.cat-card {
-    background: #fff;
-    padding: 20px;
+.info h3 {
+    color: #5A3C1F;
+    font-size: 18px;
+    margin-bottom: 4px;
+}
+
+.precio {
+    color: #8B5E34;
+    font-weight: 600;
+}
+
+
+/* Botón de producto */
+.btn-comprar {
+    display: block;
+    margin: 12px auto 0;
+    background: #8B5E34;
+    width: 80%;
+    padding: 10px 0;
     text-align: center;
-    border-radius: 10px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    transition: 0.25s;
+}
+
+.btn-comprar:hover {
+    background: #5A3C1F;
+}
+
+
+/* =========================================
+                CATEGORÍAS
+========================================= */
+.categorias-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 28px;
+    max-width: 1100px;
+    margin: auto;
+}
+
+.cat-item {
+    background: white;
+    text-align: center;
+    padding: 20px;
+    border-radius: 18px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.10);
+    transition: 0.25s ease;
+}
+
+.cat-item:hover {
+    transform: translateY(-6px);
+}
+
+.cat-img-container {
+    width: 110px;
+    height: 110px;
+    margin: auto;
+    border-radius: 50%;
+    overflow: hidden;
 }
 
 .cat-img {
-    width: 90px;
-    margin-bottom: 10px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: 0.3s ease;
 }
 
-.btn-cat {
-    margin-top: 10px;
-    display: inline-block;
+.cat-item:hover .cat-img {
+    transform: scale(1.12);
+}
+
+.cat-item h3 {
+    margin: 12px 0 6px;
+    color: #5A3C1F;
+    font-size: 18px;
+}
+
+/* Botón categoría */
+.cat-btn {
+    background: #8B5E34;
     padding: 8px 15px;
-    background: #c39374;
+    border-radius: 12px;
     color: white;
-    text-decoration: none;
-    border-radius: 6px;
+    font-weight: 500;
+    display: inline-block;
+    margin-top: 12px;
+    transition: 0.25s;
+}
+
+.cat-btn:hover {
+    background: #5A3C1F;
 }
