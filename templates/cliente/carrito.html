@@ -6,51 +6,66 @@
 
 {% block cliente_content %}
 
-<h2 class="titulo">Mi Carrito</h2>
+<h2 class="titulo-carrito">Mi Carrito</h2>
 
-<div class="carrito-container">
+<div class="carrito-layout">
 
-    {% for producto in productos %}
-    <div class="item-carrito">
+    <!-- ====================================== TABLA DE PRODUCTOS ====================================== -->
+    <div class="tabla-carrito">
 
-        {% set img_url = url_for('static', filename='img/products/' ~ producto.imagen) %}
-        {% set default_img = url_for('static', filename='img/products/cupcake.jpg') %}
-
-        <img src="{{ img_url }}" class="carrito-img" onerror="this.src='{{ default_img }}'">
-
-        <div class="carrito-info">
-            <h4>{{ producto.nombre }}</h4>
-            <p>Precio: {{ producto.precio }} Bs</p>
-
-            <!-- CONTROLES DE CANTIDAD -->
-            <div class="cantidad-control">
-                <button onclick="actualizarCantidad('{{ producto.id }}', 'restar')">−</button>
-                <span>{{ producto.cantidad }}</span>
-                <button onclick="actualizarCantidad('{{ producto.id }}', 'sumar')">+</button>
-            </div>
-
-            <p>Subtotal: {{ producto.subtotal }} Bs</p>
+        <!-- Encabezado -->
+        <div class="fila encabezado">
+            <span>Artículo</span>
+            <span>Precio</span>
+            <span>Cantidad</span>
+            <span>Subtotal</span>
         </div>
 
-        <button class="btn-eliminar" onclick="eliminarDelCarrito('{{ producto.id }}')">X</button>
+        {% for p in productos %}
+        <div class="fila producto">
+
+            <!-- ARTÍCULO -->
+            <div class="col-articulo">
+                {% set img_url = url_for('static', filename='img/products/' ~ p.imagen) %}
+                {% set default_img = url_for('static', filename='img/products/cupcake.jpg') %}
+
+                <img src="{{ img_url }}" onerror="this.src='{{ default_img }}'">
+
+                <span class="nombre">{{ p.nombre }}</span>
+            </div>
+
+            <!-- PRECIO -->
+            <div class="col-precio">{{ p.precio }} Bs</div>
+
+            <!-- CANTIDAD -->
+            <div class="col-cantidad">
+                <button onclick="actualizarCantidad('{{ p.id }}', 'restar')">−</button>
+                <input type="text" value="{{ p.cantidad }}" readonly>
+                <button onclick="actualizarCantidad('{{ p.id }}', 'sumar')">+</button>
+            </div>
+
+            <!-- SUBTOTAL -->
+            <div class="col-subtotal">{{ p.subtotal }} Bs</div>
+
+        </div>
+        {% endfor %}
+
     </div>
 
-    {% else %}
-    <p class="carrito-vacio">Tu carrito está vacío</p>
-    {% endfor %}
+    <!-- ====================================== RESUMEN ====================================== -->
+    <div class="resumen-carrito">
+        <h3>Resumen</h3>
+        <hr>
 
-</div>
+        <div class="resumen-linea">
+            <span>Total del pedido</span>
+            <span>{{ total }} Bs</span>
+        </div>
 
-<!-- TOTAL GENERAL -->
-<div class="carrito-total">
-    <h3>Total: {{ total }} Bs</h3>
-    <h3>Total: {{ total }} Bs</h3>
-
-<div class="carrito-total">
-    <form method="POST" action="/cliente/pagar">
-        <button type="submit" class="btn-confirmar">Pagar Pedido</button>
-    </form>
-</div>
+        <form action="/cliente/pagar" method="POST">
+            <button class="btn-pagar">Tramitar pedido</button>
+        </form>
+    </div>
 
 </div>
 

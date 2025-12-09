@@ -1,55 +1,105 @@
 {% extends "layout_cliente.html" %}
 
-{% block extra_css %}
+{% block cliente_extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/cliente/categorias.css') }}">
 {% endblock %}
 
 {% block cliente_content %}
 
-<h1 class="titulo-cat">CATEGORIAS</h1>
+<h1 class="titulo-pagina">Categorías</h1>
 
-<!-- Buscador -->
-<form method="GET" class="buscador-container">
-    <input type="text" name="buscar" placeholder="Buscar"
-           class="input-buscar"
-           value="{{ request.args.get('buscar', '') }}">
-    <button class="btn-buscar">🔍</button>
-</form>
+<!-- 🔎 BUSCADOR SOLO DE PRODUCTOS -->
+<div class="barra-superior">
+    <input type="text" id="buscar-producto" class="input-buscar" placeholder="Buscar productos...">
+</div>
 
-<!-- Iconos -->
-<section class="categorias-iconos">
+<!-- 🌟 CARRUSEL DE CATEGORÍAS -->
+<div class="carrusel-categorias" id="carrusel">
     {% for cat in categorias %}
-    <div class="icono-item">
-
+    <div class="categoria-item" data-categoria="{{ cat.nombre }}">
+        
         {% set icon_url = url_for('static', filename='img/categories/' ~ cat.icono) %}
         {% set default_icon = url_for('static', filename='img/products/cupcake.jpg') %}
 
         <img src="{{ icon_url }}" class="icono-categoria"
              onerror="this.src='{{ default_icon }}'">
-
+        
         <p>{{ cat.nombre }}</p>
+
+        <!-- contador corregido -->
+        <span class="contador">{{ conteo.get(cat.nombre, 0) }}</span>
     </div>
     {% endfor %}
-</section>
+</div>
 
-<!-- Productos -->
-<section class="productos-grid">
+<hr>
+
+<h2 class="titulo-lista">Productos disponibles</h2>
+
+<!-- 🛒 GRID DE PRODUCTOS (SIN ETIQUETAS) -->
+<div class="productos-grid" id="productosGrid">
+
     {% for p in productos %}
-    <div class="card-producto">
+    <div class="producto-card"
+        data-nombre="{{ p.nombre }}"
+        data-descripcion="{{ p.descripcion }}"
+        data-categoria="{{ p.categoria }}"
+        data-precio="{{ p.precio }}">
 
-        {% set img_url = url_for('static', filename='img/products/' ~ p.imagen) %}
-        {% set default_img = url_for('static', filename='img/cupcake.png') %}
-
-        <img src="{{ img_url }}" class="producto-img"
-             onerror="this.src='{{ default_img }}'">
-
-        <div class="producto-info">
-            <h3>{{ p.nombre }}</h3>
-            <p class="precio">Precio: {{ p.precio }} Bs</p>
-            <p class="descripcion">{{ p.descripcion[:60] }}...</p>
+        <!-- IMAGEN -->
+        <div class="card-img-container">
+            <img src="{{ url_for('static', filename='img/products/' ~ p.imagen) }}"
+                 onerror="this.src='{{ url_for('static', filename='img/products/cupcake.jpg') }}'">
         </div>
+
+        <!-- INFO -->
+        <div class="card-info">
+            <h3>{{ p.nombre }}</h3>
+            <p class="precio">Bs {{ p.precio }}</p>
+        </div>
+
+        <!-- BOTÓN ÚNICO (Ver producto) -->
+        <a href="/cliente/producto/{{ p.id }}" class="btn-ver-producto hover-button">
+            Ver producto
+        </a>
+
     </div>
     {% endfor %}
-</section>
+
+</div>
+
+<!-- ================= JS ================= -->
+<script>
+/* ---------- Buscador solo para productos ---------- */
+document.getElementById("buscar-producto").addEventListener("input", function () {
+    const texto = this.value.toLowerCase();
+
+    document.querySelectorAll(".producto-card").forEach(card => {
+        const nombre = card.dataset.nombre.toLowerCase();
+        const descripcion = card.dataset.descripcion.toLowerCase();
+
+        card.style.display =
+            (nombre.includes(texto) || descripcion.includes(texto))
+            ? "block"
+            : "none";
+    });
+});
+
+/* ---------- Animación al seleccionar categoría ---------- */
+document.querySelectorAll(".categoria-item").forEach(item => {
+    item.addEventListener("click", () => {
+        const cat = item.dataset.categoria;
+
+        document.querySelectorAll(".categoria-item").forEach(c => c.classList.remove("active"));
+        item.classList.add("active");
+
+        document.querySelectorAll(".producto-card").forEach(card => {
+            card.style.display = (cat === "" || card.dataset.categoria === cat)
+                ? "block"
+                : "none";
+        });
+    });
+});
+</script>
 
 {% endblock %}

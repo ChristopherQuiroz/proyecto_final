@@ -23,7 +23,7 @@
 <div class="productos-grid">
     {% for cat in categorias %}
     <div class="card-producto" data-cantidad="{{ cat.cantidad_productos }}">
-        <img src="{{ url_for('static', filename='img/categories/' ~ (cat.icono if cat.icono else 'default.jpg')) }}" 
+       <img src="{{ url_for('static', filename='img/categories/' ~ (cat.icono if cat.icono else 'default.jpg')) }}" 
           class="producto-img" 
           onerror="this.src='{{ url_for('static', filename='img/categories/default.jpg') }}'">
         <div class="producto-info">
