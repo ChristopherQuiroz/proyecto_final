@@ -12,6 +12,17 @@ UPLOAD_FOLDER = 'static/img/products'  # misma carpeta que admin
 
 bp_empleado = Blueprint("empleado", __name__, url_prefix="/empleado")
 db = dbConnection()
+def format_product_for_template(product):
+    return {
+        'id': str(product.get('_id', '')),
+        'name': product.get('name', 'Sin nombre'),
+        'description': product.get('description', ''),
+        'price': product.get('price', 0),
+        'quantity': product.get('inventory', {}).get('current_quantity', 0),
+        'category': product.get('category_name', 'General'),
+        'status': product.get('status', 'Desconocido'),
+        'image': product.get('image', 'cupcake.jpg')
+    }
 
 def normalize_product(producto):
     """
@@ -282,6 +293,7 @@ def empleado_crear_pedido():
         # -------------------------
         cliente_id = data.get("cliente")
         productos = data.get("detalles")
+
         if not cliente_id:
             return {"ok": False, "msg": "Debes seleccionar un cliente"}, 400
         if not productos or len(productos) == 0:
@@ -307,8 +319,15 @@ def empleado_crear_pedido():
                 "subtotal": subtotal
             })
 
+        # 🔥 CORRECCIÓN IMPORTANTE:
+        # customer_id SIEMPRE debe quedar guardado como ObjectId VALIDO
+        try:
+            customer_oid = ObjectId(cliente_id)
+        except:
+            return {"ok": False, "msg": "ID de cliente inválido"}, 400
+
         order_obj = {
-            "customer_id": ObjectId(cliente_id),
+            "customer_id": customer_oid,
             "employee_id": None,
             "created_by": ObjectId(session.get("user_id")),
             "status": "pendiente",
@@ -343,6 +362,7 @@ def empleado_crear_pedido():
     # Detectar si venimos a editar
     order_id = request.args.get("id")
     pedido_editar = None
+
     if order_id:
         order = db["orders"].find_one({"_id": ObjectId(order_id)})
         if order:
@@ -369,17 +389,6 @@ def empleado_crear_pedido():
         pedido=pedido_editar
     )
 
-def format_product_for_template(product):
-    return {
-        'id': str(product.get('_id', '')),
-        'name': product.get('name', 'Sin nombre'),
-        'description': product.get('description', ''),
-        'price': product.get('price', 0),
-        'quantity': product.get('inventory', {}).get('current_quantity', 0),
-        'category': product.get('category_name', 'General'),
-        'status': product.get('status', 'Desconocido'),
-        'image': product.get('image', 'cupcake.jpg')
-    }
 # ============================================================
 #                PRODUCTOS 
 # ============================================================

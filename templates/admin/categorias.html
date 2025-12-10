@@ -1,5 +1,8 @@
 {% extends "layout_admin.html" %}
-
+{% block extra_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_empleados.css') }}">
+{% endblock %}
 {% block admin_content %}
 
 <h1 class="titulo-cat">ADMIN - CATEGORÍAS</h1>
