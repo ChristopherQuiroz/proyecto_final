@@ -98,7 +98,9 @@ function toggleDescripcion() {
 
         {% for rel in relacionados %}
         <div class="rel-card">
-            <img src="{{ url_for('static', filename='img/products/' ~ rel.imagen) }}">
+            <img src="{{ url_for('static', filename='img/products/' ~ rel.imagen) }}"
+                 onerror="this.src='{{ url_for('static', filename='img/products/cupcake.jpg') }}'">
+
             <h3>{{ rel.nombre }}</h3>
             <p>{{ rel.precio }} Bs</p>
             <a href="/cliente/producto/{{ rel.id }}" class="btn-rel">Ver producto</a>

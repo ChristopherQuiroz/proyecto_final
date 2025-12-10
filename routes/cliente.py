@@ -14,19 +14,17 @@ db = dbConnection()
 # ============================================================
 #                   ROL: CLIENTE
 # ============================================================
-
 def format_product_for_template(product):
-    """Convertir producto de BD (inglés) a template (español)"""
     return {
         'id': str(product.get('_id', '')),
-        'nombre': product.get('name', 'Sin nombre'),
+        'nombre': product.get('name', ''),
         'descripcion': product.get('description', ''),
         'precio': product.get('price', 0),
-        'cantidad': product.get('quantity', 0),
-        'categoria': product.get('category', 'General'),
-        'estado': product.get('status', 'Desconocido'),
-        'imagen': product.get('image', 'cupcake.jpg')
+        'imagen': product.get('image', 'cupcake.jpg'),
+        'categoria_id': product.get('category_id', ''),
+
     }
+
 
 def format_category_for_template(category):
     """Convertir categoría de BD (inglés) a template (español)"""
@@ -76,68 +74,109 @@ def cliente_dashboard():
 
 @bp_cliente.route("/productos")
 def cliente_productos():
-    # Obtener productos de la BD
     products_collection = db['products']
     categories_collection = db['categories']
-    
-    categorias = list(categories_collection.find())
-    # Manejar búsqueda si existe
+
+    # ================================
+    #   CARGAR CATEGORÍAS
+    # ================================
+    categorias_db = list(categories_collection.find())
+    categorias = []
+
+    for c in categorias_db:
+        cat_id = str(c["_id"])
+
+        categorias.append({
+            "id": cat_id,
+            "nombre": c.get("name", "Sin nombre"),
+            "descripcion": c.get("description", ""),
+            "icono": c.get("icon", "default.jpg"),
+
+            # Contar productos asociados a esta categoría
+            "cantidad_productos": products_collection.count_documents({
+                "category_id": cat_id,
+                "status": "Disponible"
+            })
+        })
+
+    # ================================
+    #   MANEJAR BÚSQUEDA
+    # ================================
     buscar = request.args.get('buscar', '').strip()
+
     if buscar:
-        # Búsqueda por nombre o descripción (case-insensitive)
         productos_db = list(products_collection.find({
-            'status': 'Disponible',
-            '$or': [
-                {'name': {'$regex': buscar, '$options': 'i'}},
-                {'description': {'$regex': buscar, '$options': 'i'}},
-                {'category': {'$regex': buscar, '$options': 'i'}}
+            "status": "Disponible",
+            "$or": [
+                {"name": {"$regex": buscar, "$options": "i"}},
+                {"description": {"$regex": buscar, "$options": "i"}}
             ]
         }))
     else:
-        # Todos los productos disponibles
-        productos_db = list(products_collection.find({'status': 'Disponible'}))
-    
+        productos_db = list(products_collection.find({"status": "Disponible"}))
+
+    # Reformatear productos
     productos = [format_product_for_template(p) for p in productos_db]
-    
-    rol_actual = session.get('role', 'invitado')
-    return render_template("cliente/productos.html", 
-                         productos=productos, 
-                         categorias=categorias,
-                         rol=rol_actual)
+
+    # ================================
+    #   ENVIAR A LA VISTA
+    # ================================
+    return render_template(
+        "cliente/productos.html",
+        productos=productos,
+        categorias=categorias,
+        rol=session.get("role", "invitado")
+    )
+
 
 @bp_cliente.route("/categorias")
 def cliente_categorias():
     categories_collection = db['categories']
     products_collection = db['products']
 
-    # Todas las categorías
+    # ================================
+    #       CARGAR CATEGORÍAS
+    # ================================
     categorias_db = list(categories_collection.find())
-    categorias = [format_category_for_template(c) for c in categorias_db]
+    categorias = []
 
-    # Todos los productos disponibles
-    productos_db = list(products_collection.find({'status': 'Disponible'}))
+    for c in categorias_db:
+        cat_id = str(c["_id"])
+
+        categorias.append({
+            "id": cat_id,
+            "nombre": c.get("name", "Sin nombre"),
+            "descripcion": c.get("description", ""),
+            "icono": c.get("icon", "default.jpg")
+        })
+
+    # ================================
+    #       CARGAR PRODUCTOS
+    # ================================
+    productos_db = list(products_collection.find({"status": "Disponible"}))
     productos = [format_product_for_template(p) for p in productos_db]
 
-    # ==========================
-    # CALCULAR CONTEO DE PRODUCTOS POR CATEGORÍA
-    # ==========================
+    # ================================
+    #   CONTAR PRODUCTOS POR CATEGORÍA
+    # ================================
     conteo = {}
+
     for cat in categorias:
-        nombre_categoria = cat['nombre']
-        conteo[nombre_categoria] = sum(
-            1 for p in productos if p['categoria'] == nombre_categoria
+        conteo[cat["id"]] = sum(
+            1 for p in productos if p["categoria_id"] == cat["id"]
         )
 
-    # ==========================
-    # ENVÍO DE VARIABLES AL HTML
-    # ==========================
+    # ================================
+    #       ENVIAR AL TEMPLATE
+    # ================================
     return render_template(
         "cliente/categorias.html",
         categorias=categorias,
         productos=productos,
-        conteo=conteo, 
+        conteo=conteo,
         rol=session.get("role", "invitado")
     )
+
 
 @bp_cliente.route("/carrito")
 @require_role('cliente')
@@ -230,7 +269,7 @@ def agregar_al_carrito(product_id):
     return redirect("/cliente/carrito")
 
 @bp_cliente.route("/carrito/eliminar/<product_id>")
-@require_role('cliente')
+@require_role("cliente")
 def eliminar_del_carrito(product_id):
 
     product_id = str(product_id)
@@ -240,10 +279,10 @@ def eliminar_del_carrito(product_id):
 
     session.modified = True
     flash("Producto eliminado del carrito", "success")
-    return redirect("/cliente/carrito")
 
+    return redirect("/cliente/carrito")
 @bp_cliente.route("/carrito/actualizar/<product_id>/<accion>")
-@require_role('cliente')
+@require_role("cliente")
 def actualizar_cantidad(product_id, accion):
 
     product_id = str(product_id)
@@ -251,11 +290,8 @@ def actualizar_cantidad(product_id, accion):
     if "carrito" not in session or product_id not in session["carrito"]:
         return redirect("/cliente/carrito")
 
-    # SUMAR
     if accion == "sumar":
         session["carrito"][product_id] += 1
-
-    # RESTAR
     elif accion == "restar":
         if session["carrito"][product_id] > 1:
             session["carrito"][product_id] -= 1
@@ -265,9 +301,15 @@ def actualizar_cantidad(product_id, accion):
     session.modified = True
     return redirect("/cliente/carrito")
 
+# ============================================================
+#                            PAGAR
+# ============================================================
 @bp_cliente.route("/pagar", methods=["POST"])
 @require_role("cliente")
 def cliente_pagar():
+
+    print("🔥 ENTRANDO A /pagar")
+    print("ROL:", session.get("role"))
 
     if "carrito" not in session or not session["carrito"]:
         flash("Tu carrito está vacío", "error")
@@ -281,7 +323,6 @@ def cliente_pagar():
 
     for product_id, cantidad in carrito.items():
         producto_db = products_collection.find_one({"_id": ObjectId(product_id)})
-
         if not producto_db:
             continue
 
@@ -297,29 +338,31 @@ def cliente_pagar():
 
         total += subtotal
 
-    # Guardar pedido en BD
+    if not productos_pedido:
+        flash("No se pudo generar el pedido", "error")
+        return redirect("/cliente/carrito")
+
+    for item in productos_pedido:
+        ok, msg = verificar_y_ajustar_stock(item["product_id"], -item["cantidad"])
+        if not ok:
+            flash(f"No se puede pedir {item['nombre']}: {msg}", "error")
+            return redirect("/cliente/carrito")
+
     pedido = {
         "user_id": session["user_id"],
         "productos": productos_pedido,
         "total": total,
-        "estado": "Pendiente",       # <-- ADMIN / EMPLEADO revisan esto
+        "estado": "Pendiente",
         "fecha": datetime.now().strftime("%Y-%m-%d %H:%M")
     }
 
     db["orders"].insert_one(pedido)
-    for item in productos_pedido:
-      ok, msg = verificar_y_ajustar_stock(item["product_id"], -item["cantidad"])
-      if not ok:
-        flash(f"No se puede pedir {item['nombre']}: {msg}", "error")
-        return redirect("/cliente/carrito")
- 
-   # Vaciar carrito
+
     session["carrito"] = {}
     session.modified = True
 
     flash("¡Pedido realizado con éxito!", "success")
     return redirect("/cliente/mis_pedidos")
-
 @bp_cliente.route("/producto/<product_id>")
 @require_role('cliente')
 def cliente_detalle_producto(product_id):
@@ -334,14 +377,15 @@ def cliente_detalle_producto(product_id):
         
         producto = format_product_for_template(producto_db)
 
-       
-        categoria = producto['categoria']
+        # 🔥 CAMBIO: usar categoria_id correcto
+        categoria_id = producto['categoria_id']
 
+        # 🔥 CAMBIO: buscar por category_id (NO "category")
         relacionados_db = list(products_collection.find({
-            "category": categoria,
-            "_id": {"$ne": ObjectId(product_id)},   # excluir actual
+            "category_id": categoria_id,
+            "_id": {"$ne": ObjectId(product_id)},  # excluir producto actual
             "status": "Disponible"
-        }).limit(3))  # mostrar 3 o puedes usar limit(4)
+        }).limit(3))
 
         relacionados = [format_product_for_template(r) for r in relacionados_db]
 
@@ -355,6 +399,6 @@ def cliente_detalle_producto(product_id):
         )
 
     except Exception as e:
-        print("Error:", e)
+        print("Error en detalle:", e)
         flash("ID de producto inválido", "error")
         return redirect("/cliente/productos")
