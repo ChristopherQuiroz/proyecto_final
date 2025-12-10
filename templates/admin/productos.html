@@ -212,32 +212,32 @@ document.getElementById("btn-toggle-filtros").addEventListener("click", () => {
 });
 
 /* ============================
-        APLICAR FILTROS
+        FUNCION FILTROS Y BUSQUEDA
 ============================ */
 function aplicarFiltros() {
-    let buscar = document.getElementById("buscar").value.toLowerCase();
-    let ord = document.getElementById("ordenar").value;
-    let cat = document.getElementById("filtro-categoria").value;
-    let stock = document.getElementById("filtro-stock").value;
+    const buscar = document.getElementById("buscar-producto").value.toLowerCase();
+    const ord = document.getElementById("ordenar").value;
+    const cat = document.getElementById("filtro-categoria").value;
+    const stock = document.getElementById("filtro-stock").value;
 
-    let cards = Array.from(document.querySelectorAll(".producto-card"));
+    const cards = Array.from(document.querySelectorAll(".card-producto"));
 
     cards.forEach(card => {
-        let nombre = card.dataset.nombre.toLowerCase();
-        let desc = card.dataset.descripcion.toLowerCase();
-        let categoria = card.dataset.categoria;
-        let cantidad = parseInt(card.dataset.stock);
-        let precio = parseFloat(card.dataset.precio);
+        const nombre = card.dataset.name.toLowerCase();
+        const desc = card.dataset.description.toLowerCase();
+        const categoria = card.dataset.category;
+        const cantidad = parseInt(card.dataset.quantity);
+        const precio = parseFloat(card.dataset.price);
 
         let mostrar = true;
 
         // BUSCAR
         if (!(nombre.includes(buscar) || desc.includes(buscar))) mostrar = false;
 
-        // CATEGORÍA
+        // FILTRO CATEGORÍA
         if (cat && categoria !== cat) mostrar = false;
 
-        // STOCK
+        // FILTRO STOCK
         if (stock === "bajo" && !(cantidad < 5)) mostrar = false;
         if (stock === "medio" && !(cantidad >= 5 && cantidad <= 20)) mostrar = false;
         if (stock === "alto" && !(cantidad > 20)) mostrar = false;
@@ -249,10 +249,10 @@ function aplicarFiltros() {
     let visibles = cards.filter(c => c.style.display !== "none");
 
     visibles.sort((a, b) => {
-        let n1 = a.dataset.nombre.toLowerCase();
-        let n2 = b.dataset.nombre.toLowerCase();
-        let p1 = parseFloat(a.dataset.precio);
-        let p2 = parseFloat(b.dataset.precio);
+        const n1 = a.dataset.name.toLowerCase();
+        const n2 = b.dataset.name.toLowerCase();
+        const p1 = parseFloat(a.dataset.price);
+        const p2 = parseFloat(b.dataset.price);
 
         switch (ord) {
             case "az": return n1.localeCompare(n2);
@@ -264,12 +264,12 @@ function aplicarFiltros() {
     });
 
     // Reordenar en el GRID
-    let grid = document.getElementById("productos-grid");
+    const grid = document.getElementById("productos-grid");
     visibles.forEach(c => grid.appendChild(c));
 }
 
 /* Eventos */
-document.getElementById("buscar").addEventListener("input", aplicarFiltros);
+document.getElementById("buscar-producto").addEventListener("input", aplicarFiltros);
 document.getElementById("ordenar").addEventListener("change", aplicarFiltros);
 document.getElementById("filtro-categoria").addEventListener("change", aplicarFiltros);
 document.getElementById("filtro-stock").addEventListener("change", aplicarFiltros);

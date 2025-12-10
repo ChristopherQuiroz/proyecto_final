@@ -58,7 +58,7 @@
 
 /* Imagen siempre cuadrada */
 .producto-img {
-    width: 120px;
+    width: 90%;
     height: 120px;
     object-fit: cover;
     border-radius: 10px;

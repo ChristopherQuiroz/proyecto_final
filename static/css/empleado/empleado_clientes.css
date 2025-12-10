@@ -201,3 +201,46 @@
     from { transform: scale(0.9); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
 }
+/* ===========================
+   BUSCADOR CENTRADO SOBRE LA TABLA
+=========================== */
+.buscador-clientes {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px auto;
+    width: 90%;
+    max-width: 400px;
+    position: relative; /* para posicionar las sugerencias */
+}
+
+.buscador-clientes input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #b69d8a;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+}
+.buscador-clientes input:focus {
+    border-color: #8f674e;
+    box-shadow: 0 0 5px rgba(166, 123, 91, 0.4);
+}
+
+/* ===========================
+   SUGERENCIAS AUTOCOMPLETE
+=========================== */
+.sugerencias {
+    position: absolute;
+    top: 48px; /* debajo del input */
+    width: 100%;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    max-height: 180px;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 100;
+    display: none; /* se muestra solo cuando hay coincidencias */
+}

@@ -176,4 +176,33 @@
     color: white;
     border: none;
     cursor: pointer;
+}/* Buscador centrado sobre la tabla */
+.buscador-clientes {
+    display: flex;
+    justify-content: center;  /* centra horizontalmente */
+    margin: 25px auto;        /* espacio arriba y abajo */
+    width: 90%;
+    max-width: 400px;         /* opcional: limita ancho */
+}
+
+.buscador-clientes input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid #b69d8a;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+/* Mantener las sugerencias */
+.sugerencias {
+    position: absolute;
+    top: 38px;
+    width: 100%;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    max-height: 180px;
+    overflow-y: auto;
+    z-index: 10;
+    display: none;
 }

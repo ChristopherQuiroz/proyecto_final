@@ -8,16 +8,17 @@
 {% block admin_content %}
 
 <h1 class="titulo-clientes">Gestión de Empleados</h1>
-
-<div class="acciones-superiores">
-    <button class="btn-agregar" onclick="abrirModal()">+ Agregar Empleado</button>
-</div>
-
 <!-- BUSCADOR -->
 <div class="buscador-clientes">
     <input type="text" id="buscarEmpleado" placeholder="Buscar por nombre o correo...">
     <div id="sugerenciasEmpleados" class="sugerencias"></div>
 </div>
+
+<div class="acciones-superiores">
+    <button class="btn-agregar" onclick="abrirModal()">+ Agregar Empleado</button>
+</div>
+
+
 
 <!-- TABLA -->
 <div class="tabla-contenedor">
@@ -126,6 +127,25 @@ async function eliminarEmpleado(id){
     if(result.ok) location.reload();
     else alert(result.msg || "Error");
 }
+// BUSCADOR DE EMPLEADOS
+const inputBuscarEmpleado = document.getElementById("buscarEmpleado");
+const tablaEmpleados = document.getElementById("tablaEmpleados").getElementsByTagName("tbody")[0];
+
+inputBuscarEmpleado.addEventListener("input", function() {
+    const filtro = this.value.toLowerCase();
+
+    for (let fila of tablaEmpleados.rows) {
+        const nombre = fila.dataset.nombre || "";
+        const correo = fila.dataset.correo || "";
+        // Mostrar fila si el nombre o correo contienen el texto buscado
+        if (nombre.includes(filtro) || correo.includes(filtro)) {
+            fila.style.display = "";
+        } else {
+            fila.style.display = "none";
+        }
+    }
+});
+
 </script>
 
 {% endblock %}

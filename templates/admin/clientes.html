@@ -9,15 +9,16 @@
 
 <h1 class="titulo-clientes">Gestión de Clientes</h1>
 
-<div class="acciones-superiores">
-    <button class="btn-agregar" onclick="abrirModal()">+ Agregar Cliente</button>
-</div>
-
 <!-- BUSCADOR -->
 <div class="buscador-clientes">
     <input type="text" id="buscarCliente" placeholder="Buscar por nombre o correo...">
     <div id="sugerenciasClientes" class="sugerencias"></div>
 </div>
+<div class="acciones-superiores">
+    <button class="btn-agregar" onclick="abrirModal()">+ Agregar Cliente</button>
+</div>
+
+
 
 <!-- TABLA CLIENTES -->
 <div class="tabla-contenedor">
@@ -139,6 +140,24 @@ async function eliminarCliente(id) {
     if(result.ok) location.reload();
     else alert(result.msg || "Error");
 }
+const inputBuscar = document.getElementById("buscarCliente");
+const tablaClientes = document.getElementById("tablaClientes").getElementsByTagName("tbody")[0];
+
+inputBuscar.addEventListener("input", function() {
+    const filtro = this.value.toLowerCase();
+
+    for (let fila of tablaClientes.rows) {
+        const nombre = fila.dataset.nombre || "";
+        const correo = fila.dataset.correo || "";
+        // Mostrar fila si el nombre o correo contienen el texto buscado
+        if (nombre.includes(filtro) || correo.includes(filtro)) {
+            fila.style.display = "";
+        } else {
+            fila.style.display = "none";
+        }
+    }
+});
+
 </script>
 
 
