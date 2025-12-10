@@ -31,25 +31,13 @@
 </div>
 
 
-
-<!-- Mensajes Flash -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div class="flash-messages">
-      {% for category, message in messages %}
-        <div class="flash {{ category }}">{{ message }}</div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
-
 <div class="productos-grid">
     {% for producto in productos %}
     <div class="card-producto"
          data-id="{{ producto._id|string }}"
          data-name="{{ producto.name }}"
          data-description="{{ producto.description }}"
-         data-category="{{ producto.category }}"
+         data-category_id="{{ producto.category }}"
          data-price="{{ producto.price }}"
          data-quantity="{{ producto.quantity }}"
          data-status="{{ producto.status }}">
@@ -67,8 +55,9 @@
         </div>
 
         <div class="acciones-cat">
-            <!-- Pasar el _id como string para JS -->
-            <button class="btn-editar" onclick="mostrarModalEditar(this)">Editar</button>
+            <button class="btn-editar" 
+                data-id="{{ producto._id|string }}" 
+               onclick="mostrarModalEditar(this)">Editar</button>
             <a href="/admin/productos/eliminar/{{ producto._id|string }}" 
                class="btn-borrar"
                onclick="return confirm('¿Eliminar {{ producto.name }}?')">
@@ -84,7 +73,6 @@
     <div class="modal-content">
         <span class="close" onclick="cerrarModal('modal-agregar')">&times;</span>
         <form method="POST" action="/admin/productos/agregar" enctype="multipart/form-data">
-
             <h3>Agregar Producto</h3>
             <input type="text" name="name" placeholder="Nombre" required>
             <textarea name="description" placeholder="Descripción"></textarea>
@@ -101,10 +89,8 @@
                 <option value="Agotado">Agotado</option>
                 <option value="Descontinuado">Descontinuado</option>
             </select>
-            <!-- NUEVO: Imagen del producto -->
             <label for="image">Imagen:</label>
             <input type="file" name="image" accept="image/*">
-            
             <button type="submit">Agregar</button>
         </form>
     </div>
@@ -132,40 +118,43 @@
                 <option value="Agotado">Agotado</option>
                 <option value="Descontinuado">Descontinuado</option>
             </select>
-            <!-- NUEVO: Imagen del producto -->
             <label for="editar_image">Imagen:</label>
             <input type="file" name="image" id="editar_image" accept="image/*">
             <br>
             <img id="editar_image_preview" src="{{ url_for('static', filename='img/products/cupcake.png') }}" alt="Preview" style="max-width:100px; margin-top:5px;">
-
             <button type="submit">Guardar Cambios</button>
         </form>
     </div>
 </div>
 
 <script>
-// Abrir modal agregar
+const modalAgregar = document.getElementById('modal-agregar');
+const modalEditar = document.getElementById('modal-editar');
+const formEditar = document.getElementById('form-editar-producto');
+
 function mostrarModalAgregar() {
-    document.getElementById('modal-agregar').style.display = 'block';
+    modalAgregar.style.display = 'block';
 }
 
-// Abrir modal editar y cargar datos
 function mostrarModalEditar(btn) {
     const card = btn.closest('.card-producto');
-    
+
     document.getElementById('editar_old_name').value = card.dataset.name;
     document.getElementById('editar_name').value = card.dataset.name;
     document.getElementById('editar_description').value = card.dataset.description || '';
-    document.getElementById('editar_category').value = card.dataset.category || '';
+    document.getElementById('editar_category').value = card.dataset.category_id || '';
     document.getElementById('editar_price').value = card.dataset.price;
     document.getElementById('editar_quantity').value = card.dataset.quantity;
     document.getElementById('editar_status').value = card.dataset.status || 'Disponible';
 
-    document.getElementById('form-editar-producto').action = `/admin/productos/editar/${card.dataset.id}`;
+    formEditar.action = `/admin/productos/editar/${card.dataset.id}`;
 
-    document.getElementById('modal-editar').style.display = 'block';
+    const imgPreview = document.getElementById('editar_image_preview');
+    imgPreview.src = card.querySelector('.producto-img').src;
+
+    modalEditar.style.display = 'block';
 }
-// Actualizar preview de imagen en editar
+
 document.getElementById('editar_image').addEventListener('change', function(event){
     const file = event.target.files[0];
     if(file){
@@ -177,21 +166,28 @@ document.getElementById('editar_image').addEventListener('change', function(even
     }
 });
 
-
-// Cerrar modales
 function cerrarModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
 }
 
-// Búsqueda en tiempo real
-document.getElementById('buscar-producto').addEventListener('input', function(e){
-    const term = e.target.value.toLowerCase();
-    document.querySelectorAll('.card-producto').forEach(card => {
-        const nombre = card.querySelector('h3').textContent.toLowerCase();
-        const desc = card.querySelector('.producto-info p').textContent.toLowerCase();
-        card.style.display = (nombre.includes(term) || desc.includes(term)) ? 'flex' : 'none';
+window.onclick = function(event) {
+    if(event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+    }
+}
+
+document.querySelectorAll('.btn-borrar').forEach(btn => {
+    btn.addEventListener('click', function(e){
+        e.preventDefault();
+        const id = btn.closest('.card-producto').dataset.id;
+        const nombre = btn.closest('.card-producto').dataset.name;
+        if(confirm(`¿Seguro que quieres eliminar "${nombre}"?`)){
+            window.location.href = `/admin/productos/eliminar/${id}`;
+        }
     });
 });
+
+
 function aplicarFiltros() {
     const term = document.getElementById('buscar-producto').value.toLowerCase();
     const categoria = document.getElementById('filtro-categoria').value;
@@ -202,33 +198,25 @@ function aplicarFiltros() {
     document.querySelectorAll('.card-producto').forEach(card => {
         const nombre = card.querySelector('h3').textContent.toLowerCase();
         const desc = card.querySelector('.producto-info p').textContent.toLowerCase();
-        const cardCategoria = card.dataset.category;
+        const cardCategoria = card.dataset.category_id;
         const cardStock = parseInt(card.dataset.quantity);
         const cardPrice = parseFloat(card.dataset.price);
 
         let mostrar = true;
 
-        // Búsqueda por nombre o descripción
         if(term && !(nombre.includes(term) || desc.includes(term))) mostrar = false;
-
-        // Filtrar por categoría
         if(categoria && cardCategoria !== categoria) mostrar = false;
-
-        // Filtrar por stock
-        if(stock) {
+        if(stock){
             if(stock === 'bajo' && cardStock >= 5) mostrar = false;
             if(stock === 'medio' && (cardStock < 5 || cardStock > 20)) mostrar = false;
             if(stock === 'alto' && cardStock <= 20) mostrar = false;
         }
-
-        // Filtrar por precio
         if(cardPrice < minPrice || cardPrice > maxPrice) mostrar = false;
 
         card.style.display = mostrar ? 'flex' : 'none';
     });
 }
 
-// Eventos para filtros
 document.getElementById('buscar-producto').addEventListener('input', aplicarFiltros);
 document.getElementById('filtro-categoria').addEventListener('change', aplicarFiltros);
 document.getElementById('filtro-stock').addEventListener('change', aplicarFiltros);
@@ -246,14 +234,6 @@ function toggleFiltros() {
         btn.textContent = 'Filtros ▼';
     }
 }
-
-
-// Cerrar modal al hacer clic fuera
-window.onclick = function(event) {
-    if(event.target.classList.contains('modal')) {
-        event.target.style.display = 'none';
-    }
-};
 </script>
 
 {% endblock %}

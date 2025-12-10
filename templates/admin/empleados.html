@@ -1,29 +1,131 @@
 {% extends "layout_admin.html" %}
 
-{% block admin_content %}
-<h2 class="titulo-cat">Empleados</h2>
+{% block extra_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_empleados.css') }}">
+{% endblock %}
 
-<div class="buscador-agregar">
-    <input type="text" placeholder="Buscar empleado...">
-    <button>Agregar Empleado</button>
+{% block admin_content %}
+
+<h1 class="titulo-clientes">Gestión de Empleados</h1>
+
+<div class="acciones-superiores">
+    <button class="btn-agregar" onclick="abrirModal()">+ Agregar Empleado</button>
 </div>
 
-<table class="tabla-inventario">
-    <tr>
-        <th>Nombre</th>
-        <th>Cargo</th>
-        <th>Acción</th>
-    </tr>
+<!-- BUSCADOR -->
+<div class="buscador-clientes">
+    <input type="text" id="buscarEmpleado" placeholder="Buscar por nombre o correo...">
+    <div id="sugerenciasEmpleados" class="sugerencias"></div>
+</div>
 
-    {% for i in range(1,6) %}
-    <tr>
-        <td>Empleado {{ i }}</td>
-        <td>Vendedor</td>
-        <td>
-            <button class="btn-editar">Editar</button>
-            <button class="btn-borrar">Eliminar</button>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+<!-- TABLA -->
+<div class="tabla-contenedor">
+    <table class="tabla" id="tablaEmpleados">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Cargo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if empleados %}
+                {% for e in empleados %}
+                <tr class="fila-empleado" data-nombre="{{ e.nombre | lower }}" data-correo="{{ e.correo | lower }}">
+                    <td>{{ e.nombre }}</td>
+                    <td>{{ e.correo }}</td>
+                    <td>{{ e.cargo }}</td>
+                    <td class="acciones-col">
+                        <button class="btn-editar" onclick="editarEmpleado('{{ e.id }}')">✏ Editar</button>
+                        <button class="btn-borrar" onclick="eliminarEmpleado('{{ e.id }}')">🗑 Eliminar</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4" class="sin-clientes">No hay empleados registrados.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modalEmpleado">
+    <div class="modal-contenido">
+        <h2>Agregar Empleado</h2>
+        <form id="formEmpleado">
+            <label>Nombre:</label>
+            <input type="text" name="nombre" required>
+            <label>Correo:</label>
+            <input type="email" name="correo" required>
+            <label>Cargo:</label>
+            <input type="text" name="cargo">
+            <div class="modal-acciones">
+                <button type="button" class="btn-cerrar" onclick="cerrarModal()">Cancelar</button>
+                <button type="submit" class="btn-guardar">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+let empleados = {{ empleados | tojson }};
+let editandoEmpleadoId = null;
+
+function abrirModal() {
+    document.getElementById("modalEmpleado").style.display = "flex";
+    document.querySelector("#modalEmpleado h2").textContent = editandoEmpleadoId ? "Editar Empleado" : "Agregar Empleado";
+    const form = document.getElementById("formEmpleado");
+    if(!editandoEmpleadoId) form.reset();
+}
+
+function cerrarModal() {
+    document.getElementById("modalEmpleado").style.display = "none";
+    editandoEmpleadoId = null;
+}
+
+function editarEmpleado(id){
+    const empleado = empleados.find(e => e.id === id);
+    if(!empleado) return alert("Empleado no encontrado");
+    editandoEmpleadoId = id;
+    abrirModal();
+    const form = document.getElementById("formEmpleado");
+    form.nombre.value = empleado.nombre;
+    form.correo.value = empleado.correo;
+    form.cargo.value = empleado.cargo || "";
+}
+
+document.getElementById("formEmpleado").addEventListener("submit", async function(e){
+    e.preventDefault();
+    const formData = new FormData(this);
+    const data = {
+        nombre: formData.get("nombre"),
+        correo: formData.get("correo"),
+        cargo: formData.get("cargo")
+    };
+    let url = editandoEmpleadoId ? `/admin/empleados/editar/${editandoEmpleadoId}` : "/admin/empleados/crear";
+
+    const resp = await fetch(url, {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(data)
+    });
+    const result = await resp.json();
+    if(result.ok){
+        alert(result.msg);
+        location.reload();
+    } else alert(result.msg || "Error");
+});
+
+async function eliminarEmpleado(id){
+    if(!confirm("¿Deseas eliminar este empleado?")) return;
+    const resp = await fetch(`/admin/empleados/eliminar/${id}`, { method:"POST", headers: {"Content-Type":"application/json"} });
+    const result = await resp.json();
+    if(result.ok) location.reload();
+    else alert(result.msg || "Error");
+}
+</script>
+
 {% endblock %}

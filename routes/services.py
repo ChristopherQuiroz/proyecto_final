@@ -12,8 +12,14 @@ from werkzeug.security import generate_password_hash
 db = dbConnection()
 
 # ================= CATEGORÍAS =================
-def get_all_categories():
-    return list(db['categories'].find())
+def get_all_categories(with_count=False):
+    categorias = list(db['categories'].find())
+    if with_count:
+        # Contar productos por cada categoría
+        for cat in categorias:
+            count = db['products'].count_documents({'category_id': cat['_id']})
+            cat['product_count'] = count
+    return categorias
 
 def get_category_by_name(name):
     return db['categories'].find_one({'name': name})
@@ -97,6 +103,29 @@ def delete_stock(product_name):
     if result.deleted_count:
         return True, "Stock eliminado"
     return False, "Stock no encontrado"
+def verificar_y_ajustar_stock(product_id, cantidad):
+    """
+    Ajusta el stock si hay suficiente cantidad.
+    cantidad > 0 → devolver stock (cancelar o eliminar pedido)
+    cantidad < 0 → restar stock (crear pedido)
+    Retorna (ok, msg)
+    """
+    product = db["products"].find_one({"_id": ObjectId(product_id)})
+    if not product:
+        return False, "Producto no encontrado"
+
+    stock_actual = product.get("quantity", 0)
+    
+    if cantidad < 0:  # Se quiere restar stock (pedido)
+        if stock_actual + cantidad < 0:  # recordemos cantidad < 0
+            return False, f"Stock insuficiente: solo quedan {stock_actual}"
+    
+    # Ajustar stock
+    db["products"].update_one(
+        {"_id": ObjectId(product_id)},
+        {"$inc": {"quantity": cantidad}}
+    )
+    return True, "Stock ajustado correctamente"
 
 # ================= USUARIOS =================
 def get_all_users():

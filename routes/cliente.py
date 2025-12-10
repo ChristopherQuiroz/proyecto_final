@@ -1,9 +1,13 @@
-import os
 from flask import Blueprint, render_template, request, session, flash, redirect, current_app
 from bson.objectid import ObjectId
 from database import dbConnection
 from routes.auth import require_role  
 from datetime import datetime
+from routes.services import verificar_y_ajustar_stock
+from werkzeug.utils import secure_filename
+import os
+
+UPLOAD_FOLDER = 'static/img/products'  # misma carpeta que admin
 
 bp_cliente = Blueprint("cliente", __name__, url_prefix="/cliente")
 db = dbConnection()
@@ -21,7 +25,7 @@ def format_product_for_template(product):
         'cantidad': product.get('quantity', 0),
         'categoria': product.get('category', 'General'),
         'estado': product.get('status', 'Desconocido'),
-        'imagen': product.get('image', 'cupcake.png')
+        'imagen': product.get('image', 'cupcake.jpg')
     }
 
 def format_category_for_template(category):
@@ -29,10 +33,9 @@ def format_category_for_template(category):
     return {
         'id': str(category.get('_id', '')),
         'nombre': category.get('name', 'Sin nombre'),
-        'icono': category.get('icon', 'cupcake.png'),   # campo correcto de BD
+        'icono': category.get('icon', 'cupcake.jpg'),   # campo correcto de BD
         'descripcion': category.get('description', '')  # campo correcto de BD
     }
-
     
 @bp_cliente.route("/")
 def cliente_dashboard():
@@ -301,8 +304,13 @@ def cliente_pagar():
     }
 
     db["orders"].insert_one(pedido)
-
-    # Vaciar carrito
+    for item in productos_pedido:
+      ok, msg = verificar_y_ajustar_stock(item["product_id"], -item["cantidad"])
+      if not ok:
+        flash(f"No se puede pedir {item['nombre']}: {msg}", "error")
+        return redirect("/cliente/carrito")
+ 
+   # Vaciar carrito
     session["carrito"] = {}
     session.modified = True
 

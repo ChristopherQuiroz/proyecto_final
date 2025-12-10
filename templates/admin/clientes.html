@@ -1,24 +1,145 @@
 {% extends "layout_admin.html" %}
 
+{% block extra_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_clientes.css') }}">
+{% endblock %}
+
 {% block admin_content %}
-<h2 class="titulo-cat">Clientes</h2>
 
-<table class="tabla-inventario">
-    <tr>
-        <th>Nombre</th>
-        <th>Correo</th>
-        <th>Acción</th>
-    </tr>
+<h1 class="titulo-clientes">Gestión de Clientes</h1>
 
-    {% for i in range(1,10) %}
-    <tr>
-        <td>Cliente {{ i }}</td>
-        <td>correo{{ i }}@gmail.com</td>
-        <td>
-            <button class="btn-editar">Editar</button>
-            <button class="btn-borrar">Eliminar</button>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+<div class="acciones-superiores">
+    <button class="btn-agregar" onclick="abrirModal()">+ Agregar Cliente</button>
+</div>
+
+<!-- BUSCADOR -->
+<div class="buscador-clientes">
+    <input type="text" id="buscarCliente" placeholder="Buscar por nombre o correo...">
+    <div id="sugerenciasClientes" class="sugerencias"></div>
+</div>
+
+<!-- TABLA CLIENTES -->
+<div class="tabla-contenedor">
+    <table class="tabla" id="tablaClientes">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Teléfono</th>
+                <th>Dirección</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if clientes %}
+                {% for c in clientes %}
+                <tr class="fila-cliente"
+                    data-nombre="{{ c.nombre | lower }}"
+                    data-correo="{{ c.correo | lower }}">
+                    <td>{{ c.nombre }}</td>
+                    <td>{{ c.correo }}</td>
+                    <td>{{ c.telefono if c.telefono else "—" }}</td>
+                    <td>{{ c.direccion if c.direccion else "—" }}</td>
+                    <td class="acciones-col">
+                        <button class="btn-editar" onclick="editarCliente('{{ c.id }}')">✏ Editar</button>
+                        <button class="btn-borrar" onclick="eliminarCliente('{{ c.id }}')">🗑 Eliminar</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5" class="sin-clientes">No hay clientes registrados.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- MODAL AGREGAR/EDITAR -->
+<div class="modal" id="modalCliente">
+    <div class="modal-contenido">
+        <h2>Agregar Cliente</h2>
+        <form id="formCliente">
+            <label>Nombre:</label>
+            <input type="text" name="nombre" required>
+            <label>Correo:</label>
+            <input type="email" name="correo" required>
+            <label>Teléfono:</label>
+            <input type="text" name="telefono">
+            <label>Dirección:</label>
+            <input type="text" name="direccion">
+            <div class="modal-acciones">
+                <button type="button" class="btn-cerrar" onclick="cerrarModal()">Cancelar</button>
+                <button type="submit" class="btn-guardar">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+let clientes = {{ clientes | tojson }};
+let editandoClienteId = null; // Variable para saber si estamos editando
+
+// ABRIR / CERRAR MODAL
+function abrirModal() {
+    document.getElementById("modalCliente").style.display = "flex";
+    document.querySelector("#modalCliente h2").textContent = editandoClienteId ? "Editar Cliente" : "Agregar Cliente";
+    const form = document.getElementById("formCliente");
+    if(!editandoClienteId) form.reset();
+}
+function cerrarModal() {
+    document.getElementById("modalCliente").style.display = "none";
+    editandoClienteId = null; // Reset al cerrar
+}
+
+// EDITAR CLIENTE
+function editarCliente(id) {
+    const cliente = clientes.find(c => c.id === id);
+    if (!cliente) return alert("Cliente no encontrado");
+    editandoClienteId = id;
+    abrirModal();
+    const form = document.getElementById("formCliente");
+    form.nombre.value = cliente.nombre;
+    form.correo.value = cliente.correo;
+    form.telefono.value = cliente.telefono || "";
+    form.direccion.value = cliente.direccion || "";
+}
+
+// CREAR / ACTUALIZAR CLIENTE
+document.getElementById("formCliente").addEventListener("submit", async function(e){
+    e.preventDefault();
+    const formData = new FormData(this);
+    const data = {
+        nombre: formData.get("nombre"),
+        correo: formData.get("correo"),
+        telefono: formData.get("telefono"),
+        direccion: formData.get("direccion")
+    };
+    let url = editandoClienteId ? `/admin/clientes/editar/${editandoClienteId}` : "/admin/clientes/crear";
+
+    const resp = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+    const result = await resp.json();
+    if(result.ok){
+        alert(result.msg);
+        location.reload();
+    } else {
+        alert(result.msg || "Error al guardar cliente");
+    }
+});
+
+// ELIMINAR CLIENTE
+async function eliminarCliente(id) {
+    if(!confirm("¿Deseas eliminar este cliente?")) return;
+    const resp = await fetch(`/admin/clientes/eliminar/${id}`, { method:"POST", headers: {"Content-Type":"application/json"} });
+    const result = await resp.json();
+    if(result.ok) location.reload();
+    else alert(result.msg || "Error");
+}
+</script>
+
+
 {% endblock %}

@@ -20,7 +20,7 @@
     <div class="card-producto">
 
         {% set img_url = url_for('static', filename='img/products/' ~ producto.name ~ '.jpg') %}
-        {% set default_img = url_for('static', filename='img/cupcake.png') %}
+        {% set default_img = url_for('static', filename='img/products/cupcake.jpg') %}
 
         <img src="{{ img_url }}"
              class="producto-img"

@@ -1,5 +1,8 @@
 {% extends "layout_empleado.html" %}
-
+{% block extra_css %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/empleado/inventario.css') }}">
+{% endblock %}
 {% block empleado_content %}
 <h2 class="titulo-cat">Inventario</h2>
 
@@ -12,17 +15,18 @@
             <th>Estado</th>
         </tr>
     </thead>
-
     <tbody>
         {% for p in productos %}
         <tr>
             <td>{{ p.name }}</td>
-            <td>{{ p.category }}</td>
+            <td>{{ p.category if p.category else "Sin categoría" }}</td>
             <td>{{ p.quantity }}</td>
-            <td>{{ p.status }}</td>
+            <td>
+                {% set estado_class = p.status.lower() %}
+                <span class="estado {{ estado_class }}">{{ p.status }}</span>
+            </td>
         </tr>
         {% endfor %}
-        
     </tbody>
 </table>
 {% endblock %}
