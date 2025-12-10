@@ -80,6 +80,9 @@
             <label>Teléfono:</label>
             <input type="text" name="telefono">
 
+            <label>Dirección:</label>
+            <input type="text" name="direccion">
+
             <div class="modal-acciones">
                 <button type="button" class="btn-cerrar" onclick="cerrarModal()">Cancelar</button>
                 <button type="submit" class="btn-guardar">Guardar</button>
@@ -153,6 +156,107 @@ inputBuscar.addEventListener("input", function () {
 
     sugerencias.style.display = "block";
 });
+
+// =========================
+//      ABRIR / CERRAR MODAL
+// =========================
+function abrirModal() {
+    document.getElementById("modalCliente").style.display = "flex";
+}
+
+function cerrarModal() {
+    document.getElementById("modalCliente").style.display = "none";
+}
+
+
+// =========================
+//      GUARDAR CLIENTE
+// =========================
+document.getElementById("formCliente").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const data = {
+        nombre: formData.get("nombre"),
+        correo: formData.get("correo"),
+        telefono: formData.get("telefono"),
+        direccion: formData.get("direccion")
+    };
+
+    const resp = await fetch("/empleado/clientes/crear", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    const result = await resp.json();
+    if (result.ok) {
+        alert("Cliente creado exitosamente");
+        location.reload();  
+    } else {
+        alert(result.msg || "Error al crear cliente");
+    }
+});
+function editarCliente(id) {
+    const cliente = clientes.find(c => c.id === id);
+    if (!cliente) return alert("Cliente no encontrado");
+
+    // Abrir modal
+    abrirModal();
+    const form = document.getElementById("formCliente");
+
+    // Cambiar título
+    document.querySelector("#modalCliente h2").textContent = "Editar Cliente";
+
+    // Llenar campos
+    form.nombre.value = cliente.nombre;
+    form.correo.value = cliente.correo;
+    form.telefono.value = cliente.telefono || "";
+    form.direccion.value = cliente.direccion || "";
+
+    // Cambiar evento submit
+    form.onsubmit = async function(e) {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const data = {
+            nombre: formData.get("nombre"),
+            correo: formData.get("correo"),
+            telefono: formData.get("telefono"),
+            direccion: formData.get("direccion")
+        };
+
+        const resp = await fetch(`/empleado/clientes/editar/${id}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        const result = await resp.json();
+        if (result.ok) {
+            alert(result.msg);
+            location.reload();
+        } else {
+            alert(result.msg || "Error al actualizar cliente");
+        }
+    };
+}
+async function eliminarCliente(id) {
+    if (!confirm("¿Deseas eliminar este cliente?")) return;
+
+    const resp = await fetch(`/empleado/clientes/eliminar/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+    });
+
+    const result = await resp.json();
+    if (result.ok) {
+        alert(result.msg);
+        location.reload();
+    } else {
+        alert(result.msg || "Error al eliminar cliente");
+    }
+}
+
 
 // Cerrar si clic fuera
 document.addEventListener("click", e => {

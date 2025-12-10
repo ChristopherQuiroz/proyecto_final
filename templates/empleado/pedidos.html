@@ -7,11 +7,12 @@
 
 {% block empleado_content %}
 
-<div class="pedidos-asignados-container">
+<div class="pedidos-container">
 
-    <h2>Pedidos</h2>
+    <!-- ===== PEDIDOS DE CLIENTES ===== -->
+    <h2>Pedidos de Clientes</h2>
 
-    {% if pedidos %}
+    {% if pedidos_clientes %}
     <table class="tabla-pedidos">
         <thead>
             <tr>
@@ -20,48 +21,158 @@
                 <th>Total</th>
                 <th>Estado</th>
                 <th>Fecha</th>
-                <th>Acciones</th>   <!-- 🔥 COLUMNA NUEVA -->
+                <th>Acciones</th>
             </tr>
         </thead>
-
         <tbody>
-            {% for p in pedidos %}
+            {% for p in pedidos_clientes %}
             <tr>
                 <td>{{ p.id }}</td>
                 <td>{{ p.cliente }}</td>
                 <td>{{ p.total }} Bs</td>
                 <td class="estado-{{ p.estado }}">{{ p.estado }}</td>
                 <td>{{ p.fecha }}</td>
-
-                <!-- 🔥 BOTONES SEGÚN ESTADO -->
                 <td>
-
                     {% if p.estado == "pendiente" %}
                         <a href="/empleado/pedidos/aceptar/{{ p.id }}" class="btn-accion aceptar">Aceptar</a>
                         <a href="/empleado/pedidos/cancelar/{{ p.id }}" class="btn-accion cancelar">Cancelar</a>
-
                     {% elif p.estado == "aceptado" %}
                         <a href="/empleado/pedidos/entregar/{{ p.id }}" class="btn-accion entregar">Entregar</a>
                         <a href="/empleado/pedidos/cancelar/{{ p.id }}" class="btn-accion cancelar">Cancelar</a>
-
                     {% elif p.estado == "entregado" %}
                         <span class="estado-finalizado">✔ Entregado</span>
-
                     {% elif p.estado == "cancelado" %}
                         <span class="estado-cancelado">✖ Cancelado</span>
-
                     {% endif %}
+                    <a href="#" class="btn-accion detalle-link" data-id="{{ p.id }}">Detalle</a>
                 </td>
-
             </tr>
             {% endfor %}
         </tbody>
     </table>
-
     {% else %}
-    <p class="no-pedidos">No hay pedidos registrados.</p>
+        <p class="no-pedidos">No hay pedidos de clientes.</p>
+    {% endif %}
+
+    <!-- ===== PEDIDOS CREADOS POR EL EMPLEADO ===== -->
+    <h2>Pedidos Creados por Ti</h2>
+
+    {% if pedidos_empleado %}
+    <table class="tabla-pedidos">
+        <thead>
+            <tr>
+                <th>ID Pedido</th>
+                <th>Cliente</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in pedidos_empleado %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.cliente }}</td>
+                <td>{{ p.total }} Bs</td>
+                <td class="estado-{{ p.estado }}">{{ p.estado }}</td>
+                <td>{{ p.fecha }}</td>
+                <td>
+                    {% if p.estado != "entregado" %}
+                        <a href="/empleado/pedidos/entregar/{{ p.id }}" class="btn-accion entregar">Entregar</a>
+                        {% if p.estado == "pendiente" %}
+                            <a href="/empleado/pedidos/cancelar/{{ p.id }}" class="btn-accion cancelar">Cancelar</a>
+                            <a href="/empleado/crear_pedido?id={{ p.id }}" class="btn-accion aceptar">Editar</a>
+                        {% endif %}
+                    {% else %}
+                        <span class="estado-finalizado">✔ Entregado</span>
+                    {% endif %}
+                    <a href="#" class="btn-accion detalle-link" data-id="{{ p.id }}">Detalle</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p class="no-pedidos">No hay pedidos creados por ti.</p>
     {% endif %}
 
 </div>
+<!-- Ventana de detalle flotante -->
+<div id="detalle-pedido-page" class="detalle-page">
+    <div class="detalle-content">
+        <span class="close" onclick="cerrarDetalle()">&times;</span>
+        <h3>Detalle del Pedido</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody id="detalle-body"></tbody>
+        </table>
+    </div>
+</div>
+
+
+
+{% endblock %}
+{% block extra_js %}
+<script>const detallePage = document.getElementById("detalle-pedido-page");
+const detalleBody = document.getElementById("detalle-body");
+
+function mostrarDetalle() {
+    detallePage.style.display = "flex";
+}
+
+function cerrarDetalle() {
+    detallePage.style.display = "none";
+}
+
+// Cerrar al hacer click fuera del contenido
+window.addEventListener("click", (e) => {
+    if (e.target === detallePage) cerrarDetalle();
+});
+
+// Delegación de eventos: abrir detalle
+document.addEventListener("click", async (e) => {
+    if (e.target && e.target.classList.contains("detalle-link")) {
+        e.preventDefault(); // no navegar
+        const orderId = e.target.dataset.id;
+        if (!orderId) return alert("Order ID vacío");
+
+        try {
+            // Traer los datos en JSON
+            const res = await fetch(`/empleado/pedidos/detalle/${orderId}`);
+            const data = await res.json();
+
+            if (!data.ok) return alert(data.msg);
+
+            // Limpiar la tabla antes de rellenar
+            detalleBody.innerHTML = "";
+
+            data.detalles.forEach(d => {
+                detalleBody.innerHTML += `
+                    <tr>
+                        <td>${d.product_name}</td>
+                        <td>${d.quantity}</td>
+                        <td>${d.subtotal} Bs</td>
+                    </tr>
+                `;
+            });
+
+            // Mostrar el modal flotante
+            mostrarDetalle();
+
+        } catch (err) {
+            console.error("Error al cargar detalle:", err);
+            alert("Error al cargar el detalle del pedido");
+        }
+    }
+});
+
+</script>
 
 {% endblock %}

@@ -12,65 +12,8 @@
     <h1 class="titulo-principal">Crear Pedido</h1>
 
     <!-- ==========================
-            BUSCAR CLIENTE
-    ============================= -->
-    <div class="cliente-box">
-        <label class="cliente-label">Buscar Cliente:</label>
-
-        <input type="text" id="buscarCliente" class="cliente-input"
-               placeholder="Escribe nombre o correo...">
-
-        <div id="sugerenciasClientes" class="sugerencias"></div>
-
-        <!-- ID REAL DEL CLIENTE -->
-        <input type="hidden" id="cliente">
-    </div>
-
-    <!-- ==========================
-            BUSCAR PRODUCTO
-    ============================= -->
-    <div class="search-box">
-        <input type="text" id="buscarProducto"
-               class="producto-input"
-               placeholder="Buscar productos...">
-        <div id="sugerenciasProductos" class="sugerencias"></div>
-    </div>
-
-    <!-- ==========================
-            PRODUCTOS
-    ============================= -->
-    <h2 class="subtitulo">Productos Disponibles</h2>
-
-    <section class="productos-grid" id="productosGrid">
-
-        {% for p in productos[:3] %}
-        <div class="card-producto"
-             data-id="{{ p.id }}"
-             data-nombre="{{ p.name }}"
-             data-precio="{{ p.price }}">
-
-            {% set img_url = url_for('static', filename='img/products/' ~ (p.image if p.image else 'default.png')) %}
-            {% set default_img = url_for('static', filename='img/cupcake.png') %}
-
-            <img src="{{ img_url }}" class="producto-img" onerror="this.src='{{ default_img }}'">
-
-            <h3 class="producto-nombre">{{ p.name }}</h3>
-            <p class="producto-precio">{{ p.price }} Bs</p>
-            <p class="producto-descripcion">{{ p.description }}</p>
-
-            <div class="pedido-control">
-                <input type="number" class="cantidad" min="1" value="1">
-                <button class="btn-agregar-producto">Agregar</button>
-            </div>
-
-        </div>
-        {% endfor %}
-
-    </section>
-
-    <!-- ==========================
             PEDIDO ACTUAL
-    ============================= -->
+    ============================ -->
     <h2 class="subtitulo">Pedido Actual</h2>
 
     <div class="cliente-resumen">
@@ -91,25 +34,80 @@
 </div>
 
 <!-- ==========================
-          SCRIPTS
+        BUSCAR CLIENTE
+============================== -->
+<div class="cliente-box">
+    <label class="cliente-label">Buscar Cliente:</label>
+    <input type="text" id="buscarCliente" class="cliente-input" placeholder="Escribe nombre o correo...">
+    <div id="sugerenciasClientes" class="sugerencias"></div>
+    <input type="hidden" id="cliente">
+</div>
+
+<!-- ==========================
+        BUSCAR PRODUCTO
+============================== -->
+<div class="search-box">
+    <input type="text" id="buscarProducto" class="producto-input" placeholder="Buscar productos...">
+    <div id="sugerenciasProductos" class="sugerencias"></div>
+</div>
+
+<!-- ==========================
+        PRODUCTOS
+============================== -->
+<h2 class="subtitulo">Productos Disponibles</h2>
+
+<section class="productos-grid" id="productosGrid">
+    {% for p in productos %}
+    <div class="card-producto"
+         data-id="{{ p.id }}"
+         data-nombre="{{ p.name }}"
+         data-precio="{{ p.price }}">
+
+        {% set img_url = url_for('static', filename='img/products/' ~ (p.image if p.image else 'default.png')) %}
+        {% set default_img = url_for('static', filename='img/cupcake.png') %}
+
+        <img src="{{ img_url }}" class="producto-img" onerror="this.src='{{ default_img }}'">
+
+        <h3 class="producto-nombre">{{ p.name }}</h3>
+        <p class="producto-precio">{{ p.price }} Bs</p>
+        <p class="producto-descripcion">{{ p.description }}</p>
+
+        <div class="pedido-control">
+            <input type="number" class="cantidad" min="1" value="1">
+            <button class="btn-agregar-producto">Agregar</button>
+        </div>
+    </div>
+    {% endfor %}
+</section>
+
+<!-- ==========================
+        SCRIPTS
 ============================== -->
 <script>
-
 //////////////////////////////////////
-//   AUTOCOMPLETE CLIENTES
+// Variables principales
 //////////////////////////////////////
-
 const clientes = {{ clientes | tojson }};
-const inputCliente      = document.getElementById("buscarCliente");
-const sugerenciasBox    = document.getElementById("sugerenciasClientes");
-const inputClienteID    = document.getElementById("cliente");
-const clienteResumen    = document.getElementById("clienteResumen");
+const inputCliente = document.getElementById("buscarCliente");
+const sugerenciasBox = document.getElementById("sugerenciasClientes");
+const inputClienteID = document.getElementById("cliente");
+const clienteResumen = document.getElementById("clienteResumen");
 
-inputCliente.addEventListener("input", function () {
+const inputBuscarProducto = document.getElementById("buscarProducto");
+const sugerenciasProductos = document.getElementById("sugerenciasProductos");
+
+let pedido = [];
+let total = 0;
+let currentOrderId = null;
+
+//////////////////////////////////////
+// Autocomplete Clientes
+//////////////////////////////////////
+inputCliente.addEventListener("input", function() {
     const valor = this.value.toLowerCase();
     sugerenciasBox.innerHTML = "";
 
-    if (valor.trim() === "") {
+    if (!valor.trim()) {
         sugerenciasBox.style.display = "none";
         inputClienteID.value = "";
         clienteResumen.textContent = "Ninguno";
@@ -121,128 +119,63 @@ inputCliente.addEventListener("input", function () {
         (c.email && c.email.toLowerCase().includes(valor))
     );
 
-    if (filtrados.length === 0) {
-        sugerenciasBox.style.display = "none";
-        return;
-    }
-
     filtrados.forEach(c => {
         const item = document.createElement("div");
         item.classList.add("sugerencia-item");
         item.textContent = `${c.username} (${c.email})`;
-
         item.addEventListener("click", () => {
-            inputCliente.value   = c.username;
+            inputCliente.value = c.username;
             inputClienteID.value = c.id;
             clienteResumen.textContent = c.username;
             sugerenciasBox.style.display = "none";
         });
-
         sugerenciasBox.appendChild(item);
     });
 
-    sugerenciasBox.style.display = "block";
+    sugerenciasBox.style.display = filtrados.length ? "block" : "none";
 });
 
-document.addEventListener("click", function (e) {
+document.addEventListener("click", e => {
     if (!sugerenciasBox.contains(e.target) && e.target !== inputCliente) {
         sugerenciasBox.style.display = "none";
     }
 });
 
 //////////////////////////////////////
-//   AUTOCOMPLETE PRODUCTOS
+// Autocomplete Productos
 //////////////////////////////////////
-
-const inputBuscarProducto   = document.getElementById("buscarProducto");
-const sugerenciasProductos  = document.getElementById("sugerenciasProductos");
-
-inputBuscarProducto.addEventListener("input", function () {
+inputBuscarProducto.addEventListener("input", function() {
     const valor = this.value.toLowerCase();
-    sugerenciasProductos.innerHTML = "";
 
     document.querySelectorAll(".card-producto").forEach(card => {
         const nombre = card.dataset.nombre.toLowerCase();
         card.style.display = nombre.includes(valor) ? "block" : "none";
     });
-
-    if (valor.trim() === "") {
-        sugerenciasProductos.style.display = "none";
-        return;
-    }
-
-    const coincidencias = [];
-    document.querySelectorAll(".card-producto").forEach(card => {
-        const nombre = card.dataset.nombre;
-        if (nombre.toLowerCase().includes(valor)) {
-            coincidencias.push(nombre);
-        }
-    });
-
-    if (coincidencias.length === 0) {
-        sugerenciasProductos.style.display = "none";
-        return;
-    }
-
-    coincidencias.slice(0, 5).forEach(nombre => {
-        const item = document.createElement("div");
-        item.classList.add("sugerencia-item");
-        item.textContent = nombre;
-
-        item.addEventListener("click", () => {
-            inputBuscarProducto.value = nombre;
-
-            document.querySelectorAll(".card-producto").forEach(card => {
-                card.style.display =
-                    card.dataset.nombre.toLowerCase() === nombre.toLowerCase()
-                    ? "block"
-                    : "none";
-            });
-
-            sugerenciasProductos.style.display = "none";
-        });
-
-        sugerenciasProductos.appendChild(item);
-    });
-
-    sugerenciasProductos.style.display = "block";
-});
-
-document.addEventListener("click", function(e) {
-    if (!sugerenciasProductos.contains(e.target) &&
-        e.target !== inputBuscarProducto) {
-        sugerenciasProductos.style.display = "none";
-    }
 });
 
 //////////////////////////////////////
-//      LÓGICA DEL PEDIDO
+// Lógica Pedido
 //////////////////////////////////////
-
-let pedido = [];
-let total  = 0;
-
 function actualizarLista() {
-    const contenedor    = document.getElementById("lista-pedido");
+    const contenedor = document.getElementById("lista-pedido");
     const totalElemento = document.getElementById("total-valor");
-    const btnConfirmar  = document.getElementById("confirmar-pedido");
+    const btnConfirmar = document.getElementById("confirmar-pedido");
 
     contenedor.innerHTML = "";
-
-    if (pedido.length === 0) {
+    if (!pedido.length) {
         contenedor.innerHTML = "<p class='pedido-vacio'>Aún no hay productos agregados</p>";
         totalElemento.textContent = "0";
         btnConfirmar.disabled = true;
         return;
     }
 
-    pedido.forEach((item, index) => {
+    pedido.forEach((item, i) => {
         contenedor.innerHTML += `
             <div class="item-pedido">
                 <span>${item.nombre}</span>
                 <span>${item.cantidad} u.</span>
                 <span>${item.subtotal.toFixed(2)} Bs</span>
-                <button onclick="eliminarItem(${index})" class="btn-eliminar">X</button>
+                <button onclick="eliminarItem(${i})" class="btn-eliminar">X</button>
             </div>`;
     });
 
@@ -257,70 +190,75 @@ function eliminarItem(index) {
 }
 
 document.querySelectorAll(".btn-agregar-producto").forEach(btn => {
-    btn.addEventListener("click", function () {
-
-        const card     = this.closest(".card-producto");
-        const id       = card.dataset.id;
-        const nombre   = card.dataset.nombre;
-        const precio   = Number(card.dataset.precio);
+    btn.addEventListener("click", function() {
+        const card = this.closest(".card-producto");
+        const id = card.dataset.id;
+        const nombre = card.dataset.nombre;
+        const precio = Number(card.dataset.precio);
         const cantidad = Number(card.querySelector(".cantidad").value);
 
-        if (cantidad <= 0 || isNaN(cantidad)) {
-            alert("La cantidad debe ser mayor a 0.");
-            return;
-        }
+        if (cantidad <= 0 || isNaN(cantidad)) return alert("La cantidad debe ser mayor a 0.");
 
         const subtotal = precio * cantidad;
-
         pedido.push({ id, nombre, precio, cantidad, subtotal });
         total += subtotal;
-
         actualizarLista();
     });
 });
 
 //////////////////////////////////////
-//     REGISTRAR PEDIDO (POST)
+// Cargar pedido para edición
 //////////////////////////////////////
+const pedidoEditar = {{ pedido | tojson | safe }};
+if (pedidoEditar) {
+    currentOrderId = pedidoEditar.id;
+    inputClienteID.value = pedidoEditar.cliente_id;
+    clienteResumen.textContent = clientes.find(c => c.id === pedidoEditar.cliente_id)?.username || "Cliente";
 
-document.getElementById("confirmar-pedido").addEventListener("click", async function () {
+    pedido = pedidoEditar.detalles.map(d => ({
+        id: d.id,
+        nombre: d.nombre,
+        precio: d.precio,
+        cantidad: d.cantidad,
+        subtotal: d.subtotal
+    }));
+
+    total = pedido.reduce((acc, item) => acc + item.subtotal, 0);
+    actualizarLista();
+
+    document.querySelector(".titulo-principal").textContent += " (Editando Pedido)";
+}
+
+//////////////////////////////////////
+// Registrar / Editar Pedido (POST)
+//////////////////////////////////////
+document.getElementById("confirmar-pedido").addEventListener("click", async function() {
     const clienteId = inputClienteID.value;
+    if (!clienteId) return alert("Debes seleccionar un cliente.");
+    if (!pedido.length) return alert("No hay productos en el pedido.");
 
-    if (!clienteId) {
-        alert("Debes seleccionar un cliente.");
-        return;
-    }
-
-    if (pedido.length === 0) {
-        alert("No hay productos en el pedido.");
-        return;
-    }
+    const payload = { cliente: clienteId, detalles: pedido };
+    if (currentOrderId) payload.order_id = currentOrderId;
 
     try {
         const resp = await fetch("/empleado/crear_pedido", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                cliente: clienteId,
-                detalles: pedido
-            })
+            body: JSON.stringify(payload)
         });
 
         const data = await resp.json();
-
         if (data.ok) {
             alert("Pedido registrado correctamente");
             window.location.href = "/empleado/pedidos";
         } else {
             alert(data.msg || "Ocurrió un error al registrar el pedido.");
         }
-
     } catch (err) {
         console.error(err);
         alert("Error de conexión al registrar el pedido.");
     }
 });
-
 </script>
 
 {% endblock %}

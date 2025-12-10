@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, flash, session
+from flask import Blueprint, render_template, request, redirect, flash, session,jsonify
 from bson.objectid import ObjectId
 from routes.auth import require_employee_or_admin
 from database import dbConnection
@@ -8,6 +8,7 @@ from entities.order import Order
 from entities.orderDetail import OrderDetail
 from entities.user import User
 from datetime import datetime
+from werkzeug.security import generate_password_hash
 
 bp_empleado = Blueprint("empleado", __name__, url_prefix="/empleado")
 db = dbConnection()
@@ -123,7 +124,93 @@ def empleado_clientes():
         clientes=clientes,
         rol="empleado"
     )
+# ============================================================
+#              CREAR CLIENTE DESDE EMPLEADO
+# ============================================================
+@bp_empleado.route("/clientes/crear", methods=["POST"])
+@require_employee_or_admin # o el decorador que uses
+def empleado_crear_cliente():
+    data = request.get_json()
 
+    nombre = data.get("nombre")
+    correo = data.get("correo")
+    telefono = data.get("telefono")
+    direccion = data.get("direccion")
+    posicion = data.get("position")  # solo si lo usas
+
+    if not nombre or not correo:
+        return {"ok": False, "msg": "Nombre y correo son obligatorios"}, 400
+
+    users_collection = db["users"]
+
+    # Verificar si ya existe el correo
+    if users_collection.find_one({"email": correo}):
+        return {"ok": False, "msg": "El correo ya está registrado"}, 400
+
+    # Contraseña por defecto para nuevos clientes
+    password_default = "cliente123"
+
+    # Crear instancia del usuario usando tu clase
+    nuevo_cliente = User(
+        username=nombre,
+        email=correo,
+        password=password_default,
+        role="cliente",
+        phone=telefono,
+        address=direccion,
+        position=posicion
+    )
+
+    # Insertar en Mongo
+    users_collection.insert_one(nuevo_cliente.to_dict())
+
+    return {"ok": True, "msg": "Cliente creado correctamente"}
+
+# ============================================================
+#                 EDITAR CLIENTE
+# ============================================================
+@bp_empleado.route("/clientes/editar/<cliente_id>", methods=["POST"])
+@require_employee_or_admin
+def empleado_editar_cliente(cliente_id):
+    data = request.get_json()
+    update_data = {}
+
+    if "nombre" in data:
+        update_data["username"] = data["nombre"]
+    if "correo" in data:
+        update_data["email"] = data["correo"]
+    if "telefono" in data:
+        update_data["phone"] = data["telefono"]
+    if "direccion" in data:
+        update_data["address"] = data["direccion"]
+
+    if not update_data:
+        return {"ok": False, "msg": "No hay datos para actualizar"}, 400
+
+    users_collection = db["users"]
+   
+    result = users_collection.update_one({"_id": ObjectId(cliente_id)}, {"$set": update_data})
+    if result.matched_count:
+        return {"ok": True, "msg": "Cliente actualizado correctamente"}
+    return {"ok": False, "msg": "Cliente no encontrado"}, 404
+
+
+# ============================================================
+#                 ELIMINAR CLIENTE
+# ============================================================
+@bp_empleado.route("/clientes/eliminar/<cliente_id>", methods=["POST"])
+@require_employee_or_admin
+def empleado_eliminar_cliente(cliente_id):
+    users_collection = db["users"]
+    # Opción 1: eliminar físicamente
+    result = users_collection.delete_one({"_id": ObjectId(cliente_id)})
+
+    # Opción 2: marcar como inactivo en vez de eliminar
+    # result = users_collection.update_one({"_id": ObjectId(cliente_id)}, {"$set": {"is_active": False}})
+
+    if result.deleted_count:
+        return {"ok": True, "msg": "Cliente eliminado correctamente"}
+    return {"ok": False, "msg": "Cliente no encontrado"}, 404
 
 # ============================================================
 #                CREAR PEDIDO
@@ -131,43 +218,60 @@ def empleado_clientes():
 @bp_empleado.route("/crear_pedido", methods=["GET", "POST"])
 @require_employee_or_admin
 def empleado_crear_pedido():
-
-    # ===============================
-    # POST → REGISTRAR PEDIDO
-    # ===============================
+    # Si es POST → registrar pedido (igual que ahora)
     if request.method == "POST":
         data = request.get_json()
+        order_id = data.get("order_id")  # <-- agregamos support para edición
 
+        # EDITAR PEDIDO EXISTENTE
+        if order_id:
+            order = db["orders"].find_one({"_id": ObjectId(order_id)})
+            if not order:
+                return {"ok": False, "msg": "Pedido no encontrado"}, 404
+            if order["status"] != "pendiente":
+                return {"ok": False, "msg": "Solo se pueden editar pedidos pendientes"}, 400
+
+            total = 0
+            nuevos_detalles = []
+            for p in data["detalles"]:
+                subtotal = float(p["subtotal"])
+                total += subtotal
+                nuevos_detalles.append({
+                    "product_id": ObjectId(p["id"]),
+                    "quantity": int(p["cantidad"]),
+                    "subtotal": subtotal
+                })
+
+            db["orders"].update_one(
+                {"_id": ObjectId(order_id)},
+                {"$set": {"details": nuevos_detalles, "total": total}}
+            )
+
+            return {"ok": True, "msg": "Pedido actualizado correctamente"}, 200
+
+        # CREAR NUEVO PEDIDO (igual que tu código actual)
         cliente_id = data.get("cliente")
         productos = data.get("detalles")
-
         if not cliente_id:
             return {"ok": False, "msg": "Debes seleccionar un cliente"}, 400
-
         if not productos or len(productos) == 0:
             return {"ok": False, "msg": "El pedido está vacío"}, 400
 
-        # Convertir detalles
         detalles_convertidos = []
         total = 0
-
         for p in productos:
             subtotal = float(p["subtotal"])
             total += subtotal
-
             detalles_convertidos.append({
                 "product_id": ObjectId(p["id"]),
                 "quantity": int(p["cantidad"]),
                 "subtotal": subtotal
             })
 
-        # ===============================
-        # OBJETO FINAL QUE SE GUARDA EN MONGO
-        # ===============================
         order_obj = {
             "customer_id": ObjectId(cliente_id),
-            "employee_id": None,                      # aún no aceptado por nadie
-            "created_by": ObjectId(session.get("user_id")),  # empleado que creó el pedido
+            "employee_id": None,
+            "created_by": ObjectId(session.get("user_id")),
             "status": "pendiente",
             "total": total,
             "details": detalles_convertidos,
@@ -175,12 +279,9 @@ def empleado_crear_pedido():
         }
 
         db["orders"].insert_one(order_obj)
-
         return {"ok": True, "msg": "Pedido registrado correctamente"}, 200
 
-    # ===============================
-    # GET → FORMULARIO
-    # ===============================
+    # GET → cargar formulario y productos
     productos_db = list(db["products"].find({"status": "Disponible"}))
     clientes_db = list(db["users"].find({"role": "cliente"}))
 
@@ -198,13 +299,34 @@ def empleado_crear_pedido():
         "email": c.get("email")
     } for c in clientes_db]
 
+    # Detectar si venimos a editar
+    order_id = request.args.get("id")
+    pedido_editar = None
+    if order_id:
+        order = db["orders"].find_one({"_id": ObjectId(order_id)})
+        if order:
+            pedido_editar = {
+                "id": str(order["_id"]),
+                "cliente_id": str(order["customer_id"]),
+                "detalles": [
+                    {
+                        "id": str(d["product_id"]),
+                        "nombre": db["products"].find_one({"_id": d["product_id"]})["name"],
+                        "precio": db["products"].find_one({"_id": d["product_id"]})["price"],
+                        "cantidad": d["quantity"],
+                        "subtotal": d["subtotal"]
+                    }
+                    for d in order.get("details", [])
+                ]
+            }
+
     return render_template(
         "empleado/crear_pedido.html",
         productos=productos,
         clientes=clientes,
-        rol="empleado"
+        rol="empleado",
+        pedido=pedido_editar
     )
-
 
 # ============================================================
 #                PRODUCTOS 
@@ -234,7 +356,6 @@ def empleado_inventario():
         productos=productos,
         rol="empleado"
     )
-
 # ============================================================
 #                 PEDIDOS 
 # ============================================================
@@ -242,36 +363,77 @@ def empleado_inventario():
 @require_employee_or_admin
 def empleado_pedidos():
     pedidos_db = list(db["orders"].find())
-    pedidos = []
+    empleado_id = ObjectId(session.get("user_id"))
+
+    pedidos_clientes = []
+    pedidos_empleado = []
 
     for p in pedidos_db:
-
-        # --- Obtener cliente ---
         cliente_nombre = "Cliente no registrado"
-
         if p.get("customer_id"):
-            try:
-                cliente = db["users"].find_one({"_id": ObjectId(p["customer_id"])})
-                if cliente:
-                    cliente_nombre = cliente.get("username", "Cliente")
-            except:
-                cliente_nombre = "Cliente inválido"
+            cliente = db["users"].find_one({"_id": ObjectId(p["customer_id"])})
+            if cliente:
+                cliente_nombre = cliente.get("username", "Cliente")
 
-        # --- Obtener fecha ---
         fecha = p.get("date", datetime.utcnow())
-        fecha = fecha.strftime("%Y-%m-%d %H:%M") if isinstance(fecha, datetime) else fecha
+        if isinstance(fecha, datetime):
+            fecha = fecha.strftime("%Y-%m-%d %H:%M")
 
-        pedidos.append({
+        detalles_con_nombre = []
+        for d in p.get("details", []):
+            prod = db["products"].find_one({"_id": ObjectId(d["product_id"])})
+            detalles_con_nombre.append({
+                "product_id": str(d["product_id"]),
+                "product_name": prod["name"] if prod else "Producto eliminado",
+                "quantity": d.get("quantity", 0),
+                "subtotal": d.get("subtotal", 0)
+            })
+
+        pedido = {
             "id": str(p["_id"]),
             "cliente": cliente_nombre,
             "total": p.get("total", 0),
             "estado": p.get("status", "pendiente"),
             "fecha": fecha,
-            "empleado": str(p.get("employee_id")) if p.get("employee_id") else None
+            "detalles": detalles_con_nombre,
+            "creado_por_empleado": p.get("created_by") == empleado_id
+        }
+
+        if p.get("created_by") == empleado_id:
+            pedidos_empleado.append(pedido)
+        else:
+            pedidos_clientes.append(pedido)
+
+    return render_template(
+        "empleado/pedidos.html",
+        pedidos_clientes=pedidos_clientes,
+        pedidos_empleado=pedidos_empleado,
+        rol="empleado"
+    )
+
+@bp_empleado.route("/pedidos/detalle/<order_id>")
+@require_employee_or_admin
+def empleado_detalle_pedido(order_id):
+    print("Pedido solicitado:", order_id)
+    orders_collection = db["orders"]
+    products_collection = db["products"]
+    order_data = orders_collection.find_one({"_id": ObjectId(order_id)})
+    if not order_data:
+        return jsonify({"ok": False, "msg": "Pedido no encontrado"})
+
+    # Construir la respuesta
+    detalles = []
+    for d in order_data.get("details", []):
+        # Obtener nombre del producto
+        product_data = products_collection.find_one({"_id": ObjectId(d.get("product_id"))})
+        product_name = product_data["name"] if product_data else "Producto eliminado"
+        detalles.append({
+            "product_name": product_name,
+            "quantity": d.get("quantity"),
+            "subtotal": d.get("subtotal")
         })
 
-    return render_template("empleado/pedidos.html", pedidos=pedidos, rol="empleado")
-
+    return jsonify({"ok": True, "detalles": detalles})
 # ============================================================
 #                   ACEPTAR PEDIDO
 # ============================================================
@@ -336,50 +498,3 @@ def empleado_cancelar_pedido(order_id):
 
     flash("Pedido cancelado correctamente", "success")
     return redirect("/empleado/pedidos")
-
-@bp_empleado.route("/pedidos/editar/<order_id>", methods=["GET", "POST"])
-@require_employee_or_admin
-def empleado_editar_pedido(order_id):
-    order = db["orders"].find_one({"_id": ObjectId(order_id)})
-
-    if not order:
-        flash("Pedido no encontrado", "error")
-        return redirect("/empleado/pedidos")
-
-    if order["status"] != "pendiente":
-        flash("Solo puedes editar pedidos pendientes", "warning")
-        return redirect("/empleado/pedidos")
-
-    if request.method == "POST":
-        detalles = []
-        productos = request.form.getlist("product_id")
-        cantidades = request.form.getlist("quantity")
-
-        for i in range(len(productos)):
-            prod = productos[i]
-            cant = int(cantidades[i])
-            producto = db["products"].find_one({"_id": ObjectId(prod)})
-            subtotal = cant * float(producto["price"])
-            detalles.append({
-                "product_id": prod,
-                "quantity": cant,
-                "subtotal": subtotal
-            })
-
-        total = sum(d["subtotal"] for d in detalles)
-
-        db["orders"].update_one(
-            {"_id": ObjectId(order_id)},
-            {"$set": {"details": detalles, "total": total}}
-        )
-
-        flash("Pedido actualizado correctamente", "success")
-        return redirect("/empleado/pedidos")
-
-    productos = list(db["products"].find())
-    return render_template(
-        "empleado/editar_pedido.html",
-        pedido=order,
-        productos=productos,
-        rol="empleado"
-    )
