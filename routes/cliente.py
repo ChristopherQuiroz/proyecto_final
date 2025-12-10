@@ -20,16 +20,11 @@ def format_product_for_template(product):
         'nombre': product.get('name', ''),
         'descripcion': product.get('description', ''),
         'precio': product.get('price', 0),
-<<<<<<< HEAD
         'cantidad': product.get('quantity', 0),
         'categoria': product.get('category_id', 'General'),
         'estado': product.get('status', 'Desconocido'),
         'imagen': product.get('image', 'cupcake.jpg')
-=======
-        'imagen': product.get('image', 'cupcake.jpg'),
-        'categoria_id': product.get('category_id', ''),
-
->>>>>>> 3ae7fe5d356db8f1df1f819589d204628137480e
+        #'categoria_id': product.get('category_id', '')
     }
 
 
