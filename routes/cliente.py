@@ -23,7 +23,7 @@ def format_product_for_template(product):
         'descripcion': product.get('description', ''),
         'precio': product.get('price', 0),
         'cantidad': product.get('quantity', 0),
-        'categoria': product.get('category', 'General'),
+        'categoria': product.get('category_id', 'General'),
         'estado': product.get('status', 'Desconocido'),
         'imagen': product.get('image', 'cupcake.jpg')
     }

@@ -22,13 +22,13 @@
 
 <div class="productos-grid">
     {% for cat in categorias %}
-    <div class="card-producto" data-cantidad="{{ cat.cantidad_productos }}" style="width:200px; height:250px;">
-       <img src="{{ url_for('static', filename='img/categories/' ~ (cat.icono if cat.icono else 'default.jpg')) }}" 
+    <div class="card-producto" data-cantidad="{{ cat.cantidad_productos }}" style="width:200px; height:300px;">
+       <img src="{{ url_for('static', filename='img/categories/' ~ (cat.icon if cat.icon else 'default.jpg')) }}" 
           class="producto-img" 
           onerror="this.src='{{ url_for('static', filename='img/categories/default.jpg') }}'">
         <div class="producto-info">
             <h3>{{ cat.name }}</h3>
-            <p>{{ cat.descripcion }}</p>
+            <p>{{ cat.description }}</p>
             <div class="acciones-cat">
     <button class="btn-editar" 
             data-id="{{ cat._id|string }}" 
@@ -54,9 +54,9 @@
         <form id="form-modal" method="POST">
             <h3 id="modal-title">Agregar Categoría</h3>
             <input type="text" name="name" placeholder="Nombre" required>
-            <input type="text" name="descripcion" placeholder="Descripción">
+            <input type="text" name="description" placeholder="Descripción">
             <label for="icono">Icono:</label>
-            <input type="file" name="icono" accept="image/*">
+            <input type="file" name="icon" accept="image/*">
             <button type="submit">Guardar</button>
         </form>
     </div>

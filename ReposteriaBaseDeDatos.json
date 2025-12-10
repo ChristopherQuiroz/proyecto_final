@@ -1,0 +1,329 @@
+{
+  "categories": [
+    {
+      "name": "Tortas",
+      "icon": "CategoriaTortas.jpg",
+      "description": "Bizcochos rellenos y decorados para eventos especiales, personalizables en sabor y diseño."
+    },
+    {
+      "name": "Galletas",
+      "icon": "CategoriaGalletas.jpg",
+      "description": "Galletas crujientes o suaves en variedad de sabores como chocolate, avena o mantequilla."
+    },
+    {
+      "name": "Pasteles",
+      "icon": "CategoriaPasteles.jpg",
+      "description": "Porciones personales de postres, como mini tartas, vasitos de mousse y tres leches individuales."
+    },
+    {
+      "name": "Postres Individuales",
+      "icon": "CategoriaPostresIndividuales.jpg",
+      "description": "Deliciosas tortas para todas las ocasiones."
+    },
+    {
+      "name": "Bebidas",
+      "icon": "CategoriaBebidas.jpg",
+      "description": "Cafés, jugos, malteadas y otras opciones para acompañar postres."
+    },
+    {
+      "name": "Pan Dulce",
+      "icon": "CategoriaPanDulce.jpg",
+      "description": "Panes suaves y dulces como roles, bollos y medialunas, perfectos para acompañar bebidas."
+    },
+    {
+      "name": "Cupcakes y Muffins",
+      "icon": "CategoriaCupcakesYMuffins.jpg",
+      "description": "Pequeños pasteles individuales; los cupcakes destacan por su decoración y los muffins por su sencillez y sabor."
+    },
+    {
+      "name": "Postres Fríos",
+      "icon": "CategoriaPostresFrios.jpg",
+      "description": "Postres refrescantes sin horneado, como gelatinas, mousses y cheesecakes fríos."
+    }
+  ],
+  "products": [
+    {
+      "name": "Torta de Chocolate",
+      "description": "Bizcocho húmedo con ganache de chocolate",
+      "price": 120.50,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380ce",
+      "image": "TortaDeChocolate.jpg",
+      "inventory": {"current_quantity": 16, "minimum": 5}
+    },
+    {
+      "name": "Galleta de Azúcar",
+      "description": "Galleta clásica con decoración de colores",
+      "price": 15.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380cf",
+      "image": "GalletaDeAzucar.jpg",
+      "inventory": {"current_quantity": 42, "minimum": 10}
+    },
+    {
+      "name": "Pastel Tres Leches",
+      "description": "Bizcocho bañado en tres leches y merengue",
+      "price": 380.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d0",
+      "image": "PastelTresLeches.jpg",
+      "inventory": {"current_quantity": 7, "minimum": 3}
+    },
+    {
+      "name": "Cheesecake de Fresa",
+      "description": "Queso crema con mermelada de fresa natural",
+      "price": 85.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d1",
+      "image": "CheesecakeDeFresa.jpg",
+      "inventory": {"current_quantity": 12, "minimum": 5}
+    },
+    {
+      "name": "Torta Red Velvet",
+      "description": "Torta roja con crema de queso",
+      "price": 140.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380ce",
+      "image": "TortaRedVelvet.jpg",
+      "inventory": {"current_quantity": 9, "minimum": 4}
+    },
+    {
+      "name": "Galleta con Chispas de Chocolate",
+      "description": "Galleta suave con chocolate negro",
+      "price": 18.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380cf",
+      "image": "GalletaConChispasDeChocolate.jpg",
+      "inventory": {"current_quantity": 72, "minimum": 15}
+    },
+    {
+      "name": "Café Americano",
+      "description": "Café negro 250 ml",
+      "price": 35.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d2",
+      "image": "CafeAmericano.jpg",
+      "inventory": {"current_quantity": 999, "minimum": 0}
+    },
+    {
+      "name": "Concha de Vainilla",
+      "description": "Pan dulce tradicional",
+      "price": 20.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d3",
+      "image": "ConchaDeVainilla.jpg",
+      "inventory": {"current_quantity": 55, "minimum": 20}
+    },
+    {
+      "name": "Flan Napolitano",
+      "description": "Flan cremoso con caramelo",
+      "price": 55.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d1",
+      "image": "FlanNapolitano.jpg",
+      "inventory": {"current_quantity": 20, "minimum": 8}
+    },
+    {
+      "name": "Torta de Cumpleaños Personalizada",
+      "description": "Torta decorada con mensaje",
+      "price": 450.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380ce",
+      "image": "TortaDeCumpleañosPersonalizada.jpg",
+      "inventory": {"current_quantity": 0, "minimum": 0}
+    },
+    {
+      "name": "Cupcake de Vainilla",
+      "description": "Cupcake con buttercream de vainilla",
+      "price": 35.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d4",
+      "image": "CupcakeDeVainilla.jpg",
+      "inventory": {"current_quantity": 48, "minimum": 12}
+    },
+    {
+      "name": "Cupcake Red Velvet",
+      "description": "Mini red velvet con crema de queso",
+      "price": 40.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d4",
+      "image": "CupcakeRedVelvet.jpg",
+      "inventory": {"current_quantity": 36, "minimum": 10}
+    },
+    {
+      "name": "Muffin de Arándano",
+      "description": "Muffin esponjoso con arándanos frescos",
+      "price": 42.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d4",
+      "image": "MuffinDeArandano.jpg",
+      "inventory": {"current_quantity": 30, "minimum": 8}
+    },
+    {
+      "name": "Pay de Limón",
+      "description": "Base crujiente con crema de limón",
+      "price": 70.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d1",
+      "image": "PayDeLimon.jpg",
+      "inventory": {"current_quantity": 18, "minimum": 6}
+    },
+    {
+      "name": "Tiramisú Individual",
+      "description": "Capas de café, mascarpone y cacao",
+      "price": 75.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d5",
+      "image": "TiramisuIndividual.jpg",
+      "inventory": {"current_quantity": 25, "minimum": 8}
+    },
+    {
+      "name": "Roles de Canela",
+      "description": "Pan enrollado con canela y glaseado",
+      "price": 45.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d3",
+      "image": "RolesDeCanela.jpg",
+      "inventory": {"current_quantity": 40, "minimum": 15}
+    },
+    {
+      "name": "Chocolate Caliente",
+      "description": "Chocolate artesanal con leche 300 ml",
+      "price": 50.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d2",
+      "image": "ChocolateCaliente.jpg",
+      "inventory": {"current_quantity": 999, "minimum": 0}
+    },
+    {
+      "name": "Torta Selva Negra",
+      "description": "Chocolate, cerezas y crema chantilly",
+      "price": 160.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380ce",
+      "image": "TortaSelvaNegra.jpg",
+      "inventory": {"current_quantity": 6, "minimum": 3}
+    },
+    {
+      "name": "Galleta de Avena y Pasas",
+      "description": "Galleta saludable con avena y pasas",
+      "price": 20.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380cf",
+      "image": "GalletaDeAvenaYPasas.jpg",
+      "inventory": {"current_quantity": 60, "minimum": 15}
+    },
+    {
+      "name": "Pastel de Zanahoria",
+      "description": "Con nuez y crema de queso",
+      "price": 350.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d0",
+      "image": "PastelDeZanahoria.jpg",
+      "inventory": {"current_quantity": 9, "minimum": 3}
+    },
+    {
+      "name": "Brazo Gitano de Fresa",
+      "description": "Bizcocho enrollado con crema y fresa",
+      "price": 90.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d1",
+      "image": "BrazoGitanoDeFresa.jpg",
+      "inventory": {"current_quantity": 20, "minimum": 6}
+    },
+    {
+      "name": "Donas Glaseadas (6 pzas)",
+      "description": "Caja de 6 donas con glaseado",
+      "price": 120.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d3",
+      "image": "DonasGlaseadas.jpg",
+      "inventory": {"current_quantity": 25, "minimum": 10}
+    },
+    {
+      "name": "Latte Vainilla",
+      "description": "Café con leche y syrup de vainilla",
+      "price": 55.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d2",
+      "image": "LatteVainilla.jpg",
+      "inventory": {"current_quantity": 999, "minimum": 0}
+    },
+    {
+      "name": "Carlota de Limón",
+      "description": "Capas de galleta María y crema de limón",
+      "price": 65.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d5",
+      "image": "CarlotaDeLimon.jpg",
+      "inventory": {"current_quantity": 22, "minimum": 8}
+    },
+    {
+      "name": "Torta de Café (Moka)",
+      "description": "Bizcocho de café con crema moka",
+      "price": 135.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380ce",
+      "image": "TortaDeCafe.jpg",
+      "inventory": {"current_quantity": 11, "minimum": 4}
+    },
+    {
+      "name": "Polvorosas",
+      "description": "Galletas tradicionales que se deshacen",
+      "price": 12.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380cf",
+      "image": "Polvorosas.jpg",
+      "inventory": {"current_quantity": 120, "minimum": 30}
+    },
+    {
+      "name": "Pastel de Queso New York",
+      "description": "Cheesecake clásico horneado",
+      "price": 420.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d0",
+      "image": "PastelDeQuesoNewYork.jpg",
+      "inventory": {"current_quantity": 5, "minimum": 2}
+    },
+    {
+      "name": "Orejas de Elefante",
+      "description": "Hojaldre grande azucarado",
+      "price": 28.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d3",
+      "image": "OrejasDeElefante.jpg",
+      "inventory": {"current_quantity": 45, "minimum": 15}
+    },
+    {
+      "name": "Gelatina Mosaico",
+      "description": "Gelatina con trozos de colores y leche",
+      "price": 40.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380d5",
+      "image": "GelatinaMosaico.jpg",
+      "inventory": {"current_quantity": 30, "minimum": 10}
+    },
+    {
+      "name": "Torta Helada de Limón",
+      "description": "Torta fría con merengue y limón",
+      "price": 150.00,
+      "status": "Disponible",
+      "category_id": "6939492b9f19616ca63380ce",
+      "image": "TortaHeladaDeLimon.jpg",
+      "inventory": {"current_quantity": 8, "minimum": 4}
+    }
+  ],
+  "orders": [
+    {"id":"ped1","client_id":"cli1","employee_id":"emp1","date":"2025-12-01T14:30:00Z","status":"pendiente","total":255.50,"products":[{"product_id":"prod1","quantity":2,"subtotal":241.00},{"product_id":"prod2","quantity":1,"subtotal":14.50}]},
+    {"id":"ped2","client_id":"cli3","employee_id":"emp1","date":"2025-12-01T10:15:00Z","status":"entregado","total":522.00,"products":[{"product_id":"prod3","quantity":1,"subtotal":380.00},{"product_id":"prod7","quantity":2,"subtotal":70.00},{"product_id":"prod6","quantity":4,"subtotal":72.00}]},
+    {"id":"ped3","client_id":"cli2","employee_id":"emp3","date":"2025-11-30T18:45:00Z","status":"completado","total":290.00,"products":[{"product_id":"prod5","quantity":1,"subtotal":140.00},{"product_id":"prod4","quantity":2,"subtotal":150.00}]},
+    {"id":"ped4","client_id":"cli4","employee_id":"emp1","date":"2025-11-29T12:20:00Z","status":"cancelado","total":0,"products":[{"product_id":"prod10","quantity":1,"subtotal":450.00}],"cancellation_reason":"Cliente cambió de opinión"},
+    {"id":"ped5","client_id":"cli5","employee_id":"emp2","date":"2025-12-01T16:00:00Z","status":"en_preparacion","total":475.00,"products":[{"product_id":"prod8","quantity":10,"subtotal":200.00},{"product_id":"prod9","quantity":5,"subtotal":275.00}]},
+    {"id":"ped6","client_id":"cli2","employee_id":"emp1","date":"2025-12-01T09:30:00Z","status":"completado","total":318.00,"products":[{"product_id":"prod11","quantity":6,"subtotal":210.00},{"product_id":"prod17","quantity":2,"subtotal":100.00},{"product_id":"prod2","quantity":4,"subtotal":60.00}]},
+    {"id":"ped7","client_id":"cli3","employee_id":"emp4","date":"2025-11-28T17:10:00Z","status":"entregado","total":645.00,"products":[{"product_id":"prod20","quantity":1,"subtotal":350.00},{"product_id":"prod15","quantity":3,"subtotal":225.00},{"product_id":"prod23","quantity":2,"subtotal":110.00}]},
+    {"id":"ped8","client_id":"cli1","employee_id":"emp3","date":"2025-11-30T13:45:00Z","status":"completado","total":236.00,"products":[{"product_id":"prod22","quantity":1,"subtotal":120.00},{"product_id":"prod28","quantity":4,"subtotal":112.00}]},
+    {"id":"ped9","client_id":"cli5","employee_id":"emp1","date":"2025-12-01T11:20:00Z","status":"pendiente","total":492.00,"products":[{"product_id":"prod18","quantity":2,"subtotal":320.00},{"product_id":"prod13","quantity":4,"subtotal":168.00},{"product_id":"prod7","quantity":1,"subtotal":35.00}]},
+    {"id":"ped10","client_id":"cli4","employee_id":"emp2","date":"2025-11-27T19:00:00Z","status":"completado","total":865.00,"products":[{"product_id":"prod27","quantity":1,"subtotal":420.00},{"product_id":"prod10","quantity":1,"subtotal":450.00}]}
+  ]
+}
+

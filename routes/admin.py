@@ -17,6 +17,21 @@ UPLOAD_FOLDER = 'static/img/products'
 bp_admin = Blueprint("admin", __name__, url_prefix="/admin")
 db = dbConnection()
 
+def normalize_product(producto):
+    """
+    Convierte un producto que puede tener atributos en español o inglés
+    a un diccionario consistente con claves en español.
+    """
+    return {
+        "nombre": producto.get("nombre") or producto.get("name") or "Sin nombre",
+        "descripcion": producto.get("descripcion") or producto.get("description") or "",
+        "precio": producto.get("precio") or producto.get("price") or 0,
+        "cantidad": producto.get("cantidad") or producto.get("quantity") or 0,
+        "categoria": producto.get("categoria") or producto.get("category_id") or "Sin categoría",
+        "estado": producto.get("estado") or producto.get("status") or "desconocido",
+        "imagen": producto.get("imagen") or producto.get("image") or "cupcake.jpg"
+    }
+
 # ============================================================
 #                   ROL: ADMIN
 # ============================================================
@@ -94,23 +109,37 @@ def admin_dashboard():
 @require_role('admin')
 def ver_categorias():
     categorias = get_all_categories(with_count=True)
+    # Convertir ObjectId a string
+    for cat in categorias:
+        cat['_id'] = str(cat['_id'])
     return render_template("admin/categorias.html", categorias=categorias, rol="admin")
 
 
 @bp_admin.route("/categorias/agregar", methods=["POST"])
 @require_role('admin')
 def admin_categorias_agregar():
-    nombre = request.form.get("name")
-    ok, msg = create_category(nombre)
-    flash(msg, "success" if ok else "error")
+    name = request.form.get('name')
+    icon = request.form.get('icon', '')  # si deseas guardar icono
+    description = request.form.get('description', '')
+    db['categories'].insert_one({
+        "name": name,
+        "icon": icon,
+        "description": description
+    })
+    flash("Category added successfully", "success")
     return redirect("/admin/categorias")
 
 @bp_admin.route("/categorias/editar/<string:category_id>", methods=["POST"])
 @require_role('admin')
 def admin_categorias_editar(category_id):
-    nuevo_nombre = request.form.get("name")
-    ok, msg = update_category(category_id, {"name": nuevo_nombre})
-    flash(msg, "success" if ok else "error")
+    name = request.form.get('name')
+    description = request.form.get('description', '')
+    icon = request.form.get('icon', '')
+    db['categories'].update_one(
+        {"_id": ObjectId(category_id)},
+        {"$set": {"name": name, "description": description, "icon": icon}}
+    )
+    flash("Category updated successfully", "success")
     return redirect("/admin/categorias")
 
 @bp_admin.route("/categorias/eliminar/<string:category_id>")
@@ -127,6 +156,13 @@ def admin_categorias_eliminar(category_id):
 def ver_productos():
     productos = get_all_products()
     categorias = get_all_categories()
+    cat_dict = {c['_id']: c['name'] for c in categorias}
+
+    # Ajustar stock y agregar nombre de categoría
+    for p in productos:
+        p['quantity'] = p.get('inventory', {}).get('current_quantity', 0)
+        p['category_name'] = cat_dict.get(p.get('category_id'), "Sin categoría")
+
     return render_template("admin/productos.html", productos=productos, categorias=categorias, rol="admin")
 
 @bp_admin.route("/productos/agregar", methods=['POST'])
@@ -189,12 +225,9 @@ def admin_productos_editar(product_id):
 @bp_admin.route("/productos/eliminar/<string:product_id>")
 @require_role('admin')
 def admin_productos_eliminar(product_id):
-    try:
-        db.products.delete_one({"_id": ObjectId(product_id)})
-        flash("Producto eliminado correctamente", "success")
-    except Exception as e:
-        flash(f"No se pudo eliminar el producto: {e}", "error")
-    return redirect('/admin/productos')
+    db['products'].delete_one({"_id": ObjectId(product_id)})
+    flash("Product deleted successfully", "success")
+    return redirect("/admin/productos")
 
 # ============================================================
 #                      STOCK 
@@ -203,39 +236,28 @@ def admin_productos_eliminar(product_id):
 @bp_admin.route("/inventario")
 @require_role('admin')
 def admin_inventario():
-    products_collection = db['products']
-    categories_collection = db['categories']
-    
-    productos = list(products_collection.find())
-    categorias = list(categories_collection.find())
+    products = list(db['products'].find())
+    categories = list(db['categories'].find())
+    cat_dict = {str(c['_id']): c['name'] for c in categories}
 
-    # Convertir ObjectId a string para comparación en el template
-    for cat in categorias:
-        cat['_id'] = str(cat['_id'])
-    for prod in productos:
-        prod['category_id'] = str(prod.get('category_id'))
+    for p in products:
+        p['quantity'] = p.get('inventory', {}).get('current_quantity', 0)
+        p['category_name'] = cat_dict.get(str(p.get('category_id')), "No category")
+        p['_id'] = str(p['_id'])
 
-    return render_template("admin/inventario.html", 
-                           productos=productos, 
-                           categorias=categorias,
-                           rol="admin")
+    return render_template("admin/inventario.html", products=products, categories=categories, rol="admin")
+
 
 @bp_admin.route("/actualizar_stock", methods=['POST'])
 def actualizar_stock():
-    products_collection = db['products']
-    product_name = request.form.get('product_name')
-    nueva_cantidad = int(request.form.get('cantidad', 0))
-    
-    result = products_collection.update_one(
-        {'name': product_name},
-        {'$set': {'quantity': nueva_cantidad}}
+    product_id = request.form.get('product_id')
+    new_quantity = int(request.form.get('quantity', 0))
+
+    db['products'].update_one(
+        {"_id": ObjectId(product_id)},
+        {"$set": {"inventory.current_quantity": new_quantity}}
     )
-    
-    if result.modified_count > 0:
-        flash(f'Stock de {product_name} actualizado a {nueva_cantidad}', 'success')
-    else:
-        flash('No se pudo actualizar el stock', 'error')
-    
+    flash("Stock updated successfully", "success")
     return redirect('/admin/inventario')
 
 @bp_admin.route("/reportes")
@@ -253,8 +275,11 @@ def admin_reportes():
     pedidos_completados = orders_collection.count_documents({'status': 'pagado'})
     promedio_pedido = ventas_hoy / orders_collection.count_documents({}) if orders_collection.count_documents({}) > 0 else 0
 
-    # =================== PRODUCTOS BAJO STOCK ===================
-    productos_bajo_stock = list(products_collection.find({'quantity': {'$lt': 5}}))
+    # PRODUCTOS BAJO STOCK
+    productos_bajo_stock = list(products_collection.find({'inventory.current_quantity': {'$lt': 5}}))
+
+# PRODUCTOS AGOTADOS (opcional)
+    productos_agotados = list(products_collection.find({'inventory.current_quantity': 0}))
 
     # =================== PRODUCTOS POR CATEGORÍA ===================
     categorias = list(categories_collection.find())

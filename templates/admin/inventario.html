@@ -15,17 +15,18 @@
         </tr>
     </thead>
     <tbody>
-        {% for p in productos %}
+        {% for p in products %}
         <tr>
             <td>{{ p.name }}</td>
-            <td>{{ p.category if p.category else "Sin categoría" }}</td>
+            <td>{{ p.category_name }}</td>
             <td>{{ p.price }}</td>
             <td>{{ p.quantity }}</td>
             <td>{{ p.status }}</td>
             <td>
                 <form action="{{ url_for('admin.actualizar_stock') }}" method="POST">
-                    <input type="hidden" name="product_name" value="{{ p.name }}">
-                    <input type="number" name="cantidad" value="{{ p.quantity }}" min="0" style="width:60px;">
+                    <!-- Enviar el _id real -->
+                    <input type="hidden" name="product_id" value="{{ p._id }}">
+                    <input type="number" name="quantity" value="{{ p.quantity }}" min="0" style="width:60px;">
                     <button type="submit" class="btn-editar">Actualizar</button>
                 </form>
             </td>

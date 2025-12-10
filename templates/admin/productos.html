@@ -39,13 +39,13 @@
 
 </div>
 
-<div class="productos-grid">
+<div id="productos-grid" class="productos-grid">
     {% for producto in productos %}
     <div class="card-producto"
          data-id="{{ producto._id|string }}"
          data-name="{{ producto.name }}"
          data-description="{{ producto.description }}"
-         data-category_id="{{ producto.category }}"
+         data-category_id="{{ producto.category_id }}"
          data-price="{{ producto.price }}"
          data-quantity="{{ producto.quantity }}"
          data-status="{{ producto.status }}">
@@ -58,7 +58,7 @@
             <p><strong>Descripción:</strong> {{ producto.description[:50] }}{% if producto.description|length > 50 %}...{% endif %}</p>
             <p><strong>Precio:</strong> Bs {{ "%.2f"|format(producto.price|float) }}</p>
             <p><strong>Stock:</strong> {{ producto.quantity }}</p>
-            <p><strong>Categoría:</strong> {{ producto.category }}</p>
+            <p><strong>Categoría:</strong> {{ producto.category_name }}</p>
             <p><strong>Estado:</strong> <span class="status-{{ producto.status|lower }}">{{ producto.status }}</span></p>
         </div>
 

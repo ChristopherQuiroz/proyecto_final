@@ -4,10 +4,9 @@
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/empleado/productos.css') }}">
 {% endblock %}
-
 {% block empleado_content %}
 
-<h1 class="titulo-pagina">Productos</h1>
+<h2 class="titulo-pagina">Productos</h2>
 
 <!-- 🔎 BUSCADOR + FILTROS + ORDENAR + VISTAS -->
 <div class="barra-superior">
@@ -25,9 +24,8 @@
         <button class="vista-btn" data-cols="4">▧</button>
     </div>
 
-
     <!-- BUSCAR -->
-    <input type="text" id="buscar" placeholder="Buscar..." class="input-buscar">
+    <input type="text" id="buscar-producto" placeholder="Buscar producto..." class="input-buscar">
 
 </div>
 
@@ -50,7 +48,7 @@
         <option value="alto">Alto (&gt;20)</option>
     </select>
 
-    <!-- ORDENAR -->
+    <!-- Ordenar -->
     <select id="ordenar" class="ordenar-select">
         <option value="presentado">Presentado</option>
         <option value="az">A–Z</option>
@@ -58,47 +56,48 @@
         <option value="precio-menor">Precio: menor a mayor</option>
         <option value="precio-mayor">Precio: mayor a menor</option>
     </select>
+
 </div>
 
 <!-- ====================== GRID ======================= -->
-
 <div id="productos-grid" class="grid-3">
-
     {% for p in productos %}
     <div class="producto-card"
-        data-nombre="{{ p.nombre }}"
-        data-descripcion="{{ p.descripcion }}"
-        data-categoria="{{ p.categoria }}"
-        data-precio="{{ p.precio }}"
-        data-stock="{{ p.cantidad }}">
+         data-nombre="{{ p.name }}"
+         data-descripcion="{{ p.description }}"
+         data-categoria="{{ p.category }}"
+         data-precio="{{ p.price }}"
+         data-stock="{{ p.quantity }}">
 
         <!-- IMAGEN -->
         <div class="card-img-container">
-            <img src="{{ url_for('static', filename='img/products/' ~ p.imagen) }}"
+            <img src="{{ url_for('static', filename='img/products/' ~ p.image) }}"
                  onerror="this.src='{{ url_for('static', filename='img/products/cupcake.jpg') }}'">
         </div>
 
+        <!-- INFO -->
         <div class="card-info">
-            <h3>{{ p.nombre }}</h3>
-            <p class="precio">Bs {{ p.precio }}</p>
-            <p class="stock">Stock: {{ p.cantidad }}</p>
+            <h3>{{ p.name }}</h3>
+            <p>{{ p.description[:60] if p.description else '' }}...</p>
+            <div class="producto-datos">
+                <span><strong>Bs:</strong> {{ "%.2f"|format(p.price|float) }}</span>
+                <span><strong>Stock:</strong> {{ p.quantity }}</span> 
+                <span><strong>Cat:</strong> {{ p.category }}</span>
+            </div>
+            <p class="producto-estado {{ p.status|lower }}">{{ p.status }}</p>
         </div>
 
     </div>
     {% endfor %}
-
 </div>
 
+<!-- ====================== SCRIPT ======================= -->
 <script>
-
-/* ============================
-        TOGGLE FILTROS
-============================ */
+// TOGGLE FILTROS
 document.getElementById("btn-toggle-filtros").addEventListener("click", () => {
     const container = document.getElementById("filtros-container");
     const btn = document.getElementById("btn-toggle-filtros");
-
-    if (container.style.display === "none" || container.style.display === "") {
+    if (container.style.display === "none") {
         container.style.display = "flex";
         btn.textContent = "⛃ Filtros ▲";
     } else {
@@ -106,25 +105,22 @@ document.getElementById("btn-toggle-filtros").addEventListener("click", () => {
         btn.textContent = "⛃ Filtros ▼";
     }
 });
-function aplicarFiltros() {
-    let buscar = document.getElementById("buscar").value.toLowerCase();
-    let ord = document.getElementById("ordenar").value;
 
+// APLICAR FILTROS
+function aplicarFiltros() {
+    let buscar = document.getElementById("buscar-producto").value.toLowerCase();
+    let ord = document.getElementById("ordenar").value;
     let cat = document.getElementById("filtro-categoria").value;
     let stock = document.getElementById("filtro-stock").value;
-
-    // ELIMINADO porque NO existe en tu HTML
-    let pmin = 0;
-    let pmax = Infinity;
 
     let cards = Array.from(document.querySelectorAll(".producto-card"));
 
     cards.forEach(card => {
-        let nombre = card.dataset.nombre?.toLowerCase() || "";
-        let desc = card.dataset.descripcion?.toLowerCase() || "";
-        let categoria = card.dataset.categoria || "";
-        let precio = parseFloat(card.dataset.precio) || 0;
-        let cant = parseInt(card.dataset.stock) || 0;
+        let nombre = card.dataset.nombre.toLowerCase();
+        let desc = card.dataset.descripcion.toLowerCase();
+        let categoria = card.dataset.categoria;
+        let cantidad = parseInt(card.dataset.stock);
+        let precio = parseFloat(card.dataset.precio);
 
         let mostrar = true;
 
@@ -135,17 +131,14 @@ function aplicarFiltros() {
         if (cat && categoria !== cat) mostrar = false;
 
         // STOCK
-        if (stock === "bajo" && !(cant < 5)) mostrar = false;
-        if (stock === "medio" && !(cant >= 5 && cant <= 20)) mostrar = false;
-        if (stock === "alto" && !(cant > 20)) mostrar = false;
+        if (stock === "bajo" && !(cantidad < 5)) mostrar = false;
+        if (stock === "medio" && !(cantidad >= 5 && cantidad <= 20)) mostrar = false;
+        if (stock === "alto" && !(cantidad > 20)) mostrar = false;
 
-        // PRECIO (de momento no usas este filtro)
-        if (precio < pmin || precio > pmax) mostrar = false;
-
-        card.style.display = mostrar ? "block" : "none";
+        card.style.display = mostrar ? "flex" : "none";
     });
 
-    // ORDENAR
+    // ORDENAR SOLO LOS VISIBLES
     let visibles = cards.filter(c => c.style.display !== "none");
 
     visibles.sort((a, b) => {
@@ -163,32 +156,27 @@ function aplicarFiltros() {
         }
     });
 
-    // Reordenar
+    // Reordenar en el GRID
     let grid = document.getElementById("productos-grid");
     visibles.forEach(c => grid.appendChild(c));
 }
 
-/* Eventos para activar filtros */
-document.getElementById("buscar").addEventListener("input", aplicarFiltros);
+// EVENTOS
+document.getElementById("buscar-producto").addEventListener("input", aplicarFiltros);
 document.getElementById("ordenar").addEventListener("change", aplicarFiltros);
 document.getElementById("filtro-categoria").addEventListener("change", aplicarFiltros);
 document.getElementById("filtro-stock").addEventListener("change", aplicarFiltros);
 
-/* ============================
-        CAMBIO DE COLUMNAS
-============================ */
+// CAMBIO DE COLUMNAS
 document.querySelectorAll(".vista-btn").forEach(btn => {
     btn.addEventListener("click", () => {
         let columnas = btn.dataset.cols;
         let grid = document.getElementById("productos-grid");
-
         grid.className = "grid-" + columnas;
-
         document.querySelectorAll(".vista-btn").forEach(b => b.removeAttribute("id"));
         btn.id = "vista-activa";
     });
 });
-
 </script>
 
 {% endblock %}

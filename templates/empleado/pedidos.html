@@ -11,7 +11,6 @@
 
     <!-- ===== PEDIDOS DE CLIENTES ===== -->
     <h2>Pedidos de Clientes</h2>
-
     {% if pedidos_clientes %}
     <table class="tabla-pedidos">
         <thead>
@@ -26,25 +25,24 @@
         </thead>
         <tbody>
             {% for p in pedidos_clientes %}
-            <tr>
+            <tr data-id="{{ p.id }}">
                 <td>{{ p.id }}</td>
                 <td>{{ p.cliente }}</td>
                 <td>{{ p.total }} Bs</td>
-                <td class="estado-{{ p.estado }}">{{ p.estado }}</td>
+                <td class="estado">{{ p.estado }}</td>
                 <td>{{ p.fecha }}</td>
-                <td>
+                <td class="acciones">
                     {% if p.estado == "pendiente" %}
-                        <a href="/empleado/pedidos/aceptar/{{ p.id }}" class="btn-accion aceptar">Aceptar</a>
-                        <a href="/empleado/pedidos/cancelar/{{ p.id }}" class="btn-accion cancelar">Cancelar</a>
+                        <button class="btn-accion aceptar">Aceptar</button>
+                        <button class="btn-accion cancelar">Cancelar</button>
                     {% elif p.estado == "aceptado" %}
-                        <a href="/empleado/pedidos/entregar/{{ p.id }}" class="btn-accion entregar">Entregar</a>
-                        <a href="/empleado/pedidos/cancelar/{{ p.id }}" class="btn-accion cancelar">Cancelar</a>
+                        <button class="btn-accion entregar">Entregar</button>
                     {% elif p.estado == "entregado" %}
                         <span class="estado-finalizado">✔ Entregado</span>
                     {% elif p.estado == "cancelado" %}
                         <span class="estado-cancelado">✖ Cancelado</span>
                     {% endif %}
-                    <a href="#" class="btn-accion detalle-link" data-id="{{ p.id }}">Detalle</a>
+                    <button class="btn-accion detalle-link">Detalle</button>
                 </td>
             </tr>
             {% endfor %}
@@ -56,7 +54,6 @@
 
     <!-- ===== PEDIDOS CREADOS POR EL EMPLEADO ===== -->
     <h2>Pedidos Creados por Ti</h2>
-
     {% if pedidos_empleado %}
     <table class="tabla-pedidos">
         <thead>
@@ -71,23 +68,25 @@
         </thead>
         <tbody>
             {% for p in pedidos_empleado %}
-            <tr>
+            <tr data-id="{{ p.id }}">
                 <td>{{ p.id }}</td>
                 <td>{{ p.cliente }}</td>
                 <td>{{ p.total }} Bs</td>
-                <td class="estado-{{ p.estado }}">{{ p.estado }}</td>
+                <td class="estado">{{ p.estado }}</td>
                 <td>{{ p.fecha }}</td>
-                <td>
-                    {% if p.estado != "entregado" %}
-                        <a href="/empleado/pedidos/entregar/{{ p.id }}" class="btn-accion entregar">Entregar</a>
-                        {% if p.estado == "pendiente" %}
-                            <a href="/empleado/pedidos/cancelar/{{ p.id }}" class="btn-accion cancelar">Cancelar</a>
-                            <a href="/empleado/crear_pedido?id={{ p.id }}" class="btn-accion aceptar">Editar</a>
-                        {% endif %}
-                    {% else %}
+                <td class="acciones">
+                    {% if p.estado == "pendiente" %}
+                        <button class="btn-accion aceptar">Aceptar</button>
+                        <button class="btn-accion cancelar">Cancelar</button>
+                        <a href="/empleado/crear_pedido?id={{ p.id }}" class="btn-accion aceptar">Editar</a>
+                    {% elif p.estado == "aceptado" %}
+                        <button class="btn-accion entregar">Entregar</button>
+                    {% elif p.estado == "entregado" %}
                         <span class="estado-finalizado">✔ Entregado</span>
+                    {% elif p.estado == "cancelado" %}
+                        <span class="estado-cancelado">✖ Cancelado</span>
                     {% endif %}
-                    <a href="#" class="btn-accion detalle-link" data-id="{{ p.id }}">Detalle</a>
+                    <button class="btn-accion detalle-link">Detalle</button>
                 </td>
             </tr>
             {% endfor %}
@@ -98,8 +97,9 @@
     {% endif %}
 
 </div>
+
 <!-- Ventana de detalle flotante -->
-<div id="detalle-pedido-page" class="detalle-page">
+<div id="detalle-pedido-page" class="detalle-page" style="display:none;">
     <div class="detalle-content">
         <span class="close" onclick="cerrarDetalle()">&times;</span>
         <h3>Detalle del Pedido</h3>
@@ -116,63 +116,58 @@
     </div>
 </div>
 
-
-
-{% endblock %}
-{% block extra_js %}
-<script>const detallePage = document.getElementById("detalle-pedido-page");
+<script>
+const detallePage = document.getElementById("detalle-pedido-page");
 const detalleBody = document.getElementById("detalle-body");
 
-function mostrarDetalle() {
-    detallePage.style.display = "flex";
+function mostrarDetalle() { detallePage.style.display = "flex"; }
+function cerrarDetalle() { detallePage.style.display = "none"; detalleBody.innerHTML = ""; }
+window.addEventListener("click", (e) => { if (e.target === detallePage) cerrarDetalle(); });
+
+async function actualizarPedido(orderId, action) {
+    try {
+        const res = await fetch(`/empleado/pedidos/${action}/${orderId}`, { method: "POST" });
+        const data = await res.json();
+        if (!data.ok) return alert(data.msg || "Error al actualizar pedido");
+
+        // Actualizar estado en la tabla
+        const row = document.querySelector(`tr[data-id='${orderId}']`);
+        const estadoCell = row.querySelector(".estado");
+        const accionesCell = row.querySelector(".acciones");
+        estadoCell.textContent = data.new_status;
+        accionesCell.querySelectorAll("button, a").forEach(btn => {
+            if (!btn.classList.contains("detalle-link")) btn.style.display = (data.new_status === "pendiente" || data.new_status === "aceptado") ? "inline-block" : "none";
+        });
+
+    } catch (err) { console.error(err); alert("Error al actualizar pedido"); }
 }
 
-function cerrarDetalle() {
-    detallePage.style.display = "none";
-}
-
-// Cerrar al hacer click fuera del contenido
-window.addEventListener("click", (e) => {
-    if (e.target === detallePage) cerrarDetalle();
-});
-
-// Delegación de eventos: abrir detalle
 document.addEventListener("click", async (e) => {
-    if (e.target && e.target.classList.contains("detalle-link")) {
-        e.preventDefault(); // no navegar
-        const orderId = e.target.dataset.id;
-        if (!orderId) return alert("Order ID vacío");
+    const tr = e.target.closest("tr");
+    if (!tr) return;
+    const orderId = tr.dataset.id;
 
+    if (e.target.classList.contains("aceptar")) {
+        await actualizarPedido(orderId, "aceptar");
+    } else if (e.target.classList.contains("cancelar")) {
+        await actualizarPedido(orderId, "cancelar");
+    } else if (e.target.classList.contains("entregar")) {
+        await actualizarPedido(orderId, "entregar");
+    } else if (e.target.classList.contains("detalle-link")) {
+        // Cargar detalle
         try {
-            // Traer los datos en JSON
             const res = await fetch(`/empleado/pedidos/detalle/${orderId}`);
             const data = await res.json();
-
-            if (!data.ok) return alert(data.msg);
-
-            // Limpiar la tabla antes de rellenar
+            if (!data.ok) return alert(data.msg || "No se pudo cargar el detalle");
             detalleBody.innerHTML = "";
-
-            data.detalles.forEach(d => {
-                detalleBody.innerHTML += `
-                    <tr>
-                        <td>${d.product_name}</td>
-                        <td>${d.quantity}</td>
-                        <td>${d.subtotal} Bs</td>
-                    </tr>
-                `;
+            if (data.detalles.length === 0) detalleBody.innerHTML = `<tr><td colspan="3">No hay productos</td></tr>`;
+            else data.detalles.forEach(d => {
+                detalleBody.innerHTML += `<tr><td>${d.product_name}</td><td>${d.quantity}</td><td>${d.subtotal} Bs</td></tr>`;
             });
-
-            // Mostrar el modal flotante
             mostrarDetalle();
-
-        } catch (err) {
-            console.error("Error al cargar detalle:", err);
-            alert("Error al cargar el detalle del pedido");
-        }
+        } catch(err){ console.error(err); alert("Error al cargar detalle"); }
     }
 });
-
 </script>
 
 {% endblock %}

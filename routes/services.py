@@ -10,16 +10,30 @@ from bson.objectid import ObjectId
 from datetime import datetime
 from werkzeug.security import generate_password_hash
 db = dbConnection()
+def normalize_product(producto):
+    """
+    Convierte un producto que puede tener atributos en español o inglés
+    a un diccionario consistente con claves en español.
+    """
+    return {
+        "nombre": producto.get("nombre") or producto.get("name") or "Sin nombre",
+        "descripcion": producto.get("descripcion") or producto.get("description") or "",
+        "precio": producto.get("precio") or producto.get("price") or 0,
+        "cantidad": producto.get("cantidad") or producto.get("quantity") or 0,
+        "categoria": producto.get("categoria") or producto.get("category_id") or "Sin categoría",
+        "estado": producto.get("estado") or producto.get("status") or "desconocido",
+        "imagen": producto.get("imagen") or producto.get("image") or "cupcake.jpg"
+    }
 
 # ================= CATEGORÍAS =================
 def get_all_categories(with_count=False):
-    categorias = list(db['categories'].find())
-    if with_count:
-        # Contar productos por cada categoría
-        for cat in categorias:
-            count = db['products'].count_documents({'category_id': cat['_id']})
-            cat['product_count'] = count
-    return categorias
+    cats = list(db['categories'].find())
+    for c in cats:
+        c['_id'] = str(c['_id'])
+        if with_count:
+            c['cantidad_productos'] = db['products'].count_documents({'category_id': ObjectId(c['_id'])})
+    return cats
+
 
 def get_category_by_name(name):
     return db['categories'].find_one({'name': name})
@@ -81,49 +95,64 @@ def delete_product(product_id):
 
 # ================= STOCK =================
 def get_all_stock():
-    return list(db['stock'].find())
+    # Devuelve los productos con su stock actual
+    products = list(db['products'].find())
+    for p in products:
+        p['quantity'] = p.get('inventory', {}).get('current_quantity', 0)
+    return products
 
-def get_stock_by_product(product_name):
-    data = db['stock'].find_one({'product_name': product_name})
-    return Stock.from_dict(data) if data else None
+def get_stock_by_product(product_id):
+    product = db['products'].find_one({'_id': ObjectId(product_id)})
+    if not product:
+        return None
+    return product.get('inventory', {}).get('current_quantity', 0)
 
-def create_stock(product_name, minimum_quantity):
-    stock = Stock(product_name, minimum_quantity)
-    db['stock'].insert_one(stock.to_dict())
-    return True, "Stock creado"
+def create_stock(product_id, initial_quantity=0):
+    # Inicializa el stock de un producto
+    db['products'].update_one(
+        {'_id': ObjectId(product_id)},
+        {'$set': {'inventory.current_quantity': initial_quantity}}
+    )
+    return True, "Stock inicializado"
 
-def update_stock(product_name, minimum_quantity):
-    result = db['stock'].update_one({'product_name': product_name}, {'$set': {'minimum_quantity': minimum_quantity}})
+def update_stock(product_id, new_quantity):
+    result = db['products'].update_one(
+        {'_id': ObjectId(product_id)},
+        {'$set': {'inventory.current_quantity': new_quantity}}
+    )
     if result.matched_count:
         return True, "Stock actualizado"
-    return False, "Stock no encontrado"
+    return False, "Producto no encontrado"
 
-def delete_stock(product_name):
-    result = db['stock'].delete_one({'product_name': product_name})
-    if result.deleted_count:
+def delete_stock(product_id):
+    result = db['products'].update_one(
+        {'_id': ObjectId(product_id)},
+        {'$unset': {'inventory.current_quantity': ""}}
+    )
+    if result.matched_count:
         return True, "Stock eliminado"
-    return False, "Stock no encontrado"
+    return False, "Producto no encontrado"
+
 def verificar_y_ajustar_stock(product_id, cantidad):
     """
-    Ajusta el stock si hay suficiente cantidad.
-    cantidad > 0 → devolver stock (cancelar o eliminar pedido)
-    cantidad < 0 → restar stock (crear pedido)
-    Retorna (ok, msg)
+    Ajusta el stock de un producto.
+    - cantidad < 0: venta/resta
+    - cantidad > 0: reabastecer/sumar
     """
     product = db["products"].find_one({"_id": ObjectId(product_id)})
     if not product:
         return False, "Producto no encontrado"
 
-    stock_actual = product.get("quantity", 0)
-    
-    if cantidad < 0:  # Se quiere restar stock (pedido)
-        if stock_actual + cantidad < 0:  # recordemos cantidad < 0
+    stock_actual = product.get("inventory", {}).get("current_quantity", 0)
+
+    if cantidad < 0:
+        if stock_actual + cantidad < 0:
             return False, f"Stock insuficiente: solo quedan {stock_actual}"
-    
+
     # Ajustar stock
     db["products"].update_one(
         {"_id": ObjectId(product_id)},
-        {"$inc": {"quantity": cantidad}}
+        {"$inc": {"inventory.current_quantity": cantidad}}
     )
     return True, "Stock ajustado correctamente"
 

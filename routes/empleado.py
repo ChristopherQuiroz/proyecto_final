@@ -11,6 +11,9 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash
 from routes.services import verificar_y_ajustar_stock
 from werkzeug.utils import secure_filename
+from routes.services import (
+    get_all_categories,     get_all_products
+)
 import os
 
 UPLOAD_FOLDER = 'static/img/products'  # misma carpeta que admin
@@ -18,18 +21,22 @@ UPLOAD_FOLDER = 'static/img/products'  # misma carpeta que admin
 bp_empleado = Blueprint("empleado", __name__, url_prefix="/empleado")
 db = dbConnection()
 
-def format_product_for_template(product):
-    """Convertir producto de BD (inglés) a template (español)"""
+def normalize_product(producto):
+    """
+    Convierte un producto que puede tener atributos en español o inglés
+    a un diccionario consistente con claves en español.
+    """
     return {
-        'id': str(product.get('_id', '')),
-        'nombre': product.get('name', 'Sin nombre'),
-        'descripcion': product.get('description', ''),
-        'precio': product.get('price', 0),
-        'cantidad': product.get('quantity', 0),
-        'categoria': product.get('category', 'General'),
-        'estado': product.get('status', 'Desconocido'),
-        'imagen': product.get('image', 'cupcake.jpg')
+        "nombre": producto.get("nombre") or producto.get("name") or "Sin nombre",
+        "descripcion": producto.get("descripcion") or producto.get("description") or "",
+        "precio": producto.get("precio") or producto.get("price") or 0,
+        "cantidad": producto.get("cantidad") or producto.get("quantity") or 0,
+        "categoria": producto.get("categoria") or producto.get("category_id") or "Sin categoría",
+        "estado": producto.get("estado") or producto.get("status") or "desconocido",
+        "imagen": producto.get("imagen") or producto.get("image") or "cupcake.jpg"
     }
+
+
 
 # ============================================================
 #                   PANEL PRINCIPAL EMPLEADO
@@ -372,7 +379,17 @@ def empleado_crear_pedido():
         pedido=pedido_editar
     )
 
-
+def format_product_for_template(product):
+    return {
+        'id': str(product.get('_id', '')),
+        'name': product.get('name', 'Sin nombre'),
+        'description': product.get('description', ''),
+        'price': product.get('price', 0),
+        'quantity': product.get('inventory', {}).get('current_quantity', 0),
+        'category': product.get('category_name', 'General'),
+        'status': product.get('status', 'Desconocido'),
+        'image': product.get('image', 'cupcake.jpg')
+    }
 # ============================================================
 #                PRODUCTOS 
 # ============================================================
@@ -382,26 +399,22 @@ def empleado_productos():
     products_collection = db['products']
     categories_collection = db['categories']
 
-    # Manejar búsqueda si existe
-    buscar = request.args.get('buscar', '').strip()
-    if buscar:
-        # Buscar por nombre, descripción o categoría (case-insensitive)
-        productos_db = list(products_collection.find({
-            '$or': [
-                {'name': {'$regex': buscar, '$options': 'i'}},
-                {'description': {'$regex': buscar, '$options': 'i'}},
-                {'category': {'$regex': buscar, '$options': 'i'}}
-            ]
-        }))
-    else:
-        # Todos los productos
-        productos_db = list(products_collection.find())
+    # Obtener categorías
+    categorias_db = list(categories_collection.find())
+    categorias = []
+    cat_dict = {}
+    for c in categorias_db:
+        cat_dict[str(c['_id'])] = c['name']
+        categorias.append({'id': str(c['_id']), 'name': c['name']})
 
-    # Formatear productos para template (incluye imagen)
-    productos = [format_product_for_template(p) for p in productos_db]
-
-    # Obtener categorías para filtros o selects
-    categorias = list(categories_collection.find())
+    # Obtener productos
+    productos_db = list(products_collection.find())
+    productos = []
+    for p in productos_db:
+        # Agregar nombre de categoría
+        category_name = cat_dict.get(str(p.get('category_id', '')), 'Sin categoría')
+        p['category_name'] = category_name
+        productos.append(format_product_for_template(p))
 
     return render_template(
         "empleado/productos.html",
@@ -417,12 +430,28 @@ def empleado_productos():
 @bp_empleado.route("/inventario")
 @require_employee_or_admin
 def empleado_inventario():
-    productos = list(db["products"].find())
+    # Traer productos y categorías
+    products = list(db['products'].find())
+    categories = list(db['categories'].find())
+    
+    # Crear diccionario de categorías
+    cat_dict = {str(c['_id']): c['name'] for c in categories}
+    
+    # Preparar productos con stock y nombre de categoría
+    for p in products:
+        # Obtener cantidad del inventario (si existe)
+        p['quantity'] = p.get('inventory', {}).get('current_quantity', 0)
+        # Mapear el category_id al nombre de categoría
+        p['category'] = cat_dict.get(str(p.get('category_id')), "Sin categoría")
+        # Convertir _id a string por seguridad
+        p['_id'] = str(p['_id'])
+    
     return render_template(
         "empleado/inventario.html",
-        productos=productos,
+        productos=products,
         rol="empleado"
     )
+
 # ============================================================
 #                 PEDIDOS 
 # ============================================================
@@ -466,7 +495,8 @@ def empleado_pedidos():
             "creado_por_empleado": p.get("created_by") == empleado_id
         }
 
-        if p.get("created_by") == empleado_id:
+         # Separar pedidos
+        if pedido["creado_por_empleado"]:
             pedidos_empleado.append(pedido)
         else:
             pedidos_clientes.append(pedido)
@@ -481,23 +511,24 @@ def empleado_pedidos():
 @bp_empleado.route("/pedidos/detalle/<order_id>")
 @require_employee_or_admin
 def empleado_detalle_pedido(order_id):
-    print("Pedido solicitado:", order_id)
-    orders_collection = db["orders"]
-    products_collection = db["products"]
-    order_data = orders_collection.find_one({"_id": ObjectId(order_id)})
+    try:
+        order_data = db["orders"].find_one({"_id": ObjectId(order_id)})
+    except:
+        return jsonify({"ok": False, "msg": "ID de pedido inválido"})
+
     if not order_data:
         return jsonify({"ok": False, "msg": "Pedido no encontrado"})
 
-    # Construir la respuesta
     detalles = []
     for d in order_data.get("details", []):
-        # Obtener nombre del producto
-        product_data = products_collection.find_one({"_id": ObjectId(d.get("product_id"))})
-        product_name = product_data["name"] if product_data else "Producto eliminado"
+        product_id = d.get("product_id")
+        if not product_id:
+            continue
+        product_data = db["products"].find_one({"_id": ObjectId(product_id)})
         detalles.append({
-            "product_name": product_name,
-            "quantity": d.get("quantity"),
-            "subtotal": d.get("subtotal")
+            "product_name": product_data["name"] if product_data else "Producto eliminado",
+            "quantity": d.get("quantity", 0),
+            "subtotal": d.get("subtotal", 0)
         })
 
     return jsonify({"ok": True, "detalles": detalles})
