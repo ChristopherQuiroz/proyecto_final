@@ -32,30 +32,7 @@
     </div>
 </div>
 </div>
-<!-- 🔷 STOCK ALERTS -->
-<h2 class="subtitulo">Stock Alerts</h2>
 
-{% if out_of_stock_products %}
-<h3>Out of Stock</h3>
-<ul>
-    {% for p in out_of_stock_products %}
-    <li>{{ p.name }} (0 units)</li>
-    {% endfor %}
-</ul>
-{% endif %}
-
-{% if low_stock_products %}
-<h3>Low Stock (&lt; 5 units)</h3>
-<ul>
-    {% for p in low_stock_products %}
-    <li>{{ p.name }} ({{ p.inventory.current_quantity }} units)</li>
-    {% endfor %}
-</ul>
-{% endif %}
-
-{% if not out_of_stock_products and not low_stock_products %}
-<p>No stock alerts at the moment.</p>
-{% endif %}
 
 
 <!-- 🔷 VENTAS POR MES -->

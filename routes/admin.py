@@ -160,8 +160,8 @@ def ver_productos():
 
     # Ajustar stock y agregar nombre de categoría
     for p in productos:
-        p['quantity'] = p.get('inventory', {}).get('current_quantity', 0)
-        p['category_name'] = cat_dict.get(p.get('category_id'), "Sin categoría")
+      p['quantity'] = p.get('inventory', {}).get('current_quantity', 0)
+      p['category_name'] = cat_dict.get(str(p.get('category_id')), "Sin categoría")
 
     return render_template("admin/productos.html", productos=productos, categorias=categorias, rol="admin")
 
@@ -362,28 +362,46 @@ def ver_pedidos():
     products_collection = db['products']
 
     pedidos = []
+
     for o in orders_collection.find().sort("date", -1):
+        # Determinar el nombre del cliente
         cliente_nombre = "Cliente no registrado"
         if o.get("customer_id"):
             cliente = users_collection.find_one({"_id": ObjectId(o["customer_id"])})
             if cliente:
                 cliente_nombre = cliente.get("username", "Cliente")
+        
+        # Determinar si lo creó un empleado
+        creado_por_empleado = False
+        if o.get("employee_id"):
+            creado_por_empleado = True
+
+        # Fecha formateada
         fecha = o.get("date", datetime.utcnow())
         if isinstance(fecha, datetime):
             fecha = fecha.strftime("%Y-%m-%d %H:%M")
-        total = sum(
-            item['quantity'] * products_collection.find_one({"_id": ObjectId(item['product_id'])})['price'] 
-            for item in o.get("details", [])
-        )
+
+        # Calcular total (si no está guardado)
+        total = o.get("total")
+        if not total:
+            total = sum(
+                item['quantity'] * products_collection.find_one({"_id": ObjectId(item['product_id'])})['price']
+                for item in o.get("details", [])
+            )
+
         pedidos.append({
             "id": str(o["_id"]),
             "cliente": cliente_nombre,
             "fecha": fecha,
             "total": total,
-            "estado": o.get("status", "pendiente")
+            "estado": o.get("status", "pendiente"),
+            "creado_por_empleado": creado_por_empleado
         })
 
-    return render_template("admin/pedidos.html", pedidos=pedidos, rol="admin")
+    return render_template(
+        "empleado/pedidos.html",
+        pedidos=pedidos  # Usamos solo una lista para la plantilla
+    )
 
 # ===================== CLIENTES =====================
 @bp_admin.route("/clientes")

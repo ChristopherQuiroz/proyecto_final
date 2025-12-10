@@ -2,19 +2,11 @@ from flask import Blueprint, render_template, request, redirect, flash, session,
 from bson.objectid import ObjectId
 from routes.auth import require_employee_or_admin
 from database import dbConnection
-from entities.product import Product
-from entities.category import Category
-from entities.order import Order
-from entities.orderDetail import OrderDetail
 from entities.user import User
 from datetime import datetime
 from werkzeug.security import generate_password_hash
 from routes.services import verificar_y_ajustar_stock
-from werkzeug.utils import secure_filename
-from routes.services import (
-    get_all_categories,     get_all_products
-)
-import os
+
 
 UPLOAD_FOLDER = 'static/img/products'  # misma carpeta que admin
 
@@ -35,8 +27,6 @@ def normalize_product(producto):
         "estado": producto.get("estado") or producto.get("status") or "desconocido",
         "imagen": producto.get("imagen") or producto.get("image") or "cupcake.jpg"
     }
-
-
 
 # ============================================================
 #                   PANEL PRINCIPAL EMPLEADO
@@ -459,10 +449,7 @@ def empleado_inventario():
 @require_employee_or_admin
 def empleado_pedidos():
     pedidos_db = list(db["orders"].find())
-    empleado_id = ObjectId(session.get("user_id"))
-
-    pedidos_clientes = []
-    pedidos_empleado = []
+    pedidos = []
 
     for p in pedidos_db:
         cliente_nombre = "Cliente no registrado"
@@ -485,26 +472,18 @@ def empleado_pedidos():
                 "subtotal": d.get("subtotal", 0)
             })
 
-        pedido = {
+        pedidos.append({
             "id": str(p["_id"]),
             "cliente": cliente_nombre,
             "total": p.get("total", 0),
             "estado": p.get("status", "pendiente"),
             "fecha": fecha,
-            "detalles": detalles_con_nombre,
-            "creado_por_empleado": p.get("created_by") == empleado_id
-        }
-
-         # Separar pedidos
-        if pedido["creado_por_empleado"]:
-            pedidos_empleado.append(pedido)
-        else:
-            pedidos_clientes.append(pedido)
+            "detalles": detalles_con_nombre
+        })
 
     return render_template(
         "empleado/pedidos.html",
-        pedidos_clientes=pedidos_clientes,
-        pedidos_empleado=pedidos_empleado,
+        pedidos=pedidos,
         rol="empleado"
     )
 
@@ -535,64 +514,58 @@ def empleado_detalle_pedido(order_id):
 # ============================================================
 #                   ACEPTAR PEDIDO
 # ============================================================
-@bp_empleado.route("/pedidos/aceptar/<order_id>")
+@bp_empleado.route("/pedidos/aceptar/<order_id>", methods=["POST"])
 @require_employee_or_admin
 def empleado_aceptar_pedido(order_id):
     order = db["orders"].find_one({"_id": ObjectId(order_id)})
     if not order:
-        flash("Pedido no encontrado", "error")
-        return redirect("/empleado/pedidos")
+        return jsonify({"ok": False, "msg": "Pedido no encontrado"})
 
     if order.get("status") != "pendiente":
-        flash("Solo se pueden aceptar pedidos pendientes", "warning")
-        return redirect("/empleado/pedidos")
+        return jsonify({"ok": False, "msg": "Solo se pueden aceptar pedidos pendientes"})
 
     db["orders"].update_one(
         {"_id": ObjectId(order_id)},
         {"$set": {"status": "aceptado", "employee_id": ObjectId(session.get("user_id"))}}
     )
 
-    flash("Pedido aceptado correctamente", "success")
-    return redirect("/empleado/pedidos")
+    return jsonify({"ok": True, "new_status": "aceptado"})
 
-@bp_empleado.route("/pedidos/entregar/<order_id>")
+@bp_empleado.route("/pedidos/entregar/<order_id>", methods=["POST"])
 @require_employee_or_admin
 def empleado_entregar_pedido(order_id):
     order = db["orders"].find_one({"_id": ObjectId(order_id)})
 
     if not order:
-        flash("Pedido no encontrado", "error")
-        return redirect("/empleado/pedidos")
+        return jsonify({"ok": False, "msg": "Pedido no encontrado"})
 
     if order["status"] != "aceptado":
-        flash("Solo puedes entregar pedidos ya aceptados", "warning")
-        return redirect("/empleado/pedidos")
+        return jsonify({"ok": False, "msg": "Solo puedes entregar pedidos ya aceptados"})
 
     db["orders"].update_one(
         {"_id": ObjectId(order_id)},
         {"$set": {"status": "entregado"}}
     )
 
-    flash("Pedido marcado como entregado", "success")
-    return redirect("/empleado/pedidos")
+    return jsonify({"ok": True, "new_status": "entregado"})
 
-@bp_empleado.route("/pedidos/cancelar/<order_id>")
+
+@bp_empleado.route("/pedidos/cancelar/<order_id>", methods=["POST"])
 @require_employee_or_admin
 def empleado_cancelar_pedido(order_id):
     order = db["orders"].find_one({"_id": ObjectId(order_id)})
-
     if not order:
-        flash("Pedido no encontrado", "error")
-        return redirect("/empleado/pedidos")
+        return jsonify({"ok": False, "msg": "Pedido no encontrado"})
 
     if order["status"] == "entregado":
-        for item in order["productos"]:
-            verificar_y_ajustar_stock(item["product_id"], item["cantidad"])
+        for item in order.get("details", []):
+            product = db["products"].find_one({"_id": ObjectId(item["product_id"])})
+            if product:
+                db["products"].update_one({"_id": ObjectId(item["product_id"])}, {"$inc": {"inventory.current_quantity": item["quantity"]}})
 
     db["orders"].update_one(
         {"_id": ObjectId(order_id)},
         {"$set": {"status": "cancelado"}}
     )
 
-    flash("Pedido cancelado correctamente", "success")
-    return redirect("/empleado/pedidos")
+    return jsonify({"ok": True, "new_status": "cancelado"})

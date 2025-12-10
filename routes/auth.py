@@ -9,12 +9,6 @@ from functools import wraps
 auth_bp = Blueprint("auth", __name__)
 db = dbConnection()
 
-@auth_bp.route("/")
-def home():
-    if 'role' in session:
-        return redirect(get_redirect_url(session['role']))
-    return render_template("cliente/dashboard.html", rol="invitado")
-
 # ============================================================
 #                          LOGIN
 # ============================================================
@@ -118,48 +112,24 @@ def logout():
 # ============================================================
 @auth_bp.before_app_request
 def before_request():
-    # Rutas completamente públicas
     public_endpoints = [
         'auth.login',
         'auth.register',
         'auth.home',
-        'static',
-        'not_found'
-    ]
-
-    # Rutas del cliente accesibles sin iniciar sesión
-    public_cliente = [
-        'cliente.cliente_dashboard',
-        'cliente.cliente_productos',
-        'cliente.cliente_categorias',
-        'cliente.cliente_detalle_producto'
-    ]
-
-    # Rutas protegidas del cliente (necesitan login, pero middleware debe dejarlas pasar)
-    protected_cliente = [
-        'cliente.cliente_carrito',
-        'cliente.cliente_mis_pedidos',
-        'cliente.agregar_al_carrito',
-        'cliente.eliminar_del_carrito',
-        'cliente.actualizar_cantidad',
-        'cliente.cliente_pagar'
+        'static'
     ]
 
     endpoint = request.endpoint or ""
 
-    # Público total
-    if endpoint in public_endpoints or endpoint in public_cliente:
-        return
+    # 1️⃣ Si la ruta es pública → dejar pasar
+    if endpoint in public_endpoints or endpoint.startswith("static"):
+        return None
 
-    # Estas rutas SÍ deben ejecutarse y el decorador require_role decidirá el permiso
-    if endpoint in protected_cliente:
-        return
-
-    # Para el resto → requiere login
+    # 2️⃣ Si NO está logueado → redirigir a login
     if 'user_id' not in session:
         return redirect('/login')
 
-    # Verificar usuario activo
+    # 3️⃣ Verificar usuario activo
     try:
         user_data = db['users'].find_one({'_id': ObjectId(session['user_id'])})
         if not user_data or not user_data.get('is_active', True):
@@ -168,7 +138,6 @@ def before_request():
     except:
         session.clear()
         return redirect('/login')
-
 
 # ============================================================
 #          FUNCIÓN DE REDIRECCIÓN

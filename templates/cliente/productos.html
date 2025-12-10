@@ -120,8 +120,7 @@ function aplicarFiltros() {
     let cat = document.getElementById("filtro-categoria").value;
     let stock = document.getElementById("filtro-stock").value;
 
-    let cards = Array.from(document.querySelectorAll(".producto-card"));
-
+    let cards = [...document.querySelectorAll(".producto-card")];
     cards.forEach(card => {
         let nombre = card.dataset.nombre.toLowerCase();
         let desc = card.dataset.descripcion.toLowerCase();

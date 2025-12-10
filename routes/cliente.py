@@ -20,11 +20,11 @@ def format_product_for_template(product):
         'nombre': product.get('name', ''),
         'descripcion': product.get('description', ''),
         'precio': product.get('price', 0),
-        'cantidad': product.get('quantity', 0),
-        'categoria': product.get('category_id', 'General'),
+        'cantidad': product.get('quantity', 0),      # puedes dejarlo, pero
+        'categoria_id': product.get("category_id", ""),
         'estado': product.get('status', 'Desconocido'),
         'imagen': product.get('image', 'cupcake.jpg')
-        #'categoria_id': product.get('category_id', '')
+        
     }
 
 
@@ -64,7 +64,7 @@ def cliente_dashboard():
     banners.sort()  # opcional: banner1, banner2, etc.
 
     # Rol actual
-    rol_actual = session.get('role', 'invitado')
+    rol_actual = session.get("role", "cliente")
 
     return render_template(
         "cliente/dashboard.html",
@@ -127,7 +127,7 @@ def cliente_productos():
         "cliente/productos.html",
         productos=productos,
         categorias=categorias,
-        rol=session.get("role", "invitado")
+        rol=session.get("role", "cliente")
     )
 
 
@@ -176,7 +176,7 @@ def cliente_categorias():
         categorias=categorias,
         productos=productos,
         conteo=conteo,
-        rol=session.get("role", "invitado")
+        rol=session.get("role", "cliente")
     )
 
 

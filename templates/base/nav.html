@@ -62,19 +62,10 @@
             <li><a href="/cliente/productos"><i class="ph-cookie"></i> Productos</a></li>
             <li><a href="/cliente/carrito"><i class="ph-shopping-bag"></i> Carrito</a></li>
             <li><a href="/cliente/mis_pedidos"><i class="ph-clipboard-text"></i> Mis pedidos</a></li>
-          
-
-        {% elif rol == "invitado" %}
-            <li><a href="/"><i class="ph-house"></i> Inicio</a></li>
-            <li><a href="/cliente/categorias"><i class="ph-grid-four"></i> Categorías</a></li>
-            <li><a href="/cliente/productos"><i class="ph-cookie"></i> Productos</a></li>
-            <li><a href="/login"><i class="ph-sign-in"></i> Iniciar Sesión</a></li>
-            <li><a href="/register"><i class="ph-user-plus"></i> Registrarse</a></li>
         {% endif %}
-
     </ul>
 
-    {% if rol != "invitado" %}
+     {% if rol %}
     <a href="/logout" class="logout-btn">
         <i class="ph-sign-out"></i> Cerrar Sesión
     </a>
@@ -100,7 +91,7 @@
         <h2>Mi Perfil</h2>
 
         <div class="perfil-info">
-            <p><strong>Usuario:</strong> {{ session.get('username', 'Invitado') }}</p>
+            <p><strong>Usuario:</strong> {{ session.get('username', 'usuario') }}</p>
             <p><strong>Rol:</strong> {{ rol|upper }}</p>
             <p><strong>Email:</strong> {{ session.get('email', 'No disponible') }}</p>
             <p><strong>ID:</strong> {{ session.get('user_id', '---') }}</p>

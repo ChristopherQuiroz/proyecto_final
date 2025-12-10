@@ -9,9 +9,8 @@
 
 <div class="pedidos-container">
 
-    <!-- ===== PEDIDOS DE CLIENTES ===== -->
-    <h2>Pedidos de Clientes</h2>
-    {% if pedidos_clientes %}
+    <h2>Todos los Pedidos</h2>
+    {% if pedidos %}
     <table class="tabla-pedidos">
         <thead>
             <tr>
@@ -20,27 +19,28 @@
                 <th>Total</th>
                 <th>Estado</th>
                 <th>Fecha</th>
+                <th>Creado Por</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-            {% for p in pedidos_clientes %}
+            {% for p in pedidos %}
             <tr data-id="{{ p.id }}">
                 <td>{{ p.id }}</td>
                 <td>{{ p.cliente }}</td>
                 <td>{{ p.total }} Bs</td>
                 <td class="estado">{{ p.estado }}</td>
                 <td>{{ p.fecha }}</td>
+                <td>{% if p.creado_por_empleado %}Tú{% else %}Cliente{% endif %}</td>
                 <td class="acciones">
                     {% if p.estado == "pendiente" %}
                         <button class="btn-accion aceptar">Aceptar</button>
                         <button class="btn-accion cancelar">Cancelar</button>
+                        {% if p.creado_por_empleado %}
+                        <a href="/empleado/crear_pedido?id={{ p.id }}" class="btn-accion editar">Editar</a>
+                        {% endif %}
                     {% elif p.estado == "aceptado" %}
                         <button class="btn-accion entregar">Entregar</button>
-                    {% elif p.estado == "entregado" %}
-                        <span class="estado-finalizado">✔ Entregado</span>
-                    {% elif p.estado == "cancelado" %}
-                        <span class="estado-cancelado">✖ Cancelado</span>
                     {% endif %}
                     <button class="btn-accion detalle-link">Detalle</button>
                 </td>
@@ -49,51 +49,7 @@
         </tbody>
     </table>
     {% else %}
-        <p class="no-pedidos">No hay pedidos de clientes.</p>
-    {% endif %}
-
-    <!-- ===== PEDIDOS CREADOS POR EL EMPLEADO ===== -->
-    <h2>Pedidos Creados por Ti</h2>
-    {% if pedidos_empleado %}
-    <table class="tabla-pedidos">
-        <thead>
-            <tr>
-                <th>ID Pedido</th>
-                <th>Cliente</th>
-                <th>Total</th>
-                <th>Estado</th>
-                <th>Fecha</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for p in pedidos_empleado %}
-            <tr data-id="{{ p.id }}">
-                <td>{{ p.id }}</td>
-                <td>{{ p.cliente }}</td>
-                <td>{{ p.total }} Bs</td>
-                <td class="estado">{{ p.estado }}</td>
-                <td>{{ p.fecha }}</td>
-                <td class="acciones">
-                    {% if p.estado == "pendiente" %}
-                        <button class="btn-accion aceptar">Aceptar</button>
-                        <button class="btn-accion cancelar">Cancelar</button>
-                        <a href="/empleado/crear_pedido?id={{ p.id }}" class="btn-accion aceptar">Editar</a>
-                    {% elif p.estado == "aceptado" %}
-                        <button class="btn-accion entregar">Entregar</button>
-                    {% elif p.estado == "entregado" %}
-                        <span class="estado-finalizado">✔ Entregado</span>
-                    {% elif p.estado == "cancelado" %}
-                        <span class="estado-cancelado">✖ Cancelado</span>
-                    {% endif %}
-                    <button class="btn-accion detalle-link">Detalle</button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-        <p class="no-pedidos">No hay pedidos creados por ti.</p>
+        <p class="no-pedidos">No hay pedidos registrados.</p>
     {% endif %}
 
 </div>
@@ -135,9 +91,29 @@ async function actualizarPedido(orderId, action) {
         const estadoCell = row.querySelector(".estado");
         const accionesCell = row.querySelector(".acciones");
         estadoCell.textContent = data.new_status;
-        accionesCell.querySelectorAll("button, a").forEach(btn => {
-            if (!btn.classList.contains("detalle-link")) btn.style.display = (data.new_status === "pendiente" || data.new_status === "aceptado") ? "inline-block" : "none";
-        });
+
+        // Mostrar/ocultar botones según el estado
+        const aceptarBtn = accionesCell.querySelector(".aceptar");
+        const cancelarBtn = accionesCell.querySelector(".cancelar");
+        const entregarBtn = accionesCell.querySelector(".entregar");
+        const editarLink = accionesCell.querySelector(".editar");
+
+        if(data.new_status === "pendiente") {
+            if(aceptarBtn) aceptarBtn.style.display = "inline-block";
+            if(cancelarBtn) cancelarBtn.style.display = "inline-block";
+            if(editarLink) editarLink.style.display = "inline-block";
+            if(entregarBtn) entregarBtn.style.display = "none";
+        } else if(data.new_status === "aceptado") {
+            if(aceptarBtn) aceptarBtn.style.display = "none";
+            if(cancelarBtn) cancelarBtn.style.display = "none";
+            if(editarLink) editarLink.style.display = "none";
+            if(entregarBtn) entregarBtn.style.display = "inline-block";
+        } else { // entregado o cancelado
+            if(aceptarBtn) aceptarBtn.style.display = "none";
+            if(cancelarBtn) cancelarBtn.style.display = "none";
+            if(editarLink) editarLink.style.display = "none";
+            if(entregarBtn) entregarBtn.style.display = "none";
+        }
 
     } catch (err) { console.error(err); alert("Error al actualizar pedido"); }
 }
@@ -154,7 +130,6 @@ document.addEventListener("click", async (e) => {
     } else if (e.target.classList.contains("entregar")) {
         await actualizarPedido(orderId, "entregar");
     } else if (e.target.classList.contains("detalle-link")) {
-        // Cargar detalle
         try {
             const res = await fetch(`/empleado/pedidos/detalle/${orderId}`);
             const data = await res.json();

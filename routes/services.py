@@ -27,12 +27,12 @@ def normalize_product(producto):
 
 # ================= CATEGORÍAS =================
 def get_all_categories(with_count=False):
-    cats = list(db['categories'].find())
-    for c in cats:
-        c['_id'] = str(c['_id'])
+    categories = list(db['categories'].find({}))  # <-- sin projection
+    for c in categories:
+        c['_id'] = str(c['_id'])  # convierte ObjectId a string
         if with_count:
-            c['cantidad_productos'] = db['products'].count_documents({'category_id': ObjectId(c['_id'])})
-    return cats
+            c['cantidad_productos'] = db['products'].count_documents({'category_id': c['_id']})
+    return categories
 
 
 def get_category_by_name(name):
