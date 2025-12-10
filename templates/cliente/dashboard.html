@@ -54,7 +54,7 @@
             {% set default_img = url_for('static', filename='img/products/cupcake.jpg') %}
 
             <!-- TARJETA COMPLETA CLICKEABLE -->
-            <a href="/cliente/categorias?buscar={{ cat.nombre }}" class="cat-card-link">
+           <a href="/cliente/categorias?cat={{ cat.id }}" class="cat-card-link">
                 <article class="cat-card">
                     <div class="cat-img-container">
                         <img src="{{ img_url }}"

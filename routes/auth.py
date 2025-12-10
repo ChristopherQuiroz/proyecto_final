@@ -11,19 +11,17 @@ db = dbConnection()
 
 @auth_bp.route("/")
 def home():
-    # Si el usuario ya tiene sesión
     if 'role' in session:
-        # Redirige según su rol
         return redirect(get_redirect_url(session['role']))
-    
-    # Si no tiene sesión, mostrar la página principal de invitado
     return render_template("cliente/dashboard.html", rol="invitado")
 
-# LOGIN
+# ============================================================
+#                          LOGIN
+# ============================================================
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET" and 'user_id' in session:
-        return render_template("auth/login.html")  # permite cambiar usuario
+        return render_template("auth/login.html")
 
     if request.method == "POST":
         username = request.form.get("usuario")
@@ -34,60 +32,52 @@ def login():
             return render_template("auth/login.html", error="Usuario no encontrado")
 
         user = User.from_dict(user_data)
+
         if not user.verify_password(password):
             return render_template("auth/login.html", error="Contraseña incorrecta")
 
         if not user.is_active:
             return render_template("auth/login.html", error="Cuenta desactivada")
 
-        # ==============================
-        #      GUARDAR SESIÓN BIEN
-        # ==============================
         session['user_id'] = str(user_data['_id'])
-        session['username'] = user.username    # ← NOMBRE REAL
-        session['role'] = user.role
+        session['username'] = user.username
+        session['role'] = user.role.strip().lower()
         session['email'] = user.email
-        session['inicial'] = user.username[0].upper()  
-        return redirect(get_redirect_url(user.role))
+        session['inicial'] = user.username[0].upper()
+
+        return redirect(get_redirect_url(session['role']))
 
     return render_template("auth/login.html")
 
 
-#REGISTER
+# ============================================================
+#                        REGISTER
+# ============================================================
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         username = request.form["usuario"]
         email = request.form["correo"]
         password = request.form["password"]
-        role = request.form.get("rol", "cliente")
-        
-        # Validaciones básicas
+        role = request.form.get("rol", "cliente").strip().lower()
+
         if not username or not email or not password:
-            return render_template("auth/register.html", 
+            return render_template("auth/register.html",
                                    error="Todos los campos son obligatorios")
-        
+
         users_collection = db['users']
-        
-        # Verificar si el usuario ya existe
+
         existing_user = users_collection.find_one({
-            '$or': [
-                {'username': username},
-                {'email': email}
-            ]
+            '$or': [{'username': username}, {'email': email}]
         })
-        
+
         if existing_user:
-            return render_template(
-                "auth/register.html",
-                error="El usuario o email ya están registrados"
-            )
-        
-        # Solo admin puede crear admins
+            return render_template("auth/register.html",
+                                   error="El usuario o email ya están registrados")
+
         if role == 'admin' and session.get('role') != 'admin':
             role = 'cliente'
-        
-        # Crear nuevo usuario
+
         new_user = {
             'username': username,
             'email': email,
@@ -96,63 +86,39 @@ def register():
             'is_active': True,
             'created_at': datetime.utcnow()
         }
-        
-        # Insertar en la base de datos
+
         result = users_collection.insert_one(new_user)
-        
-        # Si el registro fue exitoso: iniciar sesión automáticamente
+
         if result.inserted_id:
             session['user_id'] = str(result.inserted_id)
             session['username'] = username
             session['email'] = email
             session['role'] = role
             session['inicial'] = username[0].upper()
-            
-            return redirect(get_redirect_url(role))
-        
-        else:
-            return render_template("auth/register.html",
-                                   error="Error al crear usuario")
-    
+
+            return redirect(get_redirect_url(session['role']))
+
+        return render_template("auth/register.html",
+                               error="Error al crear usuario")
+
     return render_template("auth/register.html")
 
-# LOGOUT
 
+# ============================================================
+#                        LOGOUT
+# ============================================================
 @auth_bp.route("/logout")
 def logout():
     session.clear()
     return redirect("/login")
 
-# ============================================================
-#                FUNCIONES AUXILIARES DE AUTENTICACIÓN
-# ============================================================
 
-# Función para crear admin inicial
-def create_initial_admin():
-    """Crear usuario admin si no existe ninguno"""
-    users_collection = db['users']
-    
-    # Verificar si ya existe un admin
-    admin_exists = users_collection.find_one({'role': 'admin'})
-    
-    if not admin_exists:
-        admin_user = {
-            'username': 'admin',
-            'email': 'admin@pasteleria.com',
-            'password_hash': generate_password_hash('admin123'),
-            'role': 'admin',
-            'is_active': True,
-            'created_at': datetime.utcnow()
-        }
-        users_collection.insert_one(admin_user)
-        print("✅ Usuario admin creado:")
-        print("   Usuario: admin")
-        print("   Contraseña: admin123")
-        print("   Email: admin@pasteleria.com")
-
-# Middleware para verificar sesión
+# ============================================================
+#                MIDDLEWARE GENERAL DE SESIÓN
+# ============================================================
 @auth_bp.before_app_request
 def before_request():
+    # Rutas completamente públicas
     public_endpoints = [
         'auth.login',
         'auth.register',
@@ -161,29 +127,39 @@ def before_request():
         'not_found'
     ]
 
-    # Rutas específicas del cliente permitidas a INVITADO
+    # Rutas del cliente accesibles sin iniciar sesión
     public_cliente = [
-      'cliente.cliente_dashboard',
-      'cliente.cliente_productos',
-      'cliente.cliente_categorias'
+        'cliente.cliente_dashboard',
+        'cliente.cliente_productos',
+        'cliente.cliente_categorias',
+        'cliente.cliente_detalle_producto'
     ]
 
+    # Rutas protegidas del cliente (necesitan login, pero middleware debe dejarlas pasar)
+    protected_cliente = [
+        'cliente.cliente_carrito',
+        'cliente.cliente_mis_pedidos',
+        'cliente.agregar_al_carrito',
+        'cliente.eliminar_del_carrito',
+        'cliente.actualizar_cantidad',
+        'cliente.cliente_pagar'
+    ]
 
     endpoint = request.endpoint or ""
 
-    # --- Rutas públicas generales ---
-    if endpoint in public_endpoints:
+    # Público total
+    if endpoint in public_endpoints or endpoint in public_cliente:
         return
 
-    # --- Rutas públicas específicas del cliente (solo estas 3) ---
-    if endpoint in public_cliente:
+    # Estas rutas SÍ deben ejecutarse y el decorador require_role decidirá el permiso
+    if endpoint in protected_cliente:
         return
 
-    # --- A partir de aquí, TODO requiere login ---
+    # Para el resto → requiere login
     if 'user_id' not in session:
         return redirect('/login')
 
-    # --- Validar estado del usuario ---
+    # Verificar usuario activo
     try:
         user_data = db['users'].find_one({'_id': ObjectId(session['user_id'])})
         if not user_data or not user_data.get('is_active', True):
@@ -193,41 +169,50 @@ def before_request():
         session.clear()
         return redirect('/login')
 
-# Función para obtener URL de redirección
+
+# ============================================================
+#          FUNCIÓN DE REDIRECCIÓN
+# ============================================================
 def get_redirect_url(role):
+    role = str(role).strip().lower()
+
     if role == "admin":
-        return "/admin"  # reemplazar si tienes dashboard admin
+        return "/admin"
     elif role == "empleado":
-        return "/empleado"  # reemplazar si tienes dashboard empleado
+        return "/empleado"
     elif role == "cliente":
-        return "/cliente"  # ahora apunta al index del cliente
-    else:
-        return "/login"
+        return "/cliente"
+    return "/login"
 
 
-# Decoradores para verificar roles
+# ============================================================
+#                 DECORADOR DE ROLES
+# ============================================================
 def require_role(role):
-    """Decorador para verificar rol del usuario"""
     def decorator(f):
         @wraps(f)
-        def decorated_function(*args, **kwargs):
+        def decorated(*args, **kwargs):
             if 'role' not in session:
                 return redirect('/login')
-            if session['role'] != role:
+
+            if session['role'].strip().lower() != role.strip().lower():
                 flash('No tienes permisos para acceder a esta página', 'error')
                 return redirect(get_redirect_url(session['role']))
+
             return f(*args, **kwargs)
-        return decorated_function
+        return decorated
     return decorator
+
 
 def require_employee_or_admin(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'role' not in session:
             return redirect('/login')
+
         if session.get('role') not in ['empleado', 'admin']:
-            flash('No tienes permisos para acceder a esta página', 'error')
+            flash('No tienes permisos', 'error')
             return redirect(get_redirect_url(session.get('role', 'cliente')))
+
         return f(*args, **kwargs)
     return decorated_function
-

@@ -36,7 +36,7 @@
     <select id="filtro-categoria">
         <option value="">Todas las categorías</option>
         {% for cat in categorias %}
-        <option value="{{ cat.name }}">{{ cat.name }}</option>
+        <option value="{{ cat.id }}">{{ cat.nombre }}</option>
         {% endfor %}
     </select>
 
@@ -67,7 +67,7 @@
     <div class="producto-card"
          data-nombre="{{ p.nombre }}"
          data-descripcion="{{ p.descripcion }}"
-         data-categoria="{{ p.categoria }}"
+         data-categoria="{{ p.categoria_id }}"
          data-precio="{{ p.precio }}"
          data-stock="{{ p.cantidad }}">
 
@@ -83,7 +83,7 @@
             <p class="precio">Bs {{ p.precio }}</p>
         </div>
 
-        <!-- BOTÓN DETALLE (ícono carrito pero abre detalle) -->
+        <!-- BOTÓN DETALLE -->
         <a href="/cliente/producto/{{ p.id }}" class="btn-carrito">
             🛒
         </a>
@@ -125,7 +125,7 @@ function aplicarFiltros() {
     cards.forEach(card => {
         let nombre = card.dataset.nombre.toLowerCase();
         let desc = card.dataset.descripcion.toLowerCase();
-        let categoria = card.dataset.categoria;
+        let categoria = card.dataset.categoria;      // AHORA ES EL ID
         let cantidad = parseInt(card.dataset.stock);
         let precio = parseFloat(card.dataset.precio);
 
@@ -134,7 +134,7 @@ function aplicarFiltros() {
         // BUSCAR
         if (!(nombre.includes(buscar) || desc.includes(buscar))) mostrar = false;
 
-        // CATEGORÍA
+        // CATEGORÍA (ID)
         if (cat && categoria !== cat) mostrar = false;
 
         // STOCK
@@ -163,7 +163,7 @@ function aplicarFiltros() {
         }
     });
 
-    // Reordenar en el GRID
+    // Reordenar
     let grid = document.getElementById("productos-grid");
     visibles.forEach(c => grid.appendChild(c));
 }

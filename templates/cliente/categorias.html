@@ -8,15 +8,15 @@
 
 <h1 class="titulo-pagina">Categorías</h1>
 
-<!-- 🔎 BUSCADOR SOLO DE PRODUCTOS -->
+<!-- BUSCADOR SOLO DE PRODUCTOS -->
 <div class="barra-superior">
     <input type="text" id="buscar-producto" class="input-buscar" placeholder="Buscar productos...">
 </div>
 
-<!-- 🌟 CARRUSEL DE CATEGORÍAS -->
+<!-- CARRUSEL DE CATEGORÍAS -->
 <div class="carrusel-categorias" id="carrusel">
     {% for cat in categorias %}
-    <div class="categoria-item" data-categoria="{{ cat.nombre }}">
+    <div class="categoria-item" data-categoria="{{ cat.id }}">
         
         {% set icon_url = url_for('static', filename='img/categories/' ~ cat.icono) %}
         {% set default_icon = url_for('static', filename='img/products/cupcake.jpg') %}
@@ -26,8 +26,8 @@
         
         <p>{{ cat.nombre }}</p>
 
-        <!-- contador corregido -->
-        <span class="contador">{{ conteo.get(cat.nombre, 0) }}</span>
+        <!-- contador corregido (por id) -->
+        <span class="contador">{{ conteo.get(cat.id, 0) }}</span>
     </div>
     {% endfor %}
 </div>
@@ -36,14 +36,14 @@
 
 <h2 class="titulo-lista">Productos disponibles</h2>
 
-<!-- 🛒 GRID DE PRODUCTOS (SIN ETIQUETAS) -->
+<!-- GRID DE PRODUCTOS -->
 <div class="productos-grid" id="productosGrid">
 
     {% for p in productos %}
     <div class="producto-card"
         data-nombre="{{ p.nombre }}"
         data-descripcion="{{ p.descripcion }}"
-        data-categoria="{{ p.categoria }}"
+        data-categoria="{{ p.categoria_id }}"
         data-precio="{{ p.precio }}">
 
         <!-- IMAGEN -->
@@ -58,7 +58,6 @@
             <p class="precio">Bs {{ p.precio }}</p>
         </div>
 
-        <!-- BOTÓN ÚNICO (Ver producto) -->
         <a href="/cliente/producto/{{ p.id }}" class="btn-ver-producto hover-button">
             Ver producto
         </a>
@@ -68,9 +67,13 @@
 
 </div>
 
-<!-- ================= JS ================= -->
+<!-- ========= CATEGORÍA SELECCIONADA DESDE LA URL ========= -->
 <script>
-/* ---------- Buscador solo para productos ---------- */
+const categoriaSeleccionada = "{{ request.args.get('cat', '') }}";
+</script>
+
+<script>
+/* ============= BUSCADOR ============= */
 document.getElementById("buscar-producto").addEventListener("input", function () {
     const texto = this.value.toLowerCase();
 
@@ -85,7 +88,8 @@ document.getElementById("buscar-producto").addEventListener("input", function ()
     });
 });
 
-/* ---------- Animación al seleccionar categoría ---------- */
+
+/* ============= FILTRAR MANUAL POR CATEGORÍA ============= */
 document.querySelectorAll(".categoria-item").forEach(item => {
     item.addEventListener("click", () => {
         const cat = item.dataset.categoria;
@@ -94,11 +98,35 @@ document.querySelectorAll(".categoria-item").forEach(item => {
         item.classList.add("active");
 
         document.querySelectorAll(".producto-card").forEach(card => {
-            card.style.display = (cat === "" || card.dataset.categoria === cat)
+            card.style.display =
+                (cat === "" || card.dataset.categoria === cat)
                 ? "block"
                 : "none";
         });
     });
+});
+
+
+/* ============= ACTIVAR CATEGORÍA DESDE URL ============= */
+document.addEventListener("DOMContentLoaded", () => {
+
+    if (categoriaSeleccionada !== "") {
+
+        // Marcar categoría activa
+        document.querySelectorAll(".categoria-item").forEach(item => {
+            if (item.dataset.categoria === categoriaSeleccionada) {
+                item.classList.add("active");
+            }
+        });
+
+        // Filtrar productos automáticamente
+        document.querySelectorAll(".producto-card").forEach(card => {
+            card.style.display =
+                (card.dataset.categoria === categoriaSeleccionada)
+                ? "block"
+                : "none";
+        });
+    }
 });
 </script>
 
