@@ -175,3 +175,59 @@
     background-color: #5A3C1F;
     transform: scale(1.1);
 }
+/* ============================
+      CONTENEDOR FILTROS
+============================= */
+#filtros-container {
+    background: #F8F4EF;
+    padding: 18px;
+    border-radius: 18px;
+    border: 1px solid #D3C7B9;
+    box-shadow: 0px 3px 8px rgba(0,0,0,0.08);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+
+    /* DISTANCIAMIENTO */
+    margin-bottom: 20px; /* separa de los productos */
+}
+
+/* Opcional: también un poco de margen al grid */
+#productos-grid {
+    margin-top: 10px;
+    gap: 15px; /* si usas display grid con gap */
+}
+
+/* Estilos de inputs y selects */
+#filtros-container select,
+#filtros-container input {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid #C7B8A3;
+    background-color: white;
+    color: #5A3C1F;
+    min-width: 180px;
+}
+
+#filtros-container select:hover,
+#filtros-container input:hover {
+    border-color: #8B5E34;
+}
+
+#filtros-container select:focus,
+#filtros-container input:focus {
+    outline: none;
+    border-color: #8B5E34;
+    box-shadow: 0 0 5px rgba(139,94,52,0.4);
+}
+
+.btn-filtrar {
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.btn-filtrar:hover {
+    background-color: #6D4728;
+    transform: scale(1.03);
+}

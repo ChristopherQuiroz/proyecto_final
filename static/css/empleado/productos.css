@@ -1,120 +1,209 @@
-/* TITULO */
-.titulo-cat {
+
+/* ------------------------------
+    GENERAL
+-------------------------------- */
+.titulo-pagina {
     text-align: center;
-    font-size: 32px;
     margin-bottom: 25px;
-    color: #333;
-    font-weight: 700;
+    font-size: 33px;
+    font-weight: bold;
+    color: #5A3C1F;
+}
+
+/* ------------------------------
+   BARRA SUPERIOR
+-------------------------------- */
+.barra-superior {
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;   /* Mantiene todo en una sola fila */
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+/* FILTRAR */
+.btn-filtrar {
+    background-color: #8B5E34;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* BOTONES DE VISTA */
+.vista-opciones {
+    display: flex;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.vista-opciones button {
+    background: #F0EDE8;
+    border: 1px solid #C7B8A3;
+    color: #5A3C1F;
+    padding: 8px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.vista-opciones button:hover {
+    background: #E0D5CB;
+}
+
+#vista-activa {
+    background: #8B5E34 !important;
+    color: white !important;
+    border-color: #8B5E34;
+}
+
+/* ORDENAR */
+.ordenar-select {
+    padding: 8px 15px;
+    border-radius: 12px;
+    border: 1px solid #C7B8A3;
+    background-color: #fff;
+    color: #5A3C1F;
 }
 
 /* BUSCADOR */
-.buscador-agregar {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 25px;
-}
-
 .input-buscar {
-    width: 350px;
     padding: 10px 15px;
-    border: 2px solid #c7b8a6;
-    border-radius: 8px;
-    font-size: 16px;
-    outline: none;
-}
-
-.input-buscar:focus {
-    border-color: #b4967a;
-}
-
-/* GRID */
-.productos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 25px;
-    padding: 0 20px;
-}
-
-/* TARJETAS */
-.card-producto {
-    background: white;
-    border-radius: 14px;
-    padding: 15px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    transition: 0.2s ease;
-}
-
-.card-producto:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.12);
-}
-
-/* IMAGEN */
-.producto-img {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
     border-radius: 12px;
+    border: 1px solid #C7B8A3;
+    height: 43px;
+    flex: 0 0 220px;  /* Tamaño fijo para no caer de línea */
+    min-width: 200px;
 }
 
-/* INFO */
-.producto-info {
-    text-align: center;
+/* ------------------------------
+   GRID DE PRODUCTOS
+-------------------------------- */
+#productos-grid {
+    display: grid;
+    gap: 25px;
+    justify-content: center !important;
 }
 
-.producto-nombre {
-    font-size: 20px;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #444;
+.grid-1 { grid-template-columns: 1fr; }
+.grid-2 { grid-template-columns: repeat(2, 280px); }
+.grid-3 { grid-template-columns: repeat(3, 280px); }
+.grid-4 { grid-template-columns: repeat(4, 250px); }
+
+/* Responsivo */
+@media (max-width: 900px) {
+    .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 500px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
 }
 
-.producto-descripcion {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 8px;
+/* ------------------------------
+   TARJETA DEL PRODUCTO
+-------------------------------- */
+.producto-card {
+    background: white;
+    border-radius: 22px;
+    overflow: hidden;
+    padding-bottom: 25px;
+    position: relative;
+    box-shadow: 0px 3px 10px rgba(0,0,0,0.12);
+    transition: 0.25s;
 }
 
-/* DATOS */
-.producto-datos {
-    display: flex;
-    justify-content: space-between;
-    margin: 10px 0;
-    font-size: 14px;
-    color: #444;
+.producto-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0px 5px 18px rgba(0,0,0,0.18);
 }
 
-/* ESTADO */
-.producto-estado {
-    font-weight: bold;
-    padding: 4px 10px;
-    border-radius: 8px;
-    display: inline-block;
-    margin-top: 5px;
-}
 
-.disponible {
-    color: #1b7c1b;
-    background: #d7f5d7;
-}
-
-.agotado {
-    color: #b61717;
-    background: #ffdede;
-}
-
-/* BOTÓN VER */
-.btn-ver {
+/* Imagen */
+.card-img-container {
     width: 100%;
-    padding: 10px 0;
-    border: none;
-    border-radius: 8px;
-    background: #ddd;
-    color: #666;
-    font-size: 15px;
-    cursor: not-allowed;
+    height: 180px;
+}
+
+.card-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Información */
+.card-info {
+    padding: 12px 18px;
+}
+
+.card-info h3 {
+    font-size: 16px;
+    color: #4A3320;
+}
+
+.precio {
+    margin-top: 4px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #8B5E34;
+}
+/* ============================
+      CONTENEDOR FILTROS
+============================= */
+#filtros-container {
+    background: #F8F4EF;
+    padding: 18px;
+    border-radius: 18px;
+    border: 1px solid #D3C7B9;
+    box-shadow: 0px 3px 8px rgba(0,0,0,0.08);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+
+    /* DISTANCIAMIENTO */
+    margin-bottom: 20px; /* separa de los productos */
+}
+
+/* Opcional: también un poco de margen al grid */
+#productos-grid {
+    margin-top: 10px;
+    gap: 15px; /* si usas display grid con gap */
+}
+
+/* Estilos de inputs y selects */
+#filtros-container select,
+#filtros-container input {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid #C7B8A3;
+    background-color: white;
+    color: #5A3C1F;
+    min-width: 180px;
+}
+
+#filtros-container select:hover,
+#filtros-container input:hover {
+    border-color: #8B5E34;
+}
+
+#filtros-container select:focus,
+#filtros-container input:focus {
+    outline: none;
+    border-color: #8B5E34;
+    box-shadow: 0 0 5px rgba(139,94,52,0.4);
+}
+
+.btn-filtrar {
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.btn-filtrar:hover {
+    background-color: #6D4728;
+    transform: scale(1.03);
 }

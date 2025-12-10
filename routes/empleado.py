@@ -18,6 +18,18 @@ UPLOAD_FOLDER = 'static/img/products'  # misma carpeta que admin
 bp_empleado = Blueprint("empleado", __name__, url_prefix="/empleado")
 db = dbConnection()
 
+def format_product_for_template(product):
+    """Convertir producto de BD (inglés) a template (español)"""
+    return {
+        'id': str(product.get('_id', '')),
+        'nombre': product.get('name', 'Sin nombre'),
+        'descripcion': product.get('description', ''),
+        'precio': product.get('price', 0),
+        'cantidad': product.get('quantity', 0),
+        'categoria': product.get('category', 'General'),
+        'estado': product.get('status', 'Desconocido'),
+        'imagen': product.get('image', 'cupcake.jpg')
+    }
 
 # ============================================================
 #                   PANEL PRINCIPAL EMPLEADO
@@ -367,8 +379,30 @@ def empleado_crear_pedido():
 @bp_empleado.route("/productos")
 @require_employee_or_admin
 def empleado_productos():
-    productos = list(db["products"].find())
-    categorias = list(db["categories"].find())  
+    products_collection = db['products']
+    categories_collection = db['categories']
+
+    # Manejar búsqueda si existe
+    buscar = request.args.get('buscar', '').strip()
+    if buscar:
+        # Buscar por nombre, descripción o categoría (case-insensitive)
+        productos_db = list(products_collection.find({
+            '$or': [
+                {'name': {'$regex': buscar, '$options': 'i'}},
+                {'description': {'$regex': buscar, '$options': 'i'}},
+                {'category': {'$regex': buscar, '$options': 'i'}}
+            ]
+        }))
+    else:
+        # Todos los productos
+        productos_db = list(products_collection.find())
+
+    # Formatear productos para template (incluye imagen)
+    productos = [format_product_for_template(p) for p in productos_db]
+
+    # Obtener categorías para filtros o selects
+    categorias = list(categories_collection.find())
+
     return render_template(
         "empleado/productos.html",
         productos=productos,

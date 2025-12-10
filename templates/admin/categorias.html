@@ -22,14 +22,13 @@
 
 <div class="productos-grid">
     {% for cat in categorias %}
-    <div class="card-producto" data-cantidad="{{ cat.cantidad_productos }}">
+    <div class="card-producto" data-cantidad="{{ cat.cantidad_productos }}" style="width:200px; height:250px;">
        <img src="{{ url_for('static', filename='img/categories/' ~ (cat.icono if cat.icono else 'default.jpg')) }}" 
           class="producto-img" 
           onerror="this.src='{{ url_for('static', filename='img/categories/default.jpg') }}'">
         <div class="producto-info">
             <h3>{{ cat.name }}</h3>
             <p>{{ cat.descripcion }}</p>
-            <p><strong>Productos:</strong> {{ cat.cantidad_productos }}</p>
             <div class="acciones-cat">
     <button class="btn-editar" 
             data-id="{{ cat._id|string }}" 

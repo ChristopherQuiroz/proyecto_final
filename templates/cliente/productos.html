@@ -11,9 +11,9 @@
 <!-- 🔎 BUSCADOR + FILTROS + ORDENAR + VISTAS -->
 <div class="barra-superior">
 
-    <!-- FILTRAR -->
-    <button class="btn-filtrar">
-        <span>⛃</span> Filtrar
+    <!-- BOTÓN FILTROS -->
+    <button class="btn-filtrar" id="btn-toggle-filtros">
+        ⛃ Filtros ▼
     </button>
 
     <!-- VISTAS -->
@@ -24,17 +24,38 @@
         <button class="vista-btn" data-cols="4">▧</button>
     </div>
 
-    <!-- ORDENAR -->
+    <!-- BUSCAR -->
+    <input type="text" id="buscar" placeholder="Buscar..." class="input-buscar">
+
+</div>
+
+<!-- === CONTENEDOR FILTROS AVANZADOS === -->
+<div id="filtros-container" style="display:none; margin-top:10px; gap:10px; flex-wrap:wrap;">
+
+    <!-- Categorías -->
+    <select id="filtro-categoria">
+        <option value="">Todas las categorías</option>
+        {% for cat in categorias %}
+        <option value="{{ cat.name }}">{{ cat.name }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Stock -->
+    <select id="filtro-stock">
+        <option value="">Todos los stocks</option>
+        <option value="bajo">Bajo (&lt;5)</option>
+        <option value="medio">Medio (5–20)</option>
+        <option value="alto">Alto (&gt;20)</option>
+    </select>
+
+    <!-- Ordenar -->
     <select id="ordenar" class="ordenar-select">
         <option value="presentado">Presentado</option>
-        <option value="az">Alfabéticamente A–Z</option>
-        <option value="za">Alfabéticamente Z–A</option>
+        <option value="az">A–Z</option>
+        <option value="za">Z–A</option>
         <option value="precio-menor">Precio: menor a mayor</option>
         <option value="precio-mayor">Precio: mayor a menor</option>
     </select>
-
-    <!-- BUSCAR -->
-    <input type="text" id="buscar" placeholder="Buscar..." class="input-buscar">
 
 </div>
 
@@ -73,32 +94,67 @@
 </div>
 
 <script>
-/* FILTROS Y ORDENAMIENTO */
+
+/* ============================
+        TOGGLE FILTROS
+============================ */
+document.getElementById("btn-toggle-filtros").addEventListener("click", () => {
+    const container = document.getElementById("filtros-container");
+    const btn = document.getElementById("btn-toggle-filtros");
+
+    if (container.style.display === "none") {
+        container.style.display = "flex";
+        btn.textContent = "⛃ Filtros ▲";
+    } else {
+        container.style.display = "none";
+        btn.textContent = "⛃ Filtros ▼";
+    }
+});
+
+/* ============================
+        APLICAR FILTROS
+============================ */
 function aplicarFiltros() {
     let buscar = document.getElementById("buscar").value.toLowerCase();
-    let ordenar = document.getElementById("ordenar").value;
+    let ord = document.getElementById("ordenar").value;
+    let cat = document.getElementById("filtro-categoria").value;
+    let stock = document.getElementById("filtro-stock").value;
 
     let cards = Array.from(document.querySelectorAll(".producto-card"));
 
-    /* FILTRO DE TEXTO */
     cards.forEach(card => {
         let nombre = card.dataset.nombre.toLowerCase();
         let desc = card.dataset.descripcion.toLowerCase();
+        let categoria = card.dataset.categoria;
+        let cantidad = parseInt(card.dataset.stock);
+        let precio = parseFloat(card.dataset.precio);
 
-        card.style.display =
-            (nombre.includes(buscar) || desc.includes(buscar))
-            ? "block"
-            : "none";
+        let mostrar = true;
+
+        // BUSCAR
+        if (!(nombre.includes(buscar) || desc.includes(buscar))) mostrar = false;
+
+        // CATEGORÍA
+        if (cat && categoria !== cat) mostrar = false;
+
+        // STOCK
+        if (stock === "bajo" && !(cantidad < 5)) mostrar = false;
+        if (stock === "medio" && !(cantidad >= 5 && cantidad <= 20)) mostrar = false;
+        if (stock === "alto" && !(cantidad > 20)) mostrar = false;
+
+        card.style.display = mostrar ? "block" : "none";
     });
 
-    /* ORDENAMIENTO */
-    cards.sort((a, b) => {
+    // ORDENAR SOLO LOS VISIBLES
+    let visibles = cards.filter(c => c.style.display !== "none");
+
+    visibles.sort((a, b) => {
         let n1 = a.dataset.nombre.toLowerCase();
         let n2 = b.dataset.nombre.toLowerCase();
         let p1 = parseFloat(a.dataset.precio);
         let p2 = parseFloat(b.dataset.precio);
 
-        switch (ordenar) {
+        switch (ord) {
             case "az": return n1.localeCompare(n2);
             case "za": return n2.localeCompare(n1);
             case "precio-menor": return p1 - p2;
@@ -107,17 +163,20 @@ function aplicarFiltros() {
         }
     });
 
-    /* REORDENAR EN HTML */
+    // Reordenar en el GRID
     let grid = document.getElementById("productos-grid");
-    grid.innerHTML = "";
-    cards.forEach(c => grid.appendChild(c));
+    visibles.forEach(c => grid.appendChild(c));
 }
 
+/* Eventos */
 document.getElementById("buscar").addEventListener("input", aplicarFiltros);
 document.getElementById("ordenar").addEventListener("change", aplicarFiltros);
+document.getElementById("filtro-categoria").addEventListener("change", aplicarFiltros);
+document.getElementById("filtro-stock").addEventListener("change", aplicarFiltros);
 
-
-/* CAMBIO DE COLUMNAS */
+/* ============================
+        CAMBIO DE COLUMNAS
+============================ */
 document.querySelectorAll(".vista-btn").forEach(btn => {
     btn.addEventListener("click", () => {
         let columnas = btn.dataset.cols;
@@ -125,7 +184,6 @@ document.querySelectorAll(".vista-btn").forEach(btn => {
 
         grid.className = "grid-" + columnas;
 
-        /* Marcar vista activa */
         document.querySelectorAll(".vista-btn").forEach(b => b.removeAttribute("id"));
         btn.id = "vista-activa";
     });

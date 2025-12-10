@@ -61,7 +61,9 @@ def cliente_dashboard():
 def cliente_productos():
     # Obtener productos de la BD
     products_collection = db['products']
+    categories_collection = db['categories']
     
+    categorias = list(categories_collection.find())
     # Manejar búsqueda si existe
     buscar = request.args.get('buscar', '').strip()
     if buscar:
@@ -83,6 +85,7 @@ def cliente_productos():
     rol_actual = session.get('role', 'invitado')
     return render_template("cliente/productos.html", 
                          productos=productos, 
+                         categorias=categorias,
                          rol=rol_actual)
 
 @bp_cliente.route("/categorias")
