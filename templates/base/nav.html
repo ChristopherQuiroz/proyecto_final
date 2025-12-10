@@ -5,10 +5,15 @@
 <nav class="topbar">
     <button class="menu-btn" onclick="toggleSidebar()">☰</button>
 
-    <div class="brand">
-        <span class="brand-icon">🍰</span>
-        <span class="brand-text">DulceMomento — {{ rol|upper }}</span>
+<div class="brand">
+    <img src="{{ url_for('static', filename='img/logo.jpg') }}" class="nav-logo">
+    <div class="brand-text">
+        <span class="brand-title">Repostería Dulce</span>
+        <span class="brand-role">{{ rol|upper }}</span>
     </div>
+</div>
+
+
 </nav>
 
 <!-- SIDEBAR -->
@@ -57,7 +62,7 @@
             <li><a href="/cliente/productos"><i class="ph-cookie"></i> Productos</a></li>
             <li><a href="/cliente/carrito"><i class="ph-shopping-bag"></i> Carrito</a></li>
             <li><a href="/cliente/mis_pedidos"><i class="ph-clipboard-text"></i> Mis pedidos</a></li>
-            <li><a href="/logout"><i class="ph-sign-out"></i> Cerrar sesión</a></li>
+          
 
         {% elif rol == "invitado" %}
             <li><a href="/"><i class="ph-house"></i> Inicio</a></li>

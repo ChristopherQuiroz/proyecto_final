@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, session, flash, redirect
+from flask import Blueprint, render_template, request, session, flash, redirect, current_app
 from bson.objectid import ObjectId
 from database import dbConnection
 from routes.auth import require_role  
@@ -50,12 +50,29 @@ def cliente_dashboard():
     # Categorías
     categorias_db = list(categories_collection.find().limit(6))
     categorias = [format_category_for_template(c) for c in categorias_db]
+
+    # ==== CARGAR AUTOMÁTICAMENTE LOS BANNERS DEL HERO ====
+    hero_dir= os.path.join(current_app.static_folder, "img/hero")
     
+    # lista solo archivos válidos (jpg, png, jpeg)
+    banners = [
+        f"img/hero/{f}"
+          for f in os.listdir(hero_dir)
+        if f.lower().endswith(('.jpg', '.jpeg', '.png'))
+    ]
+
+    banners.sort()  # opcional: banner1, banner2, etc.
+
+    # Rol actual
     rol_actual = session.get('role', 'invitado')
-    return render_template("cliente/dashboard.html", 
-                         productos=productos, 
-                         categorias=categorias,
-                         rol=rol_actual)
+
+    return render_template(
+        "cliente/dashboard.html",
+        productos=productos,
+        categorias=categorias,
+        banners=banners,   
+        rol=rol_actual
+    )
 
 @bp_cliente.route("/productos")
 def cliente_productos():

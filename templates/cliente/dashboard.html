@@ -10,15 +10,27 @@
                 HERO PRINCIPAL
 ======================================== -->
 <section class="hero">
-    <img src="{{ url_for('static', filename='img/banner.jpg') }}" class="hero-img">
+    <div class="hero-slider">
 
-    <div class="hero-overlay"></div>
+        {% for img in banners %}
+            <img src="{{ url_for('static', filename=img) }}"
+                 class="hero-img {% if loop.first %}active{% endif %}">
+        {% endfor %}
 
-    <div class="hero-content">
-        <p class="hero-kicker">Pastelería artesanal</p>
-        <h1>Regálate un<br><span>gran dulce momento</span></h1>
-        <p class="hero-sub">Ordena en línea y recoge en tu sucursal favorita.</p>
-        <a href="/cliente/productos" class="hero-btn">Comprar ahora</a>
+        <div class="hero-overlay"></div>
+
+        <button class="hero-arrow left">‹</button>
+        <button class="hero-arrow right">›</button>
+
+        <div class="hero-dots"></div>
+
+        <div class="hero-content">
+            <p class="hero-kicker">Pastelería artesanal</p>
+            <h1>Regálate un<br><span>gran dulce momento</span></h1>
+            <p class="hero-sub">Ordena en línea y recoge en tu sucursal favorita.</p>
+            <a href="/cliente/productos" class="hero-btn">Comprar ahora</a>
+        </div>
+
     </div>
 </section>
 
@@ -63,6 +75,7 @@
 </section>
 
 
+
 <!-- ========================================
             ESPECIALES DEL MES
 ======================================== -->
@@ -97,9 +110,13 @@
 
 {% endblock %}
 
+
+
 {% block extra_js %}
 <script>
-// Carrusel de categorías
+// =========================
+// CARRUSEL DE CATEGORÍAS
+// =========================
 document.addEventListener("DOMContentLoaded", () => {
     const track = document.querySelector(".categorias-track");
     const btnLeft = document.querySelector(".arrow-left");
@@ -115,5 +132,76 @@ document.addEventListener("DOMContentLoaded", () => {
         track.scrollBy({ left: -260, behavior: "smooth" });
     });
 });
+
+
+// =========================
+// SLIDER DEL HERO
+// =========================
+document.addEventListener("DOMContentLoaded", () => {
+
+    const images = document.querySelectorAll(".hero-img");
+    const dotsContainer = document.querySelector(".hero-dots");
+    const arrowLeft = document.querySelector(".hero-arrow.left");
+    const arrowRight = document.querySelector(".hero-arrow.right");
+
+    let index = 0;
+
+    // Crear puntitos dinámicamente
+    images.forEach((_, i) => {
+        const dot = document.createElement("div");
+        dot.classList.add("hero-dot");
+        if (i === 0) dot.classList.add("active");
+
+        dot.addEventListener("click", () => {
+            goToSlide(i);
+            resetInterval();
+        });
+
+        dotsContainer.appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll(".hero-dot");
+
+    function goToSlide(i) {
+        images[index].classList.remove("active");
+        dots[index].classList.remove("active");
+
+        index = i;
+
+        images[index].classList.add("active");
+        dots[index].classList.add("active");
+    }
+
+    function nextSlide() {
+        let next = (index + 1) % images.length;
+        goToSlide(next);
+    }
+
+    function prevSlide() {
+        let prev = (index - 1 + images.length) % images.length;
+        goToSlide(prev);
+    }
+
+    // Auto-slide
+    let slideInterval = setInterval(nextSlide, 4000);
+
+    function resetInterval() {
+        clearInterval(slideInterval);
+        slideInterval = setInterval(nextSlide, 4000);
+    }
+
+    // Flechas
+    arrowRight.addEventListener("click", () => {
+        nextSlide();
+        resetInterval();
+    });
+
+    arrowLeft.addEventListener("click", () => {
+        prevSlide();
+        resetInterval();
+    });
+
+});
+
 </script>
 {% endblock %}

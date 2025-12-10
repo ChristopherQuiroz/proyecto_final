@@ -1,4 +1,4 @@
-/* ============================
+/* ============================ 
    TOPBAR
 ============================ */
 .topbar {
@@ -6,8 +6,8 @@
     top: 0;
     width: 100%;
     height: 60px;
-    background: #F4EBE2;
-    border-bottom: 2px solid #D3C3B8;
+    background:#c59b74; /* más pastel */
+    border-bottom: 2px solid #E2D3C8;
     display: flex;
     align-items: center;
     padding: 0 18px;
@@ -19,14 +19,47 @@
     border: none;
     font-size: 26px;
     cursor: pointer;
-    color: #5A3E36;
+    color: #7A5C53; /* café pastel */
 }
 
+/* Contenedor principal del brand */
 .brand {
     display: flex;
     align-items: center;
-    margin-left: 12px;
-    gap: 6px;
+    gap: 12px;
+}
+
+/* LOGO */
+.nav-logo {
+    height: 42px;
+    border-radius: 8px;
+    object-fit: contain;
+    background: #f5e6d6;
+    padding: 3px 5px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+
+/* Texto del brand */
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+/* Nombre de la pastelería */
+.brand-title {
+    font-size: 15px;
+    color: #6B4F4F;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Rol del usuario */
+.brand-role {
+    font-size: 13px;
+    color: #A28073;
+    opacity: 0.9;
+    font-weight: 600;
 }
 
 .brand-icon {
@@ -36,7 +69,7 @@
 .brand-text {
     font-size: 16px;
     font-weight: 600;
-    color: #5A3E36;
+    color: #6B4F4F;
 }
 
 /* ============================
@@ -48,12 +81,12 @@
     left: -260px;
     width: 240px;
     height: 100vh;
-    background: #5A3E36;
+    background: #8A6B5B; /* color pastel suave */
     padding: 70px 20px 20px;
-    color: #F4EBE2;
+    color: #FBEFE6; /* texto más claro */
     transition: 0.35s ease;
     z-index: 3000;
-    box-shadow: 4px 0 12px rgba(0,0,0,0.25);
+    box-shadow: 4px 0 12px rgba(0,0,0,0.22);
 }
 
 .sidebar.show {
@@ -67,7 +100,7 @@
     background: none;
     border: none;
     font-size: 26px;
-    color: white;
+    color: #FBEFE6;
     cursor: pointer;
 }
 
@@ -82,19 +115,20 @@
     height: 65px;
     margin: auto;
     border-radius: 50%;
-    background: #6E4C41;
+    background: #A98274; /* más suave */
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 22px;
     font-weight: bold;
+    color: #FFF5EE;
     cursor: pointer;
 }
 
 .role-label {
     margin-top: 10px;
     font-size: 14px;
-    color: #F4EBE2;
+    color: #FBEFE6;
     cursor: pointer;
 }
 
@@ -117,23 +151,28 @@
     padding: 10px;
     border-radius: 8px;
     font-size: 14px;
-    color: #F7EDE4;
+    color: #FFF7F0;
     transition: 0.25s;
 }
 
 .sidebar-menu a:hover {
-    background: #6E4C41;
+    background: #9C7A6F; /* hover pastel */
 }
 
 /* LOGOUT */
 .logout-btn {
     display: block;
     margin-top: 30px;
-    background: #6E4C41;
+    background: #9C7A6F;
     padding: 10px;
     border-radius: 8px;
     color: white;
     text-align: center;
+    transition: 0.25s;
+}
+
+.logout-btn:hover {
+    background: #B39186;
 }
 
 /* ============================
@@ -147,26 +186,25 @@
     width: 100%;
     height: 100%;
     backdrop-filter: blur(5px);
-    background: rgba(0, 0, 0, 0.25); /* más suave */
+    background: rgba(0, 0, 0, 0.25);
     z-index: 5000;
 }
 
 .perfil-content {
-    background: #F8EFE7; /* beige más limpio */
+    background: #FAF1EA;
     width: 280px;
-    margin: 90px auto; /* << baja un poco el modal */
+    margin: 90px auto;
     padding: 18px 22px;
     border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.18); /* más profesional */
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
     animation: fadeIn 0.25s ease;
-    border: none; /* eliminamos bordecito feo */
 }
 
 .perfil-close {
     float: right;
     font-size: 20px;
     cursor: pointer;
-    color: #6D4C41;
+    color: #8A6B5B;
 }
 
 .perfil-content h2 {
@@ -182,6 +220,7 @@
     font-size: 14px;
     color: #5A3E36;
 }
+
 /* FOTO DE PERFIL EN EL MODAL */
 .perfil-avatar {
     display: flex;
@@ -195,7 +234,7 @@
     border-radius: 50%;
     object-fit: cover;
     box-shadow: 0 2px 6px rgba(0,0,0,0.18);
-    border: 2px solid #E0D5CC;
+    border: 2px solid #E8D9CE;
 }
 
 /* Inicial si no hay foto */
@@ -203,21 +242,20 @@
     width: 70px;
     height: 70px;
     border-radius: 50%;
-    background: #6D4C41;
-    color: white;
+    background: #8A6B5B;
+    color: #FFF5EE;
     font-weight: 700;
     font-size: 24px;
     display: flex;
     justify-content: center;
     align-items: center;
     box-shadow: 0 2px 6px rgba(0,0,0,0.18);
-    border: 2px solid #E0D5CC;
+    border: 2px solid #E8D9CE;
 }
-
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-10px); }
-    to   { opacity: 1; transform: translateY(0); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* Ajustar contenido debajo del nav */

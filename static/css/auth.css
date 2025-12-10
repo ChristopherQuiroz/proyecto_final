@@ -1,4 +1,6 @@
-/* Fondo general */
+/* ================================
+   FONDO GENERAL
+================================ */
 body {
     background: #F3EDE6; /* beige suave */
     font-family: "Poppins", sans-serif;
@@ -6,67 +8,121 @@ body {
     padding: 0;
 }
 
-/* Contenedor del login */
+/* ================================
+   CONTENEDOR DEL LOGIN / REGISTER
+================================ */
 .login-container {
     max-width: 400px;
     margin: 70px auto;
-    padding: 35px;
+    padding: 40px;
     background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(107, 79, 79, 0.15); 
+    border-radius: 18px; /* más moderno */
+    box-shadow: 0 8px 25px rgba(107, 79, 79, 0.15);
 }
 
-/* Marca de la pastelería */
-.brand {
+/* ================================
+   LOGO
+================================ */
+.logo-box {
     text-align: center;
-    margin-bottom: 20px;
-    color: #6B4F4F; /* café */
-    font-size: 26px;
-    font-weight: bold;
+    margin-bottom: 15px;
 }
 
-/* Título */
+.logo-login {
+    width: 200px;
+    border-radius: 14px;
+    background: #f5e6d6;
+    padding: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+
+/* ================================
+   TÍTULO
+================================ */
 h2 {
     text-align: center;
-    color: #4B3A3A; /* café oscuro */
+    color: #4B3A3A;
     margin-bottom: 25px;
+    font-size: 28px;
 }
 
-/* Inputs */
+/* ================================
+   FORMULARIO Y ESPACIADO
+================================ */
+.login-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* separa uniformemente inputs y selects */
+}
+
+/* ================================
+   INPUTS
+================================ */
 input {
     width: 100%;
     padding: 12px;
-    margin-bottom: 15px;
-    border: 1px solid #C7A17A; /* dorado suave */
+    border: 1px solid #C7A17A;
     border-radius: 6px;
     font-size: 16px;
-    background: #FFF9F4; /* beige claro */
+    background: #FFF9F4;
 }
 
 input:focus {
     border-color: #6B4F4F;
     outline: none;
-    box-shadow: 0 0 5px rgba(107,79,79,0.3);
+    box-shadow: 0 0 6px rgba(107,79,79,0.35);
 }
 
-/* Botón */
+/* ================================
+   SELECT (Rol)
+================================ */
+select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #C7A17A;
+    border-radius: 6px;
+    font-size: 16px;
+    background: #FFF9F4;
+    cursor: pointer;
+}
+
+select:focus {
+    border-color: #6B4F4F;
+    outline: none;
+    box-shadow: 0 0 6px rgba(107,79,79,0.35);
+}
+
+/* Texto informativo del rol */
+.role-info {
+    font-size: 13px;
+    color: #6B4F4F;
+    margin-top: -5px;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+/* ================================
+   BOTÓN
+================================ */
 button {
     width: 100%;
     padding: 12px;
-    background: #6B4F4F; /* café */
+    background: #6B4F4F;
     color: white;
     border: none;
     border-radius: 6px;
     font-size: 16px;
     cursor: pointer;
-    transition: 0.3s;
+    transition: 0.25s;
 }
 
 button:hover {
-    background: #4B3A3A; /* café oscuro */
+    background: #4B3A3A;
 }
 
-/* Links */
+/* ================================
+   LINKS
+================================ */
 .registro-link {
     text-align: center;
     margin-top: 20px;
@@ -83,37 +139,35 @@ button:hover {
     text-decoration: underline;
 }
 
-/* Caja de error */
+/* ================================
+   MENSAJES (error / éxito)
+================================ */
 .error {
     background: #F8E6E6;
     color: #A33A3A;
     border-left: 4px solid #A33A3A;
     padding: 10px;
     border-radius: 5px;
-    margin-bottom: 15px;
     text-align: center;
 }
 
-/* Caja de éxito */
 .success {
     background: #E7F6EA;
     color: #2D6A4F;
     border-left: 4px solid #2D6A4F;
     padding: 10px;
     border-radius: 5px;
-    margin-bottom: 15px;
     text-align: center;
 }
 
-/* Credenciales de prueba */
+/* ================================
+   CREDENCIALES DE PRUEBA
+================================ */
 .info-test {
-    font-size: 14px;
-    margin-top: 10px;
-}
-/* Texto pequeño para roles */
-.role-info {
     font-size: 13px;
     color: #6B4F4F;
-    margin-top: -5px;
-    margin-bottom: 15px;
+    opacity: 0.8;
+    margin-top: 10px;
+    line-height: 1.4;
+    text-align: center;
 }
