@@ -11,50 +11,61 @@
 
 <body>
     <div class="login-container">
-        <div class="brand">🍰 Pastelería Dulce</div>
+
+        <!-- LOGO UNIFICADO -->
+        <div class="logo-box">
+            <img src="{{ url_for('static', filename='img/logo.jpg') }}" 
+                 alt="Logo Pastelería Dulce" 
+                 class="logo-login">
+        </div>
+
         <h2>Crear Cuenta</h2>
 
         {% if error %}
             <p class="error">{{ error }}</p>
         {% endif %}
 
-        <form method="POST">
+       <form method="POST">
 
-            <input type="text" name="usuario" placeholder="Nombre de usuario" required
-                   pattern="[A-Za-z0-9_]{3,20}"
-                   title="3-20 caracteres, solo letras, números y guiones bajos">
+    <input type="text" name="usuario" placeholder="Nombre de usuario" required
+           pattern="[A-Za-z0-9_]{3,20}"
+           title="3-20 caracteres, solo letras, números y guiones bajos">
 
-            <input type="email" name="correo" placeholder="Correo electrónico" required>
+    <input type="email" name="correo" placeholder="Correo electrónico" required>
 
-            <input type="password" name="password" placeholder="Contraseña" required
-                   minlength="6"
-                   title="Mínimo 6 caracteres">
+    <input type="password" name="password" placeholder="Contraseña" required minlength="6">
 
-            {% if 'role' in session and session.role == 'admin' %}
-                <select name="rol">
-                    <option value="cliente">Cliente</option>
-                    <option value="empleado">Empleado</option>
-                    <option value="admin">Administrador</option>
-                </select>
+    {% if 'role' in session and session.role == 'admin' %}
+        
+        <select name="rol">
+            <option value="cliente">Cliente</option>
+            <option value="empleado">Empleado</option>
+            <option value="admin">Administrador</option>
+        </select>
 
-                <p class="role-info">
-                    Como administrador, puedes crear usuarios de cualquier rol.
-                </p>
+        <p class="role-info">
+            Como administrador, puedes crear usuarios de cualquier rol.
+        </p>
 
-            {% else %}
-                <input type="hidden" name="rol" value="cliente">
-                <p class="role-info">
-                    Te registrarás como cliente. Los empleados y administradores solo pueden ser creados por un administrador.
-                </p>
-            {% endif %}
+    {% else %}
 
-            <button type="submit">Crear Cuenta</button>
-        </form>
+        <input type="hidden" name="rol" value="cliente">
+
+        <p class="role-info">
+            Te registrarás como cliente. Los empleados y administradores solo pueden ser creados por un administrador.
+        </p>
+
+    {% endif %}
+
+    <button type="submit">Crear Cuenta</button>
+</form>
+
 
         <p class="registro-link">
             ¿Ya tienes cuenta?
             <a href="/login">Inicia sesión aquí</a>
         </p>
+
     </div>
 </body>
 </html>

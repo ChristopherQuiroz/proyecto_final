@@ -11,7 +11,10 @@
 
 <body>
     <div class="login-container">
-        <div class="brand">🍰 Pastelería Dulce</div>
+        <div class="logo-box">
+        <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Logo Pastelería Dulce" class="logo-login">
+    </div>
+
         <h2>Iniciar Sesión</h2>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
