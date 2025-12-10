@@ -1,73 +1,238 @@
 {% extends "layout_empleado.html" %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/empleado/crear_pedido.css') }}">
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/empleado/crear_pedido.css') }}">
 {% endblock %}
 
 {% block empleado_content %}
 
-<h1 class="titulo">Crear Pedido</h1>
+<div class="crear-pedido-container">
 
-<!-- SELECCIÓN DE CLIENTE -->
-<div class="cliente-container">
-    <label for="cliente">Seleccionar Cliente:</label>
-    <select id="cliente" required>
-        <option value="">-- Selecciona un cliente --</option>
-        {% for c in clientes %}
-            <option value="{{ c.id }}">{{ c.nombre }}</option>
-        {% endfor %}
-    </select>
-</div>
+    <h1 class="titulo-principal">Crear Pedido</h1>
 
-<h2 class="subtitulo">Productos Disponibles</h2>
+    <!-- ==========================
+            BUSCAR CLIENTE
+    ============================= -->
+    <div class="cliente-box">
+        <label class="cliente-label">Buscar Cliente:</label>
 
-<!-- LISTA DE PRODUCTOS -->
-<section class="productos-grid">
-    {% for p in productos %}
-    <div class="card-producto" data-id="{{ p.id }}" data-nombre="{{ p.nombre }}" data-precio="{{ p.precio }}">
-        
-        {% set img_url = url_for('static', filename='img/products/' ~ p.imagen) %}
-        {% set default_img = url_for('static', filename='img/cupcake.png') %}
+        <input type="text" id="buscarCliente" class="cliente-input"
+               placeholder="Escribe nombre o correo...">
 
-        <img src="{{ img_url }}" class="producto-img" onerror="this.src='{{ default_img }}'">
+        <div id="sugerenciasClientes" class="sugerencias"></div>
 
-        <h3>{{ p.nombre }}</h3>
-        <p class="precio">Precio: {{ p.precio }} Bs</p>
-        <p class="descripcion">{{ p.descripcion }}</p>
-
-        <div class="pedido-control">
-            <input type="number" class="cantidad" min="1" value="1">
-            <button class="btn-agregar-producto">Agregar</button>
-        </div>
+        <!-- ID REAL DEL CLIENTE -->
+        <input type="hidden" id="cliente">
     </div>
-    {% endfor %}
-</section>
 
-<h2 class="subtitulo">Pedido Actual</h2>
+    <!-- ==========================
+            BUSCAR PRODUCTO
+    ============================= -->
+    <div class="search-box">
+        <input type="text" id="buscarProducto"
+               class="producto-input"
+               placeholder="Buscar productos...">
+        <div id="sugerenciasProductos" class="sugerencias"></div>
+    </div>
 
-<div id="lista-pedido" class="lista-pedido"></div>
+    <!-- ==========================
+            PRODUCTOS
+    ============================= -->
+    <h2 class="subtitulo">Productos Disponibles</h2>
 
-<div id="total" class="total">
-    Total: <span id="total-valor">0</span> Bs
+    <section class="productos-grid" id="productosGrid">
+
+        {% for p in productos[:3] %}
+        <div class="card-producto"
+             data-id="{{ p.id }}"
+             data-nombre="{{ p.name }}"
+             data-precio="{{ p.price }}">
+
+            {% set img_url = url_for('static', filename='img/products/' ~ (p.image if p.image else 'default.png')) %}
+            {% set default_img = url_for('static', filename='img/cupcake.png') %}
+
+            <img src="{{ img_url }}" class="producto-img" onerror="this.src='{{ default_img }}'">
+
+            <h3 class="producto-nombre">{{ p.name }}</h3>
+            <p class="producto-precio">{{ p.price }} Bs</p>
+            <p class="producto-descripcion">{{ p.description }}</p>
+
+            <div class="pedido-control">
+                <input type="number" class="cantidad" min="1" value="1">
+                <button class="btn-agregar-producto">Agregar</button>
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </section>
+
+    <!-- ==========================
+            PEDIDO ACTUAL
+    ============================= -->
+    <h2 class="subtitulo">Pedido Actual</h2>
+
+    <div class="cliente-resumen">
+        Cliente seleccionado:
+        <span id="clienteResumen" class="cliente-resumen-nombre">Ninguno</span>
+    </div>
+
+    <div id="lista-pedido" class="lista-pedido"></div>
+
+    <div id="total" class="total-box">
+        Total: <span id="total-valor">0</span> Bs
+    </div>
+
+    <button id="confirmar-pedido" class="btn-confirmar" disabled>
+        Registrar Pedido
+    </button>
+
 </div>
 
-<button id="confirmar-pedido" class="btn-confirmar" disabled>Registrar Pedido</button>
-
+<!-- ==========================
+          SCRIPTS
+============================== -->
 <script>
-// Carrito temporal del pedido
+
+//////////////////////////////////////
+//   AUTOCOMPLETE CLIENTES
+//////////////////////////////////////
+
+const clientes = {{ clientes | tojson }};
+const inputCliente      = document.getElementById("buscarCliente");
+const sugerenciasBox    = document.getElementById("sugerenciasClientes");
+const inputClienteID    = document.getElementById("cliente");
+const clienteResumen    = document.getElementById("clienteResumen");
+
+inputCliente.addEventListener("input", function () {
+    const valor = this.value.toLowerCase();
+    sugerenciasBox.innerHTML = "";
+
+    if (valor.trim() === "") {
+        sugerenciasBox.style.display = "none";
+        inputClienteID.value = "";
+        clienteResumen.textContent = "Ninguno";
+        return;
+    }
+
+    const filtrados = clientes.filter(c =>
+        c.username.toLowerCase().includes(valor) ||
+        (c.email && c.email.toLowerCase().includes(valor))
+    );
+
+    if (filtrados.length === 0) {
+        sugerenciasBox.style.display = "none";
+        return;
+    }
+
+    filtrados.forEach(c => {
+        const item = document.createElement("div");
+        item.classList.add("sugerencia-item");
+        item.textContent = `${c.username} (${c.email})`;
+
+        item.addEventListener("click", () => {
+            inputCliente.value   = c.username;
+            inputClienteID.value = c.id;
+            clienteResumen.textContent = c.username;
+            sugerenciasBox.style.display = "none";
+        });
+
+        sugerenciasBox.appendChild(item);
+    });
+
+    sugerenciasBox.style.display = "block";
+});
+
+document.addEventListener("click", function (e) {
+    if (!sugerenciasBox.contains(e.target) && e.target !== inputCliente) {
+        sugerenciasBox.style.display = "none";
+    }
+});
+
+//////////////////////////////////////
+//   AUTOCOMPLETE PRODUCTOS
+//////////////////////////////////////
+
+const inputBuscarProducto   = document.getElementById("buscarProducto");
+const sugerenciasProductos  = document.getElementById("sugerenciasProductos");
+
+inputBuscarProducto.addEventListener("input", function () {
+    const valor = this.value.toLowerCase();
+    sugerenciasProductos.innerHTML = "";
+
+    document.querySelectorAll(".card-producto").forEach(card => {
+        const nombre = card.dataset.nombre.toLowerCase();
+        card.style.display = nombre.includes(valor) ? "block" : "none";
+    });
+
+    if (valor.trim() === "") {
+        sugerenciasProductos.style.display = "none";
+        return;
+    }
+
+    const coincidencias = [];
+    document.querySelectorAll(".card-producto").forEach(card => {
+        const nombre = card.dataset.nombre;
+        if (nombre.toLowerCase().includes(valor)) {
+            coincidencias.push(nombre);
+        }
+    });
+
+    if (coincidencias.length === 0) {
+        sugerenciasProductos.style.display = "none";
+        return;
+    }
+
+    coincidencias.slice(0, 5).forEach(nombre => {
+        const item = document.createElement("div");
+        item.classList.add("sugerencia-item");
+        item.textContent = nombre;
+
+        item.addEventListener("click", () => {
+            inputBuscarProducto.value = nombre;
+
+            document.querySelectorAll(".card-producto").forEach(card => {
+                card.style.display =
+                    card.dataset.nombre.toLowerCase() === nombre.toLowerCase()
+                    ? "block"
+                    : "none";
+            });
+
+            sugerenciasProductos.style.display = "none";
+        });
+
+        sugerenciasProductos.appendChild(item);
+    });
+
+    sugerenciasProductos.style.display = "block";
+});
+
+document.addEventListener("click", function(e) {
+    if (!sugerenciasProductos.contains(e.target) &&
+        e.target !== inputBuscarProducto) {
+        sugerenciasProductos.style.display = "none";
+    }
+});
+
+//////////////////////////////////////
+//      LÓGICA DEL PEDIDO
+//////////////////////////////////////
+
 let pedido = [];
-let total = 0;
+let total  = 0;
 
 function actualizarLista() {
-    const contenedor = document.getElementById("lista-pedido");
+    const contenedor    = document.getElementById("lista-pedido");
     const totalElemento = document.getElementById("total-valor");
+    const btnConfirmar  = document.getElementById("confirmar-pedido");
 
     contenedor.innerHTML = "";
 
     if (pedido.length === 0) {
-        contenedor.innerHTML = "<p style='text-align:center;'>Aún no hay productos agregados</p>";
-        document.getElementById("confirmar-pedido").disabled = true;
+        contenedor.innerHTML = "<p class='pedido-vacio'>Aún no hay productos agregados</p>";
         totalElemento.textContent = "0";
+        btnConfirmar.disabled = true;
         return;
     }
 
@@ -76,14 +241,13 @@ function actualizarLista() {
             <div class="item-pedido">
                 <span>${item.nombre}</span>
                 <span>${item.cantidad} u.</span>
-                <span>${item.subtotal} Bs</span>
+                <span>${item.subtotal.toFixed(2)} Bs</span>
                 <button onclick="eliminarItem(${index})" class="btn-eliminar">X</button>
-            </div>
-        `;
+            </div>`;
     });
 
-    totalElemento.textContent = total;
-    document.getElementById("confirmar-pedido").disabled = false;
+    totalElemento.textContent = total.toFixed(2);
+    btnConfirmar.disabled = false;
 }
 
 function eliminarItem(index) {
@@ -92,14 +256,19 @@ function eliminarItem(index) {
     actualizarLista();
 }
 
-// Agregar producto al pedido
 document.querySelectorAll(".btn-agregar-producto").forEach(btn => {
     btn.addEventListener("click", function () {
-        const card = this.closest(".card-producto");
-        const id = card.dataset.id;
-        const nombre = card.dataset.nombre;
-        const precio = Number(card.dataset.precio);
+
+        const card     = this.closest(".card-producto");
+        const id       = card.dataset.id;
+        const nombre   = card.dataset.nombre;
+        const precio   = Number(card.dataset.precio);
         const cantidad = Number(card.querySelector(".cantidad").value);
+
+        if (cantidad <= 0 || isNaN(cantidad)) {
+            alert("La cantidad debe ser mayor a 0.");
+            return;
+        }
 
         const subtotal = precio * cantidad;
 
@@ -110,22 +279,48 @@ document.querySelectorAll(".btn-agregar-producto").forEach(btn => {
     });
 });
 
-// Registrar pedido (AQUÍ SE HARÁ EL POST A FUTURO)
-document.getElementById("confirmar-pedido").addEventListener("click", function () {
+//////////////////////////////////////
+//     REGISTRAR PEDIDO (POST)
+//////////////////////////////////////
+
+document.getElementById("confirmar-pedido").addEventListener("click", async function () {
+    const clienteId = inputClienteID.value;
+
+    if (!clienteId) {
+        alert("Debes seleccionar un cliente.");
+        return;
+    }
+
     if (pedido.length === 0) {
         alert("No hay productos en el pedido.");
         return;
     }
 
-    const cliente = document.getElementById("cliente").value;
+    try {
+        const resp = await fetch("/empleado/crear_pedido", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                cliente: clienteId,
+                detalles: pedido
+            })
+        });
 
-    if (!cliente) {
-        alert("Debes seleccionar un cliente.");
-        return;
+        const data = await resp.json();
+
+        if (data.ok) {
+            alert("Pedido registrado correctamente");
+            window.location.href = "/empleado/pedidos";
+        } else {
+            alert(data.msg || "Ocurrió un error al registrar el pedido.");
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert("Error de conexión al registrar el pedido.");
     }
-
-    alert("Pedido registrado correctamente (falta implementar backend).");
 });
+
 </script>
 
 {% endblock %}

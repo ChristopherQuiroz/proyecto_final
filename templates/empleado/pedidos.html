@@ -1,35 +1,67 @@
 {% extends "layout_empleado.html" %}
 
+{% block extra_css %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/empleado/pedidos.css') }}">
+{% endblock %}
+
 {% block empleado_content %}
-<h2 class="titulo-cat">Pedidos Asignados</h2>
 
-{% if pedidos_asignados %}
-<table class="tabla-pedidos">
-    <thead>
-        <tr>
-            <th>ID Pedido</th>
-            <th>Cliente</th>
-            <th>Total</th>
-            <th>Estado</th>
-            <th>Fecha</th>
-        </tr>
-    </thead>
+<div class="pedidos-asignados-container">
 
-    <tbody>
-        {% for p in pedidos_asignados %}
-        <tr>
-            <td>{{ p.id }}</td>
-            <td>{{ p.cliente }}</td>
-            <td>{{ p.total }} Bs</td>
-            <td>{{ p.estado }}</td>
-            <td>{{ p.fecha }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <h2>Pedidos</h2>
 
-{% else %}
-<p class="no-pedidos">No tienes pedidos asignados aún.</p>
-{% endif %}
+    {% if pedidos %}
+    <table class="tabla-pedidos">
+        <thead>
+            <tr>
+                <th>ID Pedido</th>
+                <th>Cliente</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Acciones</th>   <!-- 🔥 COLUMNA NUEVA -->
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for p in pedidos %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.cliente }}</td>
+                <td>{{ p.total }} Bs</td>
+                <td class="estado-{{ p.estado }}">{{ p.estado }}</td>
+                <td>{{ p.fecha }}</td>
+
+                <!-- 🔥 BOTONES SEGÚN ESTADO -->
+                <td>
+
+                    {% if p.estado == "pendiente" %}
+                        <a href="/empleado/pedidos/aceptar/{{ p.id }}" class="btn-accion aceptar">Aceptar</a>
+                        <a href="/empleado/pedidos/cancelar/{{ p.id }}" class="btn-accion cancelar">Cancelar</a>
+
+                    {% elif p.estado == "aceptado" %}
+                        <a href="/empleado/pedidos/entregar/{{ p.id }}" class="btn-accion entregar">Entregar</a>
+                        <a href="/empleado/pedidos/cancelar/{{ p.id }}" class="btn-accion cancelar">Cancelar</a>
+
+                    {% elif p.estado == "entregado" %}
+                        <span class="estado-finalizado">✔ Entregado</span>
+
+                    {% elif p.estado == "cancelado" %}
+                        <span class="estado-cancelado">✖ Cancelado</span>
+
+                    {% endif %}
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% else %}
+    <p class="no-pedidos">No hay pedidos registrados.</p>
+    {% endif %}
+
+</div>
 
 {% endblock %}

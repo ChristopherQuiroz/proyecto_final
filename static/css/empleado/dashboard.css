@@ -1,177 +1,209 @@
-/* -------- MINI ACCESOS RÁPIDOS ARRIBA -------- */
+/* ============================
+     PALETA / VARIABLES
+============================ */
+:root {
+    --color-primary: #A67B5B;
+    --color-primary-light: #D9C4A6;
+    --color-bg-light: #F7F1EB;
+    --color-dark: #352720;
+    --color-medium: #4a3b32;
+    --color-soft-border: #d8c9b8;
+
+    --card-bg: #E8DCC8;
+    --card-shadow: 0 4px 10px rgba(0,0,0,0.12);
+}
+
+/* ============================
+     ESPACIADO GLOBAL
+============================ */
+.dashboard-content {
+    margin-top: 90px;
+    padding-bottom: 40px;
+}
+
+/* ============================
+     TÍTULO PRINCIPAL
+============================ */
+h1.titulo-cat {
+    text-align: center;
+    font-size: 2.3rem;
+    margin-top: 90px !important;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--color-dark);
+}
+
+/* ============================
+     MINI ACCESOS RÁPIDOS
+============================ */
 .mini-quick-access {
     display: flex;
-    gap: 12px;
     justify-content: center;
-    padding: 10px 0;
-    margin-bottom: 25px;
+    gap: 14px;
+    margin: 25px 0;
 }
 
 .mini-quick-access a {
-    background: #D9C4A6;
-    padding: 8px 14px;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #4a3b32;
+    background: var(--color-primary-light);
+    padding: 9px 16px;
+    border-radius: 12px;
     text-decoration: none;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-    transition: 0.3s;
+    color: var(--color-dark);
+    font-weight: 600;
+    box-shadow: var(--card-shadow);
+    transition: .25s ease;
 }
 
 .mini-quick-access a:hover {
-    background: #c8b498;
+    background: #cdb89c;
     transform: translateY(-3px);
 }
 
-/* -------- TÍTULO -------- */
-.titulo-cat {
-    text-align: center;
-    font-weight: 700;
-    color: #352720;
-    margin-top: 20px;
-    margin-bottom: 10px;
-    font-size: 2rem;
-}
-
-/* -------- SUBTÍTULOS -------- */
+/* ============================
+     SUBTÍTULOS DE SECCIÓN
+============================ */
 .subtitulo {
-    margin-top: 35px;
-    margin-left: 20px;
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: #4a3b32;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-dark);
+    margin: 35px 0 10px 20px;
 }
 
-/* -------- STATS OVERVIEW -------- */
+/* ============================
+     RESUMEN GENERAL
+============================ */
 .stats-overview {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 20px;
-    
-    padding: 20px;
-}
-.dashboard-center {
     width: 90%;
-    max-width: 900px;  /* evita que se vea muy ancho */
-    margin: 0 auto;    /* centra horizontalmente */
+    max-width: 1100px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 22px;
 }
+
 .stat-card {
-    background: #E8DCC8;
-    padding: 20px;
-    border-radius: 12px;
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: 14px;
     text-align: center;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    box-shadow: var(--card-shadow);
+    transition: .25s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
 }
 
 .stat-card h3 {
     font-size: 1rem;
-    color: #594A3C;
-    margin-bottom: 10px;
-}
-
-.stat-card p {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #352720;
-}
-
-/* -------- ALERTAS -------- */
-.alert-section {
-    padding: 20px;
-}
-
-.alert-title {
-    font-size: 1.3rem;
-    color: #4a3b32;
-    margin-bottom: 10px;
-}
-
-.alert-box {
-    padding: 15px;
-    border-radius: 10px;
+    color: var(--color-medium);
     margin-bottom: 12px;
     font-weight: 600;
 }
 
-.alert-warning {
-    background: #F3D9A4;
-    color: #5c4422;
+.stat-card p {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-dark);
 }
 
+/* ============================
+     ALERTAS IMPORTANTES
+============================ */
+.alert-section {
+    width: 90%;
+    margin: auto;
+    margin-top: 30px;
+}
+
+.alert-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--color-medium);
+}
+
+.alert-box {
+    padding: 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    box-shadow: var(--card-shadow);
+}
+
+/* Alerta amarilla */
+.alert-warning {
+    background: #FFE8B3;
+    color: #654a1f;
+}
+
+/* Alerta verde */
 .alert-ok {
     background: #CDE8C3;
-    color: #355e2a;
+    color: #285c2c;
 }
 
-/* -------- TABLA Últimos pedidos -------- */
+/* ============================
+     TABLA — Pedidos Asignados
+============================ */
 .ultimos-table {
-    width: 95%;
-    margin: 20px auto;
+    width: 92%;
+    margin: 25px auto;
     border-collapse: collapse;
-    background: #F7F1EB;
-    border-radius: 12px;
+    background: var(--color-bg-light);
+    border-radius: 14px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.ultimos-table th, .ultimos-table td {
-    padding: 12px;
-    border-bottom: 1px solid #dcccb9;
-    color: #4a3b32;
+    box-shadow: var(--card-shadow);
 }
 
 .ultimos-table th {
-    background: #E2D2C3;
+    background: var(--color-primary-light);
+    padding: 14px;
+    color: var(--color-dark);
+    font-size: 1rem;
     font-weight: 700;
+}
+
+.ultimos-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--color-soft-border);
+    color: var(--color-medium);
 }
 
 .ultimos-table tr:hover {
-    background: #f2e8de;
-}
-/* Subtítulos */
-.subtitulo {
-    margin-top: 40px;
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #352720;
-    text-align: left;
-    margin-left: 10px;
+    background: #f1e7de;
 }
 
-/* Tablas TOP */
+/* ============================
+     TABLA – Productos poco stock
+============================ */
 .top-table {
-    width: 100%;
-    margin-top: 10px;
+    width: 92%;
+    margin: 20px auto;
     border-collapse: collapse;
-    background: #fff;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     border-radius: 12px;
     overflow: hidden;
+    background: white;
+    box-shadow: var(--card-shadow);
 }
 
 .top-table th {
-    background: #A67B5B;
+    background: var(--color-primary);
     color: white;
-    padding: 12px;
-    font-size: 1.1rem;
+    padding: 14px;
+    font-size: 1.15rem;
 }
 
 .top-table td {
     padding: 12px;
-    border-bottom: 1px solid #e5d5c5;
-    color: #352720;
+    border-bottom: 1px solid #e6d6c8;
 }
 
 .top-table tr:hover {
-    background: #f5ede5;
+    background: #f4ebe4;
 }
 
-/* ======= ESPACIADO PARA QUE EL NAV NO TAPE EL CONTENIDO ======= */
-.dashboard-content {
-    margin-top: 80px;   /* puedes subirlo a 90 o bajarlo a 70 según tu nav */
-}
-/* --- Empujar el título superior para que no lo tape el nav --- */
-h1.titulo-cat {
-    margin-top: 110px !important; /* Ajusta la altura según tu nav */
+/* Stock crítico en rojo */
+.stock-critico {
+    font-weight: 800;
+    color: #b91c1c;
 }

@@ -7,29 +7,161 @@
 
 {% block empleado_content %}
 
-<h1 class="titulo">Clientes</h1>
+<h1 class="titulo-clientes">Gestión de Clientes</h1>
 
-<div class="acciones">
-    <button class="btn-agregar" onclick="abrirModal()">Agregar Cliente</button>
+<div class="acciones-superiores">
+    <button class="btn-agregar" onclick="abrirModal()">+ Agregar Cliente</button>
 </div>
 
-<table class="tabla">
-     <tr>
-        <th>Nombre</th>
-        <th>Correo</th>
-        <th>Acción</th>
-    </tr>
+<!-- ==========================
+        BUSCADOR DE CLIENTES
+=========================== -->
+<div class="buscador-clientes">
+    <input type="text" id="buscarCliente" placeholder="Buscar por nombre o correo...">
+    <div id="sugerenciasClientes" class="sugerencias"></div>
+</div>
 
-    {% for i in range(1,10) %}
-    <tr>
-        <td>Cliente {{ i }}</td>
-        <td>correo{{ i }}@gmail.com</td>
-        <td>
-            <button class="btn-editar">Editar</button>
-            <button class="btn-borrar">Eliminar</button>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+<!-- TABLA DE CLIENTES -->
+<div class="tabla-contenedor">
+    <table class="tabla" id="tablaClientes">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Teléfono</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% if clientes %}
+                {% for c in clientes %}
+                <tr class="fila-cliente"
+                    data-nombre="{{ c.nombre | lower }}"
+                    data-correo="{{ c.correo | lower }}">
+
+                    <td>{{ c.nombre }}</td>
+                    <td>{{ c.correo }}</td>
+                    <td>{{ c.telefono if c.telefono else "—" }}</td>
+
+                    <td class="acciones-col">
+                        <button class="btn-editar" onclick="editarCliente('{{ c.id }}')">✏ Editar</button>
+                        <button class="btn-borrar" onclick="eliminarCliente('{{ c.id }}')">🗑 Eliminar</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4" class="sin-clientes">
+                        No hay clientes registrados aún.
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+
+<!-- ==============================
+        MODAL AGREGAR CLIENTE
+============================== -->
+<div class="modal" id="modalCliente">
+    <div class="modal-contenido">
+
+        <h2>Agregar Cliente</h2>
+
+        <form id="formCliente">
+            <label>Nombre:</label>
+            <input type="text" name="nombre" required>
+
+            <label>Correo:</label>
+            <input type="email" name="correo" required>
+
+            <label>Teléfono:</label>
+            <input type="text" name="telefono">
+
+            <div class="modal-acciones">
+                <button type="button" class="btn-cerrar" onclick="cerrarModal()">Cancelar</button>
+                <button type="submit" class="btn-guardar">Guardar</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<!-- ==============================
+        SCRIPT AUTOCOMPLETE
+============================== -->
+<script>
+const clientes = {{ clientes | tojson }};
+const inputBuscar = document.getElementById("buscarCliente");
+const sugerencias = document.getElementById("sugerenciasClientes");
+const filas = document.querySelectorAll(".fila-cliente");
+
+// Filtrar tabla + mostrar sugerencias
+inputBuscar.addEventListener("input", function () {
+    const texto = this.value.toLowerCase();
+    sugerencias.innerHTML = "";
+
+    // Filtrar tabla
+    filas.forEach(fila => {
+        const nombre = fila.dataset.nombre;
+        const correo = fila.dataset.correo;
+
+        fila.style.display = 
+            nombre.includes(texto) || correo.includes(texto)
+            ? ""
+            : "none";
+    });
+
+    // Autocomplete vacío
+    if (texto.trim() === "") {
+        sugerencias.style.display = "none";
+        return;
+    }
+
+    // Filtrar lista
+    const coincidencias = clientes.filter(c =>
+        c.nombre.toLowerCase().includes(texto) ||
+        c.correo.toLowerCase().includes(texto)
+    );
+
+    if (coincidencias.length === 0) {
+        sugerencias.style.display = "none";
+        return;
+    }
+
+    // Mostrar hasta 5 sugerencias
+    coincidencias.slice(0, 5).forEach(c => {
+        const item = document.createElement("div");
+        item.classList.add("sugerencia-item");
+        item.textContent = `${c.nombre} (${c.correo})`;
+
+        item.addEventListener("click", () => {
+            inputBuscar.value = c.nombre;
+
+            filas.forEach(fila => {
+                const match = fila.dataset.nombre === c.nombre.toLowerCase();
+                fila.style.display = match ? "" : "none";
+            });
+
+            sugerencias.style.display = "none";
+        });
+
+        sugerencias.appendChild(item);
+    });
+
+    sugerencias.style.display = "block";
+});
+
+// Cerrar si clic fuera
+document.addEventListener("click", e => {
+    if (!sugerencias.contains(e.target) && e.target !== inputBuscar) {
+        sugerencias.style.display = "none";
+    }
+});
+</script>
+
+<script src="{{ url_for('static', filename='js/empleado/clientes.js') }}"></script>
 
 {% endblock %}

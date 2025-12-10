@@ -1,69 +1,140 @@
-/* ====== TÍTULO ====== */
-.titulo-cat {
-    text-align: center;
-    margin-top: 90px; /* Evita que lo tape el navbar */
-    font-size: 2rem;
-    font-weight: 700;
-    color: #352720;
+/* ============================
+      CONTENEDOR GENERAL
+============================ */
+.pedidos-asignados-container {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    margin-top: 20px;
 }
 
-/* ====== TABLA DE PEDIDOS ====== */
+.pedidos-asignados-container h2 {
+    margin-bottom: 20px;
+    color: #352720;
+    font-size: 28px;
+    text-align: center;
+}
+
+
+/* ============================
+          TABLA
+============================ */
 .tabla-pedidos {
-    width: 90%;
-    margin: 30px auto;
+    width: 100%;
     border-collapse: collapse;
-    background: #ffffff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.20);
+    margin-top: 15px;
+}
+
+.tabla-pedidos th,
+.tabla-pedidos td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
 }
 
 .tabla-pedidos th {
-    background: #A67B5B;
+    background: #352720;
+    color: #fff;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+}
+
+.tabla-pedidos tr:hover {
+    background: #f7f3f0;
+}
+
+
+/* ============================
+        ESTADOS DEL PEDIDO
+============================ */
+.estado-pendiente {
+    color: #c77b00;
+    font-weight: bold;
+}
+
+.estado-aceptado {
+    color: #0066cc;
+    font-weight: bold;
+}
+
+.estado-entregado {
+    color: #2fa84f;
+    font-weight: bold;
+}
+
+.estado-cancelado {
+    color: #c0392b;
+    font-weight: bold;
+}
+
+.estado-finalizado {
+    background: #e7ffe8;
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: #2fa84f;
+    font-weight: 600;
+}
+
+.estado-cancelado {
+    background: #ffe7e7;
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: #c0392b;
+    font-weight: 600;
+}
+
+
+/* ============================
+       BOTONES DE ACCIÓN
+============================ */
+.btn-accion {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.2s ease-in-out;
+    display: inline-block;
+}
+
+/* ACEPTAR */
+.btn-accion.aceptar {
+    background: #f0b429;
     color: white;
-    padding: 14px;
-    font-size: 1rem;
+}
+.btn-accion.aceptar:hover {
+    background: #d99a1f;
 }
 
-.tabla-pedidos td {
-    padding: 12px;
-    color: #352720;
-    border-bottom: 1px solid #e4d5c7;
+/* ENTREGAR */
+.btn-accion.entregar {
+    background: #2fa84f;
+    color: white;
+}
+.btn-accion.entregar:hover {
+    background: #288c42;
 }
 
-/* Hover en filas */
-.tabla-pedidos tr:hover td {
-    background: #f8efe7;
+/* CANCELAR */
+.btn-accion.cancelar {
+    background: #c0392b;
+    color: white;
+}
+.btn-accion.cancelar:hover {
+    background: #a12f24;
 }
 
-/* SIN PEDIDOS */
+
+/* ============================
+       MENSAJE SIN PEDIDOS
+============================ */
 .no-pedidos {
+    padding: 15px;
+    background: #fdf2e9;
     text-align: center;
-    font-size: 1.3rem;
-    color: #5c4b3a;
-    margin-top: 40px;
-    font-style: italic;
-}
-
-/* ESTADOS */
-.estado {
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 0.9rem;
-}
-
-.estado.pendiente {
-    background: #F3D9A4;
-    color: #72521c;
-}
-
-.estado.completado {
-    background: #CDE8C3;
-    color: #2d5c20;
-}
-
-.estado.cancelado {
-    background: #F8C0AE;
-    color: #8b2f1c;
+    color: #a46422;
+    font-size: 18px;
+    border-radius: 10px;
+    margin-top: 10px;
 }

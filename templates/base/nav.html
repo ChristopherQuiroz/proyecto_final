@@ -6,9 +6,9 @@
 <div class="sidebar" id="sidebar">
     <button class="close-btn" onclick="toggleSidebar()">×</button>
 
-    <h3>{{ rol|upper }}</h3>
+    <h3 class="sidebar-title">{{ rol|upper }}</h3>
 
-    <ul>
+    <ul class="sidebar-menu">
         {% if rol == "empleado" %}
             <li><a href="/empleado">Inicio</a></li>
             <li><a href="/empleado/clientes">Gestionar Clientes</a></li>
@@ -29,7 +29,7 @@
 
         {% elif rol == "cliente" %}
             <li><a href="/cliente">Inicio</a></li>
-            <li><a href ="/cliente/categorias">Categorias</a></li>
+            <li><a href="/cliente/categorias">Categorias</a></li>
             <li><a href="/cliente/productos">Productos</a></li>
             <li><a href="/cliente/carrito">Carrito</a></li>
             <li><a href="/cliente/mis_pedidos">Mis pedidos</a></li>

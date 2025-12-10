@@ -9,10 +9,12 @@
 
 <h2 class="titulo-cat">Productos</h2>
 
+<!-- BUSCADOR -->
 <div class="buscador-agregar">
-    <input type="text" id="buscar-producto" placeholder="Buscar producto...">
+    <input type="text" id="buscar-producto" class="input-buscar" placeholder="Buscar producto...">
 </div>
 
+<!-- GRID DE PRODUCTOS -->
 <div class="productos-grid">
     {% for producto in productos %}
     <div class="card-producto">
@@ -25,37 +27,35 @@
              onerror="this.src='{{ default_img }}'">
 
         <div class="producto-info">
-            <h3>{{ producto.name }}</h3>
+            <h3 class="producto-nombre">{{ producto.name }}</h3>
 
-            <p><strong>Descripción:</strong> 
-                {{ producto.description[:50] if producto.description else '' }}...</p>
+            <p class="producto-descripcion">
+                {{ producto.description[:60] if producto.description else '' }}...
+            </p>
 
-            <p><strong>Precio:</strong> Bs 
-                {{ "%.2f"|format(producto.price|float) if producto.price else '0.00' }}</p>
+            <div class="producto-datos">
+                <span><strong>Bs:</strong> {{ "%.2f"|format(producto.price|float) }}</span>
+                <span><strong>Stock:</strong> {{ producto.quantity }}</span>
+                <span><strong>Cat:</strong> {{ producto.category }}</span>
+            </div>
 
-            <p><strong>Stock:</strong> {{ producto.quantity }}</p>
-
-            <p><strong>Categoría:</strong> {{ producto.category }}</p>
-
-            <p><strong>Estado:</strong>
-                <span class="status-{{ producto.status|lower }}">{{ producto.status }}</span>
+            <p class="producto-estado {{ producto.status|lower }}">
+                {{ producto.status }}
             </p>
         </div>
 
-        <!-- EMPLEADO SOLO VE, NO MODIFICA -->
-        <div class="acciones-cat">
-            <button disabled class="btn-editar disabled">Ver</button>
-        </div>
+        <button disabled class="btn-ver">Ver</button>
 
     </div>
     {% endfor %}
 </div>
 
+<!-- SCRIPT FILTRO -->
 <script>
 document.getElementById('buscar-producto').addEventListener('input', function(e) {
     const term = e.target.value.toLowerCase();
     document.querySelectorAll('.card-producto').forEach(card => {
-        const nombre = card.querySelector('h3').textContent.toLowerCase();
+        const nombre = card.querySelector('.producto-nombre').textContent.toLowerCase();
         card.style.display = nombre.includes(term) ? 'flex' : 'none';
     });
 });
