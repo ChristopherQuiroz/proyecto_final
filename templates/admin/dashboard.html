@@ -40,9 +40,9 @@
 <div class="alert-section">
     <h2 class="alert-title">Alertas Importantes</h2>
 
-    {% if stock_bajo|length > 0 %}
+    {% if stock_bajo > 0 %}
         <div class="alert-box alert-warning">
-            ⚠ Hay {{ stock_bajo|length }} productos con stock bajo.
+            ⚠ Hay {{ stock_bajo }} productos con stock bajo.
         </div>
     {% else %}
         <div class="alert-box alert-ok">

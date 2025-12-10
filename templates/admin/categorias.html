@@ -31,9 +31,18 @@
             <p>{{ cat.descripcion }}</p>
             <p><strong>Productos:</strong> {{ cat.cantidad_productos }}</p>
             <div class="acciones-cat">
-                <button class="btn-editar" data-nombre="{{ cat.name }}">Modificar</button>
-                <button class="btn-borrar" data-nombre="{{ cat.name }}">Eliminar</button>
-            </div>
+    <button class="btn-editar" 
+            data-id="{{ cat._id|string }}" 
+            data-nombre="{{ cat.name }}">
+        Modificar
+    </button>
+    <button class="btn-borrar" 
+            data-id="{{ cat._id|string }}" 
+            data-nombre="{{ cat.name }}">
+        Eliminar
+    </button>
+</div>
+
         </div>
     </div>
     {% endfor %}
@@ -73,10 +82,11 @@ function abrirModalAgregar() {
 // Editar categoría
 document.querySelectorAll('.btn-editar').forEach(btn => {
     btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
         const nombre = btn.dataset.nombre;
         modal.style.display = 'block';
         modalTitle.textContent = 'Modificar Categoría';
-        formModal.action = `/admin/categorias/editar/${nombre}`;
+        formModal.action = `/admin/categorias/editar/${id}`;
         const card = btn.closest('.card-producto');
         formModal.name.value = card.querySelector('h3').textContent;
         formModal.descripcion.value = card.querySelector('p').textContent;
@@ -86,9 +96,10 @@ document.querySelectorAll('.btn-editar').forEach(btn => {
 // Eliminar categoría
 document.querySelectorAll('.btn-borrar').forEach(btn => {
     btn.addEventListener('click', () => {
+         const id = btn.dataset.id;
         const nombre = btn.dataset.nombre;
         if (confirm(`¿Seguro que quieres borrar la categoría "${nombre}"?`)) {
-            window.location.href = `/admin/categorias/eliminar/${nombre}`;
+            window.location.href = `/admin/categorias/eliminar/${id}`;
         }
     });
 });

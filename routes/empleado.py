@@ -9,6 +9,11 @@ from entities.orderDetail import OrderDetail
 from entities.user import User
 from datetime import datetime
 from werkzeug.security import generate_password_hash
+from routes.services import verificar_y_ajustar_stock
+from werkzeug.utils import secure_filename
+import os
+
+UPLOAD_FOLDER = 'static/img/products'  # misma carpeta que admin
 
 bp_empleado = Blueprint("empleado", __name__, url_prefix="/empleado")
 db = dbConnection()
@@ -213,17 +218,18 @@ def empleado_eliminar_cliente(cliente_id):
     return {"ok": False, "msg": "Cliente no encontrado"}, 404
 
 # ============================================================
-#                CREAR PEDIDO
+#                CREAR / EDITAR PEDIDO
 # ============================================================
 @bp_empleado.route("/crear_pedido", methods=["GET", "POST"])
 @require_employee_or_admin
 def empleado_crear_pedido():
-    # Si es POST → registrar pedido (igual que ahora)
     if request.method == "POST":
         data = request.get_json()
-        order_id = data.get("order_id")  # <-- agregamos support para edición
+        order_id = data.get("order_id")  # Para edición
 
+        # -------------------------
         # EDITAR PEDIDO EXISTENTE
+        # -------------------------
         if order_id:
             order = db["orders"].find_one({"_id": ObjectId(order_id)})
             if not order:
@@ -233,12 +239,26 @@ def empleado_crear_pedido():
 
             total = 0
             nuevos_detalles = []
+            detalles_viejos = order.get("details", [])
+
             for p in data["detalles"]:
+                product_id = p["id"]
+                cantidad_nueva = int(p["cantidad"])
                 subtotal = float(p["subtotal"])
                 total += subtotal
+
+                # Buscar si existía antes
+                viejo = next((d for d in detalles_viejos if str(d["product_id"]) == product_id), None)
+                cantidad_vieja = int(viejo["quantity"]) if viejo else 0
+
+                diferencia = cantidad_vieja - cantidad_nueva  # >0 devuelve stock, <0 resta stock
+                ok, msg = verificar_y_ajustar_stock(product_id, diferencia)
+                if not ok:
+                    return {"ok": False, "msg": msg}, 400
+
                 nuevos_detalles.append({
-                    "product_id": ObjectId(p["id"]),
-                    "quantity": int(p["cantidad"]),
+                    "product_id": ObjectId(product_id),
+                    "quantity": cantidad_nueva,
                     "subtotal": subtotal
                 })
 
@@ -246,10 +266,11 @@ def empleado_crear_pedido():
                 {"_id": ObjectId(order_id)},
                 {"$set": {"details": nuevos_detalles, "total": total}}
             )
-
             return {"ok": True, "msg": "Pedido actualizado correctamente"}, 200
 
-        # CREAR NUEVO PEDIDO (igual que tu código actual)
+        # -------------------------
+        # CREAR NUEVO PEDIDO
+        # -------------------------
         cliente_id = data.get("cliente")
         productos = data.get("detalles")
         if not cliente_id:
@@ -259,12 +280,21 @@ def empleado_crear_pedido():
 
         detalles_convertidos = []
         total = 0
+
         for p in productos:
+            product_id = p["id"]
+            cantidad = int(p["cantidad"])
             subtotal = float(p["subtotal"])
             total += subtotal
+
+            # Reservar stock
+            ok, msg = verificar_y_ajustar_stock(product_id, -cantidad)
+            if not ok:
+                return {"ok": False, "msg": msg}, 400
+
             detalles_convertidos.append({
-                "product_id": ObjectId(p["id"]),
-                "quantity": int(p["cantidad"]),
+                "product_id": ObjectId(product_id),
+                "quantity": cantidad,
                 "subtotal": subtotal
             })
 
@@ -281,7 +311,9 @@ def empleado_crear_pedido():
         db["orders"].insert_one(order_obj)
         return {"ok": True, "msg": "Pedido registrado correctamente"}, 200
 
-    # GET → cargar formulario y productos
+    # -------------------------
+    # GET → cargar formulario
+    # -------------------------
     productos_db = list(db["products"].find({"status": "Disponible"}))
     clientes_db = list(db["users"].find({"role": "cliente"}))
 
@@ -327,6 +359,7 @@ def empleado_crear_pedido():
         rol="empleado",
         pedido=pedido_editar
     )
+
 
 # ============================================================
 #                PRODUCTOS 
@@ -488,8 +521,8 @@ def empleado_cancelar_pedido(order_id):
         return redirect("/empleado/pedidos")
 
     if order["status"] == "entregado":
-        flash("No puedes cancelar un pedido entregado", "error")
-        return redirect("/empleado/pedidos")
+        for item in order["productos"]:
+            verificar_y_ajustar_stock(item["product_id"], item["cantidad"])
 
     db["orders"].update_one(
         {"_id": ObjectId(order_id)},
