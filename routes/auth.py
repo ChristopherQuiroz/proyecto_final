@@ -40,19 +40,20 @@ def login():
         if not user.is_active:
             return render_template("auth/login.html", error="Cuenta desactivada")
 
-        # Guardar sesión
+        # ==============================
+        #      GUARDAR SESIÓN BIEN
+        # ==============================
         session['user_id'] = str(user_data['_id'])
-        session['usuario'] = user.username
+        session['username'] = user.username    # ← NOMBRE REAL
         session['role'] = user.role
         session['email'] = user.email
-
+        session['inicial'] = user.username[0].upper()  
         return redirect(get_redirect_url(user.role))
 
     return render_template("auth/login.html")
 
 
 #REGISTER
-
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -63,7 +64,8 @@ def register():
         
         # Validaciones básicas
         if not username or not email or not password:
-            return render_template("auth/register.html", error="Todos los campos son obligatorios")
+            return render_template("auth/register.html", 
+                                   error="Todos los campos son obligatorios")
         
         users_collection = db['users']
         
@@ -76,12 +78,14 @@ def register():
         })
         
         if existing_user:
-            return render_template("auth/register.html", 
-                                 error="El usuario o email ya están registrados")
+            return render_template(
+                "auth/register.html",
+                error="El usuario o email ya están registrados"
+            )
         
-        # Validar que solo un admin pueda crear otros admins
-        if role == 'admin' and ('role' not in session or session.get('role') != 'admin'):
-            role = 'cliente'  # Degradar a cliente si no es admin quien crea
+        # Solo admin puede crear admins
+        if role == 'admin' and session.get('role') != 'admin':
+            role = 'cliente'
         
         # Crear nuevo usuario
         new_user = {
@@ -96,16 +100,19 @@ def register():
         # Insertar en la base de datos
         result = users_collection.insert_one(new_user)
         
-        # Si el registro fue exitoso, iniciar sesión automáticamente
+        # Si el registro fue exitoso: iniciar sesión automáticamente
         if result.inserted_id:
             session['user_id'] = str(result.inserted_id)
-            session['usuario'] = username
-            session['role'] = role
+            session['username'] = username
             session['email'] = email
+            session['role'] = role
+            session['inicial'] = username[0].upper()
             
             return redirect(get_redirect_url(role))
+        
         else:
-            return render_template("auth/register.html", error="Error al crear usuario")
+            return render_template("auth/register.html",
+                                   error="Error al crear usuario")
     
     return render_template("auth/register.html")
 

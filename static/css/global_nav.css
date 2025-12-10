@@ -1,93 +1,226 @@
-/* ==== NAV SUPERIOR ==== */
+/* ============================
+   TOPBAR
+============================ */
 .topbar {
-    height: 55px;
-    padding: 0 20px;
-    background: #c89b78;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 60px;
+    background: #F4EBE2;
+    border-bottom: 2px solid #D3C3B8;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    border-bottom: 2px solid #8b5e48;
-    font-family: "Inter", sans-serif;
-    z-index: 10000;
-    position: fixed;
-    width: 100%;
-    top: 0;
-}
-
-.nav-title {
-    font-size: 18px;
-    font-weight: bold;
-    color: #3b2b22;
+    padding: 0 18px;
+    z-index: 2000;
 }
 
 .menu-btn {
     background: none;
     border: none;
     font-size: 26px;
-    color: #3b2b22;
     cursor: pointer;
+    color: #5A3E36;
 }
 
-/* ==== SIDEBAR ==== */
+.brand {
+    display: flex;
+    align-items: center;
+    margin-left: 12px;
+    gap: 6px;
+}
+
+.brand-icon {
+    font-size: 20px;
+}
+
+.brand-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #5A3E36;
+}
+
+/* ============================
+   SIDEBAR
+============================ */
 .sidebar {
     position: fixed;
-    top: 55px;
+    top: 0;
     left: -260px;
-    width: 260px;
-    height: calc(100vh - 55px);
-    background: #c89b78;
-    border-right: 2px solid #8b5e48;
-    padding: 20px;
-    transition: left 0.3s ease;
-    z-index: 99999;
-    overflow-y: auto;
+    width: 240px;
+    height: 100vh;
+    background: #5A3E36;
+    padding: 70px 20px 20px;
+    color: #F4EBE2;
+    transition: 0.35s ease;
+    z-index: 3000;
+    box-shadow: 4px 0 12px rgba(0,0,0,0.25);
 }
 
-/* Mostrar sidebar cuando esté activo */
 .sidebar.show {
     left: 0;
 }
 
 .close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
     background: none;
     border: none;
-    font-size: 28px;
-    color: #3b2b22;
+    font-size: 26px;
+    color: white;
     cursor: pointer;
-    position: absolute;
-    top: 10px;
-    right: 15px;
 }
 
-.sidebar h3 {
-    margin-top: 40px;
-    margin-bottom: 20px;
-    color: #3b2b22;
+/* PERFIL */
+.sidebar-header {
+    text-align: center;
+    margin-bottom: 26px;
 }
 
-/* Lista de opciones */
-.sidebar ul {
+.avatar {
+    width: 65px;
+    height: 65px;
+    margin: auto;
+    border-radius: 50%;
+    background: #6E4C41;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.role-label {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #F4EBE2;
+    cursor: pointer;
+}
+
+/* MENU */
+.sidebar-menu {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
-.sidebar li {
-    margin: 15px 0;
+.sidebar-menu li {
+    margin-bottom: 8px;
 }
 
-.sidebar a {
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     text-decoration: none;
-    color: #3b2b22;
-    font-size: 18px;
-    font-weight: bold;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #F7EDE4;
+    transition: 0.25s;
 }
 
-/* ==== CONTENIDO ==== */
-#mainContent {
-    margin-top: 70px;
-    transition: margin-left 0.3s ease;
+.sidebar-menu a:hover {
+    background: #6E4C41;
 }
-/* Evitar que el contenido quede debajo del navbar */
+
+/* LOGOUT */
+.logout-btn {
+    display: block;
+    margin-top: 30px;
+    background: #6E4C41;
+    padding: 10px;
+    border-radius: 8px;
+    color: white;
+    text-align: center;
+}
+
+/* ============================
+   MODAL DE PERFIL 
+============================ */
+.perfil-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(5px);
+    background: rgba(0, 0, 0, 0.25); /* más suave */
+    z-index: 5000;
+}
+
+.perfil-content {
+    background: #F8EFE7; /* beige más limpio */
+    width: 280px;
+    margin: 90px auto; /* << baja un poco el modal */
+    padding: 18px 22px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18); /* más profesional */
+    animation: fadeIn 0.25s ease;
+    border: none; /* eliminamos bordecito feo */
+}
+
+.perfil-close {
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+    color: #6D4C41;
+}
+
+.perfil-content h2 {
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 12px;
+    font-weight: 700;
+    color: #5A3E36;
+}
+
+.perfil-info p {
+    margin: 6px 0;
+    font-size: 14px;
+    color: #5A3E36;
+}
+/* FOTO DE PERFIL EN EL MODAL */
+.perfil-avatar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.perfil-avatar img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    border: 2px solid #E0D5CC;
+}
+
+/* Inicial si no hay foto */
+.perfil-inicial {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: #6D4C41;
+    color: white;
+    font-weight: 700;
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    border: 2px solid #E0D5CC;
+}
+
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Ajustar contenido debajo del nav */
 body {
-    padding-top: 70px;  /* Ajusta según altura de tu navbar */
+    padding-top: 60px !important;
 }

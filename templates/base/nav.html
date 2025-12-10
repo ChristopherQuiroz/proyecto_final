@@ -1,52 +1,119 @@
+<!-- ICONOS PROFESIONALES -->
+<script src="https://unpkg.com/phosphor-icons"></script>
+
+<!-- NAV SUPERIOR -->
 <nav class="topbar">
     <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-    <span class="nav-title">{{ rol|upper }}</span>
+
+    <div class="brand">
+        <span class="brand-icon">🍰</span>
+        <span class="brand-text">DulceMomento — {{ rol|upper }}</span>
+    </div>
 </nav>
 
-<div class="sidebar" id="sidebar">
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+
     <button class="close-btn" onclick="toggleSidebar()">×</button>
 
-    <h3 class="sidebar-title">{{ rol|upper }}</h3>
+    <!-- PERFIL EN SIDEBAR -->
+    <div class="sidebar-header">
 
+        <!-- AVATAR CON INICIAL DEL USUARIO REAL -->
+        <div class="avatar" onclick="openPerfil()">
+            {{ session.get('username','?')[0] | upper }}
+        </div>
+
+        <!-- NOMBRE DEL USUARIO (NO EL ROL) -->
+        <p class="role-label" onclick="openPerfil()">
+            {{ session.get('username', 'Usuario') }}
+        </p>
+    </div>
+
+    <!-- MENÚ -->
     <ul class="sidebar-menu">
+
         {% if rol == "empleado" %}
-            <li><a href="/empleado">Inicio</a></li>
-            <li><a href="/empleado/clientes">Gestionar Clientes</a></li>
-            <li><a href="/empleado/crear_pedido">Crear Pedido</a></li>
-            <li><a href="/empleado/pedidos">Ver Pedidos</a></li>
-            <li><a href="/empleado/productos">Productos</a></li>
-            <li><a href="/empleado/inventario">Inventario</a></li>
+            <li><a href="/empleado"><i class="ph-house"></i> Inicio</a></li>
+            <li><a href="/empleado/clientes"><i class="ph-users"></i> Clientes</a></li>
+            <li><a href="/empleado/crear_pedido"><i class="ph-shopping-cart"></i> Crear Pedido</a></li>
+            <li><a href="/empleado/pedidos"><i class="ph-clipboard-text"></i> Ver Pedidos</a></li>
+            <li><a href="/empleado/productos"><i class="ph-cookie"></i> Productos</a></li>
+            <li><a href="/empleado/inventario"><i class="ph-warehouse"></i> Inventario</a></li>
 
         {% elif rol == "admin" %}
-            <li><a href="/admin">Inicio</a></li>
-            <li><a href="/admin/clientes">Clientes</a></li>
-            <li><a href="/admin/empleados">Empleados</a></li>
-            <li><a href="/admin/categorias">Categorías</a></li>
-            <li><a href="/admin/productos">Productos</a></li>
-            <li><a href="/admin/pedidos">Pedidos</a></li>
-            <li><a href="/admin/inventario">Inventario</a></li>
-            <li><a href="/admin/reportes">Reportes</a></li>
+            <li><a href="/admin"><i class="ph-house"></i> Inicio</a></li>
+            <li><a href="/admin/clientes"><i class="ph-users"></i> Clientes</a></li>
+            <li><a href="/admin/empleados"><i class="ph-identification-badge"></i> Empleados</a></li>
+            <li><a href="/admin/categorias"><i class="ph-folders"></i> Categorías</a></li>
+            <li><a href="/admin/productos"><i class="ph-cookie"></i> Productos</a></li>
+            <li><a href="/admin/pedidos"><i class="ph-clipboard-text"></i> Pedidos</a></li>
+            <li><a href="/admin/inventario"><i class="ph-warehouse"></i> Inventario</a></li>
+            <li><a href="/admin/reportes"><i class="ph-chart-line"></i> Reportes</a></li>
 
         {% elif rol == "cliente" %}
-            <li><a href="/cliente">Inicio</a></li>
-            <li><a href="/cliente/categorias">Categorias</a></li>
-            <li><a href="/cliente/productos">Productos</a></li>
-            <li><a href="/cliente/carrito">Carrito</a></li>
-            <li><a href="/cliente/mis_pedidos">Mis pedidos</a></li>
-            <li><a href="/logout">Cerrar sesión</a></li>
+            <li><a href="/cliente"><i class="ph-house"></i> Inicio</a></li>
+            <li><a href="/cliente/categorias"><i class="ph-grid-four"></i> Categorías</a></li>
+            <li><a href="/cliente/productos"><i class="ph-cookie"></i> Productos</a></li>
+            <li><a href="/cliente/carrito"><i class="ph-shopping-bag"></i> Carrito</a></li>
+            <li><a href="/cliente/mis_pedidos"><i class="ph-clipboard-text"></i> Mis pedidos</a></li>
+            <li><a href="/logout"><i class="ph-sign-out"></i> Cerrar sesión</a></li>
 
         {% elif rol == "invitado" %}
-            <li><a href="/">Inicio</a></li>
-            <li><a href="/cliente/categorias">Categorias</a></li>
-            <li><a href="/cliente/productos">Productos</a></li>
-            <li><a href="/login">Iniciar Sesión</a></li>
-            <li><a href="/register">Registrarse</a></li>
+            <li><a href="/"><i class="ph-house"></i> Inicio</a></li>
+            <li><a href="/cliente/categorias"><i class="ph-grid-four"></i> Categorías</a></li>
+            <li><a href="/cliente/productos"><i class="ph-cookie"></i> Productos</a></li>
+            <li><a href="/login"><i class="ph-sign-in"></i> Iniciar Sesión</a></li>
+            <li><a href="/register"><i class="ph-user-plus"></i> Registrarse</a></li>
         {% endif %}
+
     </ul>
+
+    {% if rol != "invitado" %}
+    <a href="/logout" class="logout-btn">
+        <i class="ph-sign-out"></i> Cerrar Sesión
+    </a>
+    {% endif %}
+</aside>
+
+<!-- MODAL PERFIL -->
+<div id="perfilModal" class="perfil-modal">
+    <div class="perfil-content">
+        <span class="perfil-close" onclick="closePerfil()">&times;</span>
+
+        <!-- FOTO / INICIAL REAL -->
+        <div class="perfil-avatar">
+            {% if session.get('foto') %}
+                <img src="{{ session['foto'] }}" alt="Foto de perfil">
+            {% else %}
+                <div class="perfil-inicial">
+                    {{ session.get('username','?')[0] | upper }}
+                </div>
+            {% endif %}
+        </div>
+
+        <h2>Mi Perfil</h2>
+
+        <div class="perfil-info">
+            <p><strong>Usuario:</strong> {{ session.get('username', 'Invitado') }}</p>
+            <p><strong>Rol:</strong> {{ rol|upper }}</p>
+            <p><strong>Email:</strong> {{ session.get('email', 'No disponible') }}</p>
+            <p><strong>ID:</strong> {{ session.get('user_id', '---') }}</p>
+        </div>
+    </div>
 </div>
 
+<!-- SCRIPTS -->
 <script>
 function toggleSidebar() {
     document.getElementById("sidebar").classList.toggle("show");
+}
+
+function openPerfil() {
+    document.getElementById("perfilModal").style.display = "block";
+}
+
+function closePerfil() {
+    document.getElementById("perfilModal").style.display = "none";
 }
 </script>
